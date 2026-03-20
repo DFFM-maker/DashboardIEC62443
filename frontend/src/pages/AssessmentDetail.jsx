@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { api } from '../lib/api'
 import SeverityBadge from '../components/SeverityBadge'
@@ -9,6 +9,7 @@ const TABS = ['Overview', 'Asset', 'Finding', 'Zone', 'Report', 'Log']
 
 export default function AssessmentDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [assessment, setAssessment] = useState(null)
   const [stats, setStats] = useState(null)
   const [assets, setAssets] = useState([])
@@ -45,7 +46,11 @@ export default function AssessmentDetail() {
       setZones(z)
       setLogs(l)
       setScanning(a.status === 'scanning')
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      if (err.message?.includes('404') || err.message?.includes('non trovato')) {
+        navigate('/assessments', { replace: true })
+      } else { console.error(err) }
+    }
     finally { setLoading(false) }
   }
 
