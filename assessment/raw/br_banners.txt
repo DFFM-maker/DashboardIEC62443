@@ -1,0 +1,13 @@
+=== 172.16.224.201:50000 ===
+172.16.224.201: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.224.201] 50000 (?) open
+EVENT=19/03/2026 14:34:18|||226g|codeline|ID 02795|Cod. 1012|Remote connection : Local|supervisor|=== 172.16.224.202:50000 ===
+172.16.224.202: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.224.202] 50000 (?) open
+EVENT=19/03/2026 14:37:07|ORDINE_PLC_TEST||226g|codeline|ID 02792|Cod. 1012|Remote connection : Local|supervisor|=== 172.16.224.203:50000 ===
+172.16.224.203: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.224.203] 50000 (?) open
+EVENT=19/03/2026 14:35:20|||900 g|codeline|ID 02794|Cod. 1012|Remote connection : Local|supervisor|=== 172.16.224.204:50000 ===
+172.16.224.204: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.16.224.204] 50000 (?) open
+EVENT=19/03/2026 14:33:54|ORD1000||400 g|codeline|ID 02793|Cod. 1012|Remote connection : Local|supervisor|

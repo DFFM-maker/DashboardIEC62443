@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Thu Mar 19 08:33:00 2026 as: /usr/lib/nmap/nmap -sV -&#45;version-intensity 7 -p 80,443,4840,9600,44818,50000,8080,22,23,515 -&#45;max-rate 30 -T2 -oX /home/kali/assessment/raw/versions.xml 172.16.224.10,21,22,23,24,41,42,43,44,111,121,201,202,203,204 172.16.239.2,254 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -sV -&#45;version-intensity 7 -p 80,443,4840,9600,44818,50000,8080,22,23,515 -&#45;max-rate 30 -T2 -oX /home/kali/assessment/raw/versions.xml 172.16.224.10,21,22,23,24,41,42,43,44,111,121,201,202,203,204 172.16.239.2,254" start="1773923580" startstr="Thu Mar 19 08:33:00 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="10" services="22-23,80,443,515,4840,8080,9600,44818,50000"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.43" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:85" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.121" addrtype="ipv4"/>
+<address addr="00:50:FF:15:CA:46" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.203" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:10" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.2" addrtype="ipv4"/>
+<address addr="EC:EB:B8:B5:09:50" addrtype="mac" vendor="Hewlett Packard Enterprise &#xe2;&#x80;&#x93; WW Corporate Headquarters"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.41" addrtype="ipv4"/>
+<address addr="00:50:FF:14:C5:37" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.201" addrtype="ipv4"/>
+<address addr="00:60:65:AF:ED:F4" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.254" addrtype="ipv4"/>
+<address addr="00:C0:A2:09:60:C4" addrtype="mac" vendor="Intermedium A/S"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.202" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:0A" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.42" addrtype="ipv4"/>
+<address addr="00:50:FF:14:CF:D6" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.204" addrtype="ipv4"/>
+<address addr="00:60:65:AF:E7:56" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.44" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:6D" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1773923581" endtime="1773923587"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="128"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="128"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="128"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="128"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="128"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="128"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="128"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="128"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="128"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="128"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="329" rttvar="408" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925496"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" tunnel="ssl" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="44818"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="EtherNet-IP-2" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="3129" rttvar="908" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925497"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" tunnel="ssl" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="44818"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="EtherNet-IP-2" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="3464" rttvar="942" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925497"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" tunnel="ssl" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="44818"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="EtherNet-IP-2" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="3299" rttvar="726" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925496"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" tunnel="ssl" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="44818"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="EtherNet-IP-2" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="3252" rttvar="755" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925494"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.41" addrtype="ipv4"/>
+<address addr="00:50:FF:14:C5:37" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="60"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="60"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="60"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="60"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="60"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="60"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="60"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="60"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="60"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="60"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1416" rttvar="466" to="400000"/>
+</host>
+<host starttime="1773923582" endtime="1773925494"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.42" addrtype="ipv4"/>
+<address addr="00:50:FF:14:CF:D6" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="60"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="60"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="60"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="60"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="60"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="60"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="60"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="60"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="60"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="60"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1493" rttvar="404" to="400000"/>
+</host>
+<host starttime="1773923582" endtime="1773925495"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.43" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:85" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="60"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="60"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="60"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="60"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="60"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="60"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="60"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="60"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="60"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="60"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1487" rttvar="365" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925495"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.44" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:6D" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="60"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="60"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="60"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="60"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="60"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="60"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="60"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="60"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="60"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="60"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1521" rttvar="334" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925498"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" tunnel="ssl" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="44818"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="EtherNet-IP-2" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="3526" rttvar="860" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925494"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.121" addrtype="ipv4"/>
+<address addr="00:50:FF:15:CA:46" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" product="Dropbear sshd" version="2022.83" extrainfo="protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:matt_johnston:dropbear_ssh_server:2022.83</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="64"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="printer" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="64"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="64"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1592" rttvar="451" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925496"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.201" addrtype="ipv4"/>
+<address addr="00:60:65:AF:ED:F4" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="128"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="128"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="128"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="128"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="128"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="128"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="128"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="128"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="128"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="ibm-db2" servicefp="SF-Port50000-TCP:V=7.95%I=7%D=3/19%Time=69BBF17A%P=x86_64-pc-linux-gnu%r(NULL,64,&quot;\x02EVENT=19/03/2026\x2014:48:11\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GetRequest,64,&quot;\x02EVENT=19/03/2026\x2014:48:11\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2-das,64,&quot;\x02EVENT=19/03/2026\x2014:48:22\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2,64,&quot;\x02EVENT=19/03/2026\x2014:48:27\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(drda,64,&quot;\x02EVENT=19/03/2026\x2014:48:32\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GenericLines,64,&quot;\x02EVENT=19/03/2026\x2014:48:37\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(HTTPOptions,64,&quot;\x02EVENT=19/03/2026\x2014:48:42\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RTSPRequest,64,&quot;\x02EVENT=19/03/2026\x2014:48:47\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RPCCheck,64,&quot;\x02EVENT=19/03/2026\x2014:48:52\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSVersionBindReqTCP,64,&quot;\x02EVENT=19/03/2026\x2014:48:57\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSStatusRequestTCP,64,&quot;\x02EVENT=19/03/2026\x2014:49:02\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(Help,64,&quot;\x02EVENT=19/03/2026\x2014:49:07\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(SSLSessionReq,64,&quot;\x02EVENT=19/03/2026\x2014:49:14\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(TerminalServerCookie,64,&quot;\x02EVENT=19/03/2026\x2014:49:19\|\|\|226g\|codeline\|ID\x2002795\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;);" method="table" conf="3"/></port>
+</ports>
+<times srtt="1439" rttvar="539" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925495"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.202" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:0A" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="128"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="128"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="128"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="128"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="128"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="128"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="128"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="128"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="128"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="ibm-db2" servicefp="SF-Port50000-TCP:V=7.95%I=7%D=3/19%Time=69BBF225%P=x86_64-pc-linux-gnu%r(NULL,73,&quot;\x02EVENT=19/03/2026\x2014:53:45\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GetRequest,73,&quot;\x02EVENT=19/03/2026\x2014:53:45\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2-das,73,&quot;\x02EVENT=19/03/2026\x2014:53:55\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2,73,&quot;\x02EVENT=19/03/2026\x2014:54:00\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GenericLines,73,&quot;\x02EVENT=19/03/2026\x2014:54:05\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(HTTPOptions,73,&quot;\x02EVENT=19/03/2026\x2014:54:10\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RPCCheck,73,&quot;\x02EVENT=19/03/2026\x2014:54:15\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSVersionBindReqTCP,73,&quot;\x02EVENT=19/03/2026\x2014:54:20\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(Help,73,&quot;\x02EVENT=19/03/2026\x2014:54:25\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(TerminalServerCookie,73,&quot;\x02EVENT=19/03/2026\x2014:54:35\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(TLSSessionReq,73,&quot;\x02EVENT=19/03/2026\x2014:54:40\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(SMBProgNeg,73,&quot;\x02EVENT=19/03/2026\x2014:54:45\|ORDINE_PLC_TEST\|\|226g\|codeline\|ID\x2002792\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;);" method="table" conf="3"/></port>
+</ports>
+<times srtt="1452" rttvar="433" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925497"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.203" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:10" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="128"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="128"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="128"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="128"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="128"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="128"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="128"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="128"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="128"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="ibm-db2" servicefp="SF-Port50000-TCP:V=7.95%I=7%D=3/19%Time=69BBF29E%P=x86_64-pc-linux-gnu%r(NULL,65,&quot;\x02EVENT=19/03/2026\x2014:53:49\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GetRequest,65,&quot;\x02EVENT=19/03/2026\x2014:53:49\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2-das,65,&quot;\x02EVENT=19/03/2026\x2014:54:00\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2,65,&quot;\x02EVENT=19/03/2026\x2014:54:05\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(drda,65,&quot;\x02EVENT=19/03/2026\x2014:54:10\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GenericLines,65,&quot;\x02EVENT=19/03/2026\x2014:54:15\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(HTTPOptions,65,&quot;\x02EVENT=19/03/2026\x2014:54:20\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RTSPRequest,65,&quot;\x02EVENT=19/03/2026\x2014:54:25\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RPCCheck,65,&quot;\x02EVENT=19/03/2026\x2014:54:30\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSVersionBindReqTCP,65,&quot;\x02EVENT=19/03/2026\x2014:54:35\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSStatusRequestTCP,65,&quot;\x02EVENT=19/03/2026\x2014:54:40\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(Help,65,&quot;\x02EVENT=19/03/2026\x2014:54:45\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(SSLSessionReq,65,&quot;\x02EVENT=19/03/2026\x2014:54:52\|\|\|900\x20g\|codeline\|ID\x2002794\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;);" method="table" conf="3"/></port>
+</ports>
+<times srtt="1504" rttvar="438" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925497"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.204" addrtype="ipv4"/>
+<address addr="00:60:65:AF:E7:56" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="128"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="128"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="128"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="128"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="128"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="128"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="128"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="128"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="128"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="ibm-db2" servicefp="SF-Port50000-TCP:V=7.95%I=7%D=3/19%Time=69BBF349%P=x86_64-pc-linux-gnu%r(NULL,6C,&quot;\x02EVENT=19/03/2026\x2014:55:05\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GetRequest,6C,&quot;\x02EVENT=19/03/2026\x2014:55:05\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2-das,6C,&quot;\x02EVENT=19/03/2026\x2014:55:16\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(ibm-db2,6C,&quot;\x02EVENT=19/03/2026\x2014:55:21\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(drda,6C,&quot;\x02EVENT=19/03/2026\x2014:55:26\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(GenericLines,6C,&quot;\x02EVENT=19/03/2026\x2014:55:31\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(HTTPOptions,6C,&quot;\x02EVENT=19/03/2026\x2014:55:36\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RTSPRequest,6C,&quot;\x02EVENT=19/03/2026\x2014:55:41\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(RPCCheck,6C,&quot;\x02EVENT=19/03/2026\x2014:55:46\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSVersionBindReqTCP,6C,&quot;\x02EVENT=19/03/2026\x2014:55:51\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(DNSStatusRequestTCP,6C,&quot;\x02EVENT=19/03/2026\x2014:55:56\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(Help,6C,&quot;\x02EVENT=19/03/2026\x2014:56:01\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;)%r(SSLSessionReq,6C,&quot;\x02EVENT=19/03/2026\x2014:56:09\|ORD1000\|\|400\x20g\|codeline\|ID\x2002793\|Cod\.\x201012\|Remote\x20connection\x20:\x20Local\|supervisor\|\x03&quot;);" method="table" conf="3"/></port>
+</ports>
+<times srtt="1484" rttvar="372" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925496"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.2" addrtype="ipv4"/>
+<address addr="EC:EB:B8:B5:09:50" addrtype="mac" vendor="Hewlett Packard Enterprise &#xe2;&#x80;&#x93; WW Corporate Headquarters"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" product="Mocana NanoSSH" version="6.3" extrainfo="protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="23"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="telnet" servicefp="SF-Port23-TCP:V=7.95%I=7%D=3/19%Time=69BBF3F4%P=x86_64-pc-linux-gnu%r(NULL,372,&quot;\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\x1b\[2J\x1b\[\?7h\x1b\[1;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HHP\x20J9777A\x202530-8G\x20Switch\r\r\nSoftware\x20revision\x20YA\.16\.04\.0008\r\r\n\r\r\n\x20\(C\)\x20Copyright\x202017\x20Hewlett\x20Packard\x20Enterprise\x20Development\x20LP\r\n\r\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20RESTRICTED\x20RIGHTS\x20LEGEND\r\n\x20Confidential\x20computer\x20software\.\x20Valid\x20license\x20from\x20Hewlett\x20Packard\x20Enterprise\r\n\x20Development\x20LP\x20required\x20for\x20possession,\x20use\x20or\x20copying\.\x20Consistent\x20with\x20FAR\r\n\x2012\.211\x20and\x2012\.212,\x20Commercial\x20Computer\x20Software,\x20Computer\x20Software\r\n\x20Documentation,\x20and\x20Technical\x20Data\x20for\x20Commercial\x20Items\x20are\x20licensed\x20to\x20the\r\n\x20U\.S\.\x20Government\x20under\x20vendor&apos;s\x20standard\x20commercial\x20license\.\r\n\r\nWe&apos;d\x20like\x20to\x20keep\x20you\x20up\x20to\x20date\x20about:\r\n\x20\x20\*\x20Software\x20feature\x20updates\r\n\x20\x20\*\x20New\x20product\x20announcements\r\n\x20\x20\*\x20Special\x20events\r\nPlease\x20register\x20your\x20products\x20now\x20at:\x20\x20www\.hpe\.com/networking/register\r\n\r\n\x1b\[1;19r\x1b\[1;1H\x1b\[1;24r\x1b\[19;1H\x1b\[24;1HUsername:\x20\x1b\[\?25h\x1b\[24;1H\x1b\[\?25h\x1b\[24;11H\x1b\[24;11H\x1b\[\?25h\x1b\[24;11H&quot;)%r(GenericLines,553,&quot;\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\x1b\[2J\x1b\[\?7h\x1b\[1;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HHP\x20J9777A\x202530-8G\x20Switch\r\r\nSoftware\x20revision\x20YA\.16\.04\.0008\r\r\n\r\r\n\x20\(C\)\x20Copyright\x202017\x20Hewlett\x20Packard\x20Enterprise\x20Development\x20LP\r\n\r\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20RESTRICTED\x20RIGHTS\x20LEGEND\r\n\x20Confidential\x20computer\x20software\.\x20Valid\x20license\x20from\x20Hewlett\x20Packard\x20Enterprise\r\n\x20Development\x20LP\x20required\x20for\x20possession,\x20use\x20or\x20copying\.\x20Consistent\x20with\x20FAR\r\n\x2012\.211\x20and\x2012\.212,\x20Commercial\x20Computer\x20Software,\x20Computer\x20Software\r\n\x20Documentation,\x20and\x20Technical\x20Data\x20for\x20Commercial\x20Items\x20are\x20licensed\x20to\x20the\r\n\x20U\.S\.\x20Government\x20under\x20vendor&apos;s\x20standard\x20commercial\x20license\.\r\n\r\nWe&apos;d\x20like\x20to\x20keep\x20you\x20up\x20to\x20date\x20about:\r\n\x20\x20\*\x20Software\x20feature\x20updates\r\n\x20\x20\*\x20New\x20product\x20announcements\r\n\x20\x20\*\x20Special\x20events\r\nPlease\x20register\x20your\x20products\x20now\x20at:\x20\x20www\.hpe\.com/networking/register\r\n\r\n\x1b\[1;19r\x1b\[1;1H\x1b\[1;24r\x1b\[19;1H\x1b\[24;1HUsername:\x20\x1b\[\?25h\x1b\[24;1H\x1b\[\?25h\x1b\[24;11H\x1b\[24;11H\x1b\[\?25h\x1b\[24;11H\x1b\[1;1H\x1b\[\?25l\x1b\[24;1&quot;);" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="eHTTP" version="2.0" extrainfo="HP switch http config" devicetype="switch" method="probed" conf="10"><cpe>cpe:/a:ehttp:ehttp:2.0</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="0"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="0"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="closed" reason="reset" reason_ttl="0"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="0"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="0"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="0"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="1969" rttvar="724" to="400000"/>
+</host>
+<host starttime="1773923581" endtime="1773925495"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.254" addrtype="ipv4"/>
+<address addr="00:C0:A2:09:60:C4" addrtype="mac" vendor="Intermedium A/S"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Apache httpd" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service></port>
+<port protocol="tcp" portid="515"><state state="closed" reason="reset" reason_ttl="64"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="XBT BitTorrent tracker http interface" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="9600"><state state="closed" reason="reset" reason_ttl="64"/><service name="micromuse-ncpw" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="64"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50000"><state state="closed" reason="reset" reason_ttl="64"/><service name="ibm-db2" method="table" conf="3"/></port>
+</ports>
+<times srtt="2998" rttvar="551" to="400000"/>
+</host>
+<runstats><finished time="1773925498" timestr="Thu Mar 19 09:04:58 2026" summary="Nmap done at Thu Mar 19 09:04:58 2026; 17 IP addresses (17 hosts up) scanned in 1917.23 seconds" elapsed="1917.23" exit="success"/><hosts up="17" down="0" total="17"/>
+</runstats>
+</nmaprun>

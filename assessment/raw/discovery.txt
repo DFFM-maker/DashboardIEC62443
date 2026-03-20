@@ -1,0 +1,20 @@
+# Nmap 7.95 scan initiated Thu Mar 19 08:31:54 2026 as: /usr/lib/nmap/nmap -sn -oX /home/kali/assessment/raw/discovery.xml -oG /home/kali/assessment/raw/discovery.txt 172.16.224.0/20
+Host: 172.16.224.10 ()	Status: Up
+Host: 172.16.224.21 ()	Status: Up
+Host: 172.16.224.22 ()	Status: Up
+Host: 172.16.224.23 ()	Status: Up
+Host: 172.16.224.24 ()	Status: Up
+Host: 172.16.224.41 ()	Status: Up
+Host: 172.16.224.42 ()	Status: Up
+Host: 172.16.224.43 ()	Status: Up
+Host: 172.16.224.44 ()	Status: Up
+Host: 172.16.224.111 ()	Status: Up
+Host: 172.16.224.121 ()	Status: Up
+Host: 172.16.224.201 ()	Status: Up
+Host: 172.16.224.202 ()	Status: Up
+Host: 172.16.224.203 ()	Status: Up
+Host: 172.16.224.204 ()	Status: Up
+Host: 172.16.239.2 ()	Status: Up
+Host: 172.16.239.254 ()	Status: Up
+Host: 172.16.224.250 ()	Status: Up
+# Nmap done at Thu Mar 19 08:32:11 2026 -- 4096 IP addresses (18 hosts up) scanned in 16.26 seconds

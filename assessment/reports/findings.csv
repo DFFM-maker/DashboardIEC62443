@@ -1,0 +1,59 @@
+ID,IP Device,Modello,Titolo,Severita,CVSS Score,CVSS Vector,IEC 62443 SR,IEC 62443 Part,Evidence,Remediation,Priorita,Descrizione
+F-001,172.16.239.2,HPE Aruba Switch,Telnet abilitato su switch OT — protocollo di gestione in chiaro,Critical,9.1,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N,SR 3.1; SR 4.1; SR 7.7,3-3,"nmap 172.16.239.2: 23/tcp open telnet
+nmap -sV: 22/tcp Mocana NanoSSH 6.3, 80/tcp eHTTP v2.0 HP switch
+Telnet APERTO senza restrizioni dalla rete OT","1. Disabilitare Telnet: 'no telnet-server' sulla CLI dello switch
+2. Utilizzare esclusivamente SSH per la gestione remota
+3. Limitare accesso SSH via ACL alle sole workstation di management
+4. Configurare timeout sessione e banner di autenticazione",Immediate,"Il network switch HPE Aruba (172.16.239.2) ha il servizio Telnet (porta 23/tcp) attivo. Telnet trasmette tutte le comunicazioni incluse le credenziali di amministrazione in chiaro sulla rete. Un attaccante con accesso al segmento di rete puo intercettare e catturare le credenziali tramite passive sniffing, compromettendo l'intera infrastruttura di rete OT."
+F-002,"172.16.224.201, 202, 203, 204",B&R Idecon Bilance (4 device),Accesso non autenticato TCP/50000 con esposizione dati produzione in chiaro,Critical,9.8,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H,SR 2.1; SR 4.1; SR 4.2; SR 1.2,3-3,"nc 172.16.224.201 50000: EVENT=19/03/2026 14:34:18|||226g|codeline|ID 02795|Cod. 1012|Remote connection : Local|supervisor|
+nc 172.16.224.202 50000: EVENT=19/03/2026 14:37:07|ORDINE_PLC_TEST||226g|ID 02792|supervisor|
+nc 172.16.224.203 50000: EVENT=19/03/2026 14:35:20|||900 g|ID 02794|supervisor|
+nc 172.16.224.204 50000: EVENT=19/03/2026 14:33:54|ORD1000||400 g|ID 02793|supervisor|","1. Contattare Idecon/B&R per meccanismi di autenticazione disponibili
+2. ACL switch: accesso TCP/50000 solo da IP autorizzati
+3. Abilitare autenticazione applicativa se supportata dal protocollo
+4. Considerare tunnel VPN/TLS per le comunicazioni
+5. Non esporre questi device su segmenti non fidati",Immediate,"I 4 dispositivi B&R/Idecon espongono il servizio sulla porta TCP 50000 senza autenticazione. La connessione accettata restituisce immediatamente dati di produzione in tempo reale: pesi misurati (226g, 900g, 400g), codici ordine (ORDINE_PLC_TEST, ORD1000), ID dispositivo (02792-02795) e username 'supervisor'. Chiunque raggiunga la rete OT puo leggere e potenzialmente scrivere dati di processo senza credenziali."
+F-003,"172.16.224.21, 22, 23, 24, 111",Omron NJ501-1300 (5 PLC),Protocollo FINS esposto senza autenticazione (porta 9600/tcp),High,8.6,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L,SR 2.1; SR 1.1; SR 3.6,3-3,"nmap -p 9600 --script omron-info 172.16.224.21-24,111: tutti i 5 PLC rispondono al protocollo FINS
+Status .22: 0x0034 (Running + minor fault)
+Status .111: 0x0034 (Running + minor fault)","1. Configurare IP Filter su NJ501-1300 (Network Configurator > Security Settings > IP Filter)
+2. Limitare accesso FINS alle sole workstation engineering autorizzate
+3. Investigare causa minor fault su .22 e .111
+4. Verificare disponibilita FINS authentication nel firmware corrente",Immediate,"Tutti e 5 i PLC Omron NJ501-1300 espongono il protocollo FINS (Factory Interface Network Service) sulla porta 9600/tcp senza autenticazione nativa. FINS consente operazioni di lettura/scrittura sulla memoria del PLC, avvio/arresto del ciclo di programma e download/upload di firmware. Due PLC (.22 e .111) mostrano status 0x0034 (minor fault) che richiede investigazione."
+F-004,"172.16.224.21, 22, 23, 24, 111",Omron NJ501-1300 (5 PLC),EtherNet/IP esposto con device information disclosure (porta 44818),High,7.5,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N,SR 2.1; SR 4.1,3-3,"nmap enip-info: productName: NJ501-1300, vendor: Omron Corporation (47), revision: 2.9, serialNumber: 0x01c5f556, status: 0x0030 -- senza autenticazione","1. IP filtering per limitare accesso EtherNet/IP
+2. Verificare CIP Security (estensione ODVA per autenticazione/cifratura)
+3. Disabilitare risposta ENIP List Identity a host non autorizzati
+4. Implementare firewall industriale tra HMI Zone e PLC Zone",Short-term,"Tutti e 5 i PLC Omron espongono EtherNet/IP su porta 44818 TCP/UDP. Lo scan ENIP List Identity ha restituito senza autenticazione: vendor (Omron), modello (NJ501-1300), serial number, revision (2.9) e stato operativo. EtherNet/IP standard non prevede autenticazione delle connessioni implicite."
+F-005,"172.16.224.41, 42, 43, 44",Hakko GR-series HMI (4 device),Interfaccia web HMI accessibile via HTTP non cifrato (porta 80),High,6.5,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N,SR 4.1; SR 3.1,3-3,"curl http://172.16.224.41/: HTTP/1.0 404 Not Found, Server: GR-HTTPD Server/2.20 (nessun redirect HTTPS)","1. Verificare se il firmware Hakko GR supporta HTTPS e aggiornare
+2. Se HTTPS non supportato: implementare reverse proxy TLS
+3. ACL switch: limitare accesso HTTP alle sole workstation operatore
+4. Valutare VLAN dedicata HMI con accesso controllato",Short-term,Le 4 HMI Hakko espongono l'interfaccia web di supervisione unicamente via HTTP senza HTTPS. Credenziali di accesso e dati operativi vengono trasmessi in chiaro sulla rete OT. Server identificato: GR-HTTPD Server/2.20 (HTTP/1.0).
+F-006,172.16.224.10,Host Windows/VMware (non documentato),Host Windows con SMB e servizi VMware nel segmento OT industriale,High,7.8,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N,SR 1.1; SR 2.1; SR 7.7,3-3,"nmap 172.16.224.10: 135/tcp msrpc, 139/tcp netbios, 445/tcp microsoft-ds, 902/tcp VMware, 912/tcp VMware, 161/udp snmp open|filtered
+MAC: 14:4F:D7:CD:E5:44 (D&S Cable Industries HK)","1. Identificare immediatamente il device e il suo ruolo
+2. Se non necessario nel segmento OT: rimuovere o isolare in VLAN separata
+3. Disabilitare SMBv1, applicare patch Windows correnti
+4. Firewall: bloccare porte 135,139,445 dai device OT
+5. Se VMware ESXi: aggiornare e limitare accesso management
+6. Documentare nell'inventario ufficiale",Immediate,"Il dispositivo 172.16.224.10 espone porte tipiche Windows (135 MSRPC, 139 NetBIOS, 445 SMB) e VMware (902, 912). La presenza di SMB in una rete OT industriale e un vettore primario per ransomware e lateral movement. Il dispositivo non era documentato nell'inventario originale e la sua presenza non e giustificata."
+F-007,"172.16.224.111, 172.16.224.121",Omron NJ501-1300 + Hakko GR,Asset non documentati nell'inventario di sicurezza OT,Medium,5.3,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N,SR 1.1; SR 2.4,3-3,"nmap discovery: trovati .111 (MAC Omron 3C:F7:D1:80:3B:DB) e .121 (MAC Hakko 00:50:FF:15:CA:46)
+enip-info .111: NJ501-1300 rev 2.9, status 0x0034
+nmap .121: 22/tcp Dropbear sshd 2022.83, 515/tcp printer","1. Documentare entrambi i device nell'inventario ufficiale
+2. Investigare e risolvere il minor fault su .111
+3. Verificare su .121 se SSH/LPD sono configurazioni intenzionali
+4. Disabilitare servizi non necessari su .121
+5. Implementare discovery automatica periodica (es. nmap settimanale + alert nuovi host)",Short-term,"Due asset attivi nella rete OT non erano presenti nell'inventario originale: (1) 172.16.224.111 - PLC Omron NJ501-1300 rev 2.9 con minor fault (0x0034), identico agli altri 4 PLC. (2) 172.16.224.121 - HMI Hakko che espone SSH Dropbear 2022.83 e LPD printer (515), senza HTTP a differenza degli altri HMI. Asset non documentati sfuggono ai processi di patch management e hardening."
+F-008,"172.16.224.21, 22, 23, 24, 111",Omron NJ501-1300 (5 PLC),OPC-UA esposto — security mode non verificato (porta 4840),Medium,6.5,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N,SR 2.1; SR 4.1,3-3,nmap: 4840/tcp open opcua-tcp su tutti i 5 PLC. Script opcua-info non disponibile su Kali.,"1. Verificare con UA Expert il security mode configurato
+2. Configurare: Security Mode = Sign&Encrypt, Policy = Basic256Sha256
+3. Abilitare autenticazione con certificati X.509 o username/password
+4. Disabilitare security mode 'None'
+5. Configurare whitelist degli endpoint OPC-UA autorizzati",Short-term,Tutti e 5 i PLC espongono OPC-UA sulla porta 4840. La configurazione di default di OPC-UA potrebbe non richiedere autenticazione (security mode 'None'). Lo script NSE opcua-info non era disponibile per verifica approfondita. Raccomandato test manuale con UA Expert per verificare le security policy configurate.
+F-009,172.16.239.254,Secomea SiteManager,Porta HTTP 8080 aperta su router accesso remoto,Medium,5.0,CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L,SR 1.1; SR 2.1,3-3,"nmap: 443/tcp https + 8080/tcp http-proxy su 172.16.239.254
+curl 443/tcp: 401 Authorization Required (HTTPS con auth OK)
+curl 8080/tcp: non testato per prudenza","1. Verificare utilizzo porta 8080 (management? API? redirect?)
+2. Se non necessaria: disabilitarla dalla configurazione Secomea
+3. Se necessaria: assicurarsi richieda autenticazione forte
+4. Limitare accesso porta 8080 tramite ACL switch",Short-term,"Il router Secomea SiteManager espone la porta 8080 accessibile dalla rete OT interna. Se questa porta espone un'interfaccia non autenticata o con credenziali deboli potrebbe consentire la compromissione del gateway di accesso remoto, con impatto su tutta la catena di accesso esterno."
+F-010,172.16.224.121,Hakko GR (HMI .121),Servizi inattesi su HMI: SSH Dropbear e LPD printer (porta 515),Medium,4.3,CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N,SR 1.1; SR 2.4,3-3,"nmap .121: 22/tcp open Dropbear sshd 2022.83, 515/tcp open printer
+(altri HMI .41-.44: solo 80/tcp HTTP GR-HTTPD 2.20)","1. Investigare se SSH e LPD sono configurazioni intenzionali
+2. Se non necessari: disabilitarli dalla configurazione HMI
+3. Verificare integrita del sistema (possibile installazione non standard)
+4. Documentare le differenze rispetto agli altri HMI",Short-term,L'HMI Hakko 172.16.224.121 presenta un profilo di porte anomalo rispetto agli altri HMI: espone SSH (Dropbear sshd 2022.83) e LPD printer (515) invece di HTTP. Dropbear e una implementazione SSH lightweight per sistemi embedded Linux. La porta 515 LPD e obsoleta e storicamente vulnerabile. Il profilo diverso suggerisce una configurazione non standard o modificata.

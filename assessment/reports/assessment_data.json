@@ -1,0 +1,765 @@
+{
+  "assessment": "OT_Assessment_Impianto_X",
+  "date": "2026-03-19",
+  "assessor": "Nome Cognome",
+  "assets": [
+    {
+      "id": "A-001",
+      "ip": "172.16.224.21",
+      "mac": "3C:F7:D1:80:3A:8F",
+      "vendor": "Omron Corporation",
+      "device_type": "PLC",
+      "device_model": "NJ501-1300",
+      "firmware_version": "Rev 2.9",
+      "serial": "0x01c5f556",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": ""
+        },
+        {
+          "port": 4840,
+          "proto": "tcp",
+          "service": "OPC-UA",
+          "version": ""
+        },
+        {
+          "port": 9600,
+          "proto": "tcp",
+          "service": "FINS",
+          "version": ""
+        },
+        {
+          "port": 44818,
+          "proto": "tcp/udp",
+          "service": "EtherNet/IP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "EtherNet/IP",
+        "FINS",
+        "OPC-UA"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Running (0x0030)",
+      "notes": "PLC Omron documentato"
+    },
+    {
+      "id": "A-002",
+      "ip": "172.16.224.22",
+      "mac": "3C:F7:D1:80:4E:BB",
+      "vendor": "Omron Corporation",
+      "device_type": "PLC",
+      "device_model": "NJ501-1300",
+      "firmware_version": "Rev 2.9",
+      "serial": "0x01c5fbd8",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": ""
+        },
+        {
+          "port": 4840,
+          "proto": "tcp",
+          "service": "OPC-UA",
+          "version": ""
+        },
+        {
+          "port": 9600,
+          "proto": "tcp",
+          "service": "FINS",
+          "version": ""
+        },
+        {
+          "port": 44818,
+          "proto": "tcp/udp",
+          "service": "EtherNet/IP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "EtherNet/IP",
+        "FINS",
+        "OPC-UA"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Running+MinorFault (0x0034)",
+      "notes": "Status 0x0034: minor fault attivo"
+    },
+    {
+      "id": "A-003",
+      "ip": "172.16.224.23",
+      "mac": "3C:F7:D1:80:3A:85",
+      "vendor": "Omron Corporation",
+      "device_type": "PLC",
+      "device_model": "NJ501-1300",
+      "firmware_version": "Rev 2.9",
+      "serial": "0x01c5f551",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": ""
+        },
+        {
+          "port": 4840,
+          "proto": "tcp",
+          "service": "OPC-UA",
+          "version": ""
+        },
+        {
+          "port": 9600,
+          "proto": "tcp",
+          "service": "FINS",
+          "version": ""
+        },
+        {
+          "port": 44818,
+          "proto": "tcp/udp",
+          "service": "EtherNet/IP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "EtherNet/IP",
+        "FINS",
+        "OPC-UA"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Running (0x0030)",
+      "notes": ""
+    },
+    {
+      "id": "A-004",
+      "ip": "172.16.224.24",
+      "mac": "3C:F7:D1:80:4E:C9",
+      "vendor": "Omron Corporation",
+      "device_type": "PLC",
+      "device_model": "NJ501-1300",
+      "firmware_version": "Rev 2.9",
+      "serial": "0x01c5fbe5",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": ""
+        },
+        {
+          "port": 4840,
+          "proto": "tcp",
+          "service": "OPC-UA",
+          "version": ""
+        },
+        {
+          "port": 9600,
+          "proto": "tcp",
+          "service": "FINS",
+          "version": ""
+        },
+        {
+          "port": 44818,
+          "proto": "tcp/udp",
+          "service": "EtherNet/IP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "EtherNet/IP",
+        "FINS",
+        "OPC-UA"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Running (0x0030)",
+      "notes": ""
+    },
+    {
+      "id": "A-005",
+      "ip": "172.16.224.111",
+      "mac": "3C:F7:D1:80:3B:DB",
+      "vendor": "Omron Corporation",
+      "device_type": "PLC",
+      "device_model": "NJ501-1300",
+      "firmware_version": "Rev 2.9",
+      "serial": "0x01c5f5b8",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": ""
+        },
+        {
+          "port": 4840,
+          "proto": "tcp",
+          "service": "OPC-UA",
+          "version": ""
+        },
+        {
+          "port": 9600,
+          "proto": "tcp",
+          "service": "FINS",
+          "version": ""
+        },
+        {
+          "port": 44818,
+          "proto": "tcp/udp",
+          "service": "EtherNet/IP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "EtherNet/IP",
+        "FINS",
+        "OPC-UA"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Running+MinorFault (0x0034)",
+      "notes": "*** ASSET NON DOCUMENTATO - non in inventario originale ***"
+    },
+    {
+      "id": "A-006",
+      "ip": "172.16.224.41",
+      "mac": "00:50:FF:14:C5:37",
+      "vendor": "Hakko Electronics",
+      "device_type": "HMI",
+      "device_model": "GR-series",
+      "firmware_version": "GR-HTTPD 2.20",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 80,
+          "proto": "tcp",
+          "service": "HTTP",
+          "version": "GR-HTTPD 2.20"
+        }
+      ],
+      "protocols_ot": [
+        "HTTP"
+      ],
+      "zone": "Zone 2 - HMI Zone",
+      "criticality": "M",
+      "status": "Online",
+      "notes": ""
+    },
+    {
+      "id": "A-007",
+      "ip": "172.16.224.42",
+      "mac": "00:50:FF:14:CF:D6",
+      "vendor": "Hakko Electronics",
+      "device_type": "HMI",
+      "device_model": "GR-series",
+      "firmware_version": "GR-HTTPD 2.20",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 80,
+          "proto": "tcp",
+          "service": "HTTP",
+          "version": "GR-HTTPD 2.20"
+        }
+      ],
+      "protocols_ot": [
+        "HTTP"
+      ],
+      "zone": "Zone 2 - HMI Zone",
+      "criticality": "M",
+      "status": "Online",
+      "notes": ""
+    },
+    {
+      "id": "A-008",
+      "ip": "172.16.224.43",
+      "mac": "00:50:FF:15:37:85",
+      "vendor": "Hakko Electronics",
+      "device_type": "HMI",
+      "device_model": "GR-series",
+      "firmware_version": "GR-HTTPD 2.20",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 80,
+          "proto": "tcp",
+          "service": "HTTP",
+          "version": "GR-HTTPD 2.20"
+        }
+      ],
+      "protocols_ot": [
+        "HTTP"
+      ],
+      "zone": "Zone 2 - HMI Zone",
+      "criticality": "M",
+      "status": "Online",
+      "notes": ""
+    },
+    {
+      "id": "A-009",
+      "ip": "172.16.224.44",
+      "mac": "00:50:FF:15:37:6D",
+      "vendor": "Hakko Electronics",
+      "device_type": "HMI",
+      "device_model": "GR-series",
+      "firmware_version": "GR-HTTPD 2.20",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 80,
+          "proto": "tcp",
+          "service": "HTTP",
+          "version": "GR-HTTPD 2.20"
+        }
+      ],
+      "protocols_ot": [
+        "HTTP"
+      ],
+      "zone": "Zone 2 - HMI Zone",
+      "criticality": "M",
+      "status": "Online",
+      "notes": ""
+    },
+    {
+      "id": "A-010",
+      "ip": "172.16.224.121",
+      "mac": "00:50:FF:15:CA:46",
+      "vendor": "Hakko Electronics",
+      "device_type": "HMI",
+      "device_model": "GR-series (variante)",
+      "firmware_version": "Dropbear SSH 2022.83",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 22,
+          "proto": "tcp",
+          "service": "SSH",
+          "version": "Dropbear 2022.83"
+        },
+        {
+          "port": 515,
+          "proto": "tcp",
+          "service": "LPD Printer",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [],
+      "zone": "Zone 2 - HMI Zone",
+      "criticality": "M",
+      "status": "Online",
+      "notes": "*** ASSET NON DOCUMENTATO - SSH+LPD inattesi su HMI ***"
+    },
+    {
+      "id": "A-011",
+      "ip": "172.16.224.201",
+      "mac": "00:60:65:AF:ED:F4",
+      "vendor": "B&R Industrial Automation",
+      "device_type": "PLC/Bilancia",
+      "device_model": "B&R Idecon Codeline",
+      "firmware_version": "N/D",
+      "serial": "ID 02795",
+      "open_ports": [
+        {
+          "port": 50000,
+          "proto": "tcp",
+          "service": "Idecon TCP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "TCP/50000 Idecon"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "Banner espone dati prod: 226g|codeline|ID 02795|supervisor"
+    },
+    {
+      "id": "A-012",
+      "ip": "172.16.224.202",
+      "mac": "00:60:65:AF:EE:0A",
+      "vendor": "B&R Industrial Automation",
+      "device_type": "PLC/Bilancia",
+      "device_model": "B&R Idecon Codeline",
+      "firmware_version": "N/D",
+      "serial": "ID 02792",
+      "open_ports": [
+        {
+          "port": 50000,
+          "proto": "tcp",
+          "service": "Idecon TCP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "TCP/50000 Idecon"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "Banner espone dati prod: ORDINE_PLC_TEST|226g|ID 02792"
+    },
+    {
+      "id": "A-013",
+      "ip": "172.16.224.203",
+      "mac": "00:60:65:AF:EE:10",
+      "vendor": "B&R Industrial Automation",
+      "device_type": "PLC/Bilancia",
+      "device_model": "B&R Idecon Codeline",
+      "firmware_version": "N/D",
+      "serial": "ID 02794",
+      "open_ports": [
+        {
+          "port": 50000,
+          "proto": "tcp",
+          "service": "Idecon TCP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "TCP/50000 Idecon"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "Banner espone dati prod: 900g|codeline|ID 02794"
+    },
+    {
+      "id": "A-014",
+      "ip": "172.16.224.204",
+      "mac": "00:60:65:AF:E7:56",
+      "vendor": "B&R Industrial Automation",
+      "device_type": "PLC/Bilancia",
+      "device_model": "B&R Idecon Codeline",
+      "firmware_version": "N/D",
+      "serial": "ID 02793",
+      "open_ports": [
+        {
+          "port": 50000,
+          "proto": "tcp",
+          "service": "Idecon TCP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [
+        "TCP/50000 Idecon"
+      ],
+      "zone": "Zone 1 - PLC Zone",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "Banner espone dati prod: ORD1000|400g|ID 02793"
+    },
+    {
+      "id": "A-015",
+      "ip": "172.16.224.10",
+      "mac": "14:4F:D7:CD:E5:44",
+      "vendor": "D&S Cable Industries (HK)",
+      "device_type": "Workstation/Hypervisor",
+      "device_model": "Sconosciuto - VMware host",
+      "firmware_version": "N/D",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 135,
+          "proto": "tcp",
+          "service": "MSRPC",
+          "version": ""
+        },
+        {
+          "port": 139,
+          "proto": "tcp",
+          "service": "NetBIOS",
+          "version": ""
+        },
+        {
+          "port": 445,
+          "proto": "tcp",
+          "service": "SMB",
+          "version": ""
+        },
+        {
+          "port": 902,
+          "proto": "tcp",
+          "service": "VMware SOAP",
+          "version": ""
+        },
+        {
+          "port": 912,
+          "proto": "tcp",
+          "service": "VMware Auth",
+          "version": ""
+        },
+        {
+          "port": 161,
+          "proto": "udp",
+          "service": "SNMP",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [],
+      "zone": "Zone 4 - Unclassified",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "*** ASSET NON DOCUMENTATO - Windows+VMware in rete OT ***"
+    },
+    {
+      "id": "A-016",
+      "ip": "172.16.239.2",
+      "mac": "EC:EB:B8:B5:09:50",
+      "vendor": "Hewlett Packard Enterprise",
+      "device_type": "Network Switch",
+      "device_model": "HPE Aruba",
+      "firmware_version": "Mocana NanoSSH 6.3",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 22,
+          "proto": "tcp",
+          "service": "SSH",
+          "version": "Mocana NanoSSH 6.3"
+        },
+        {
+          "port": 23,
+          "proto": "tcp",
+          "service": "Telnet",
+          "version": ""
+        },
+        {
+          "port": 80,
+          "proto": "tcp",
+          "service": "HTTP",
+          "version": "eHTTP v2.0"
+        }
+      ],
+      "protocols_ot": [],
+      "zone": "Zone 3 - Infrastructure",
+      "criticality": "H",
+      "status": "Online",
+      "notes": "*** TELNET ABILITATO - accesso admin in chiaro ***"
+    },
+    {
+      "id": "A-017",
+      "ip": "172.16.239.254",
+      "mac": "00:C0:A2:09:60:C4",
+      "vendor": "Intermedium A/S (Secomea)",
+      "device_type": "Remote Access Router",
+      "device_model": "Secomea SiteManager",
+      "firmware_version": "Apache httpd",
+      "serial": "",
+      "open_ports": [
+        {
+          "port": 443,
+          "proto": "tcp",
+          "service": "HTTPS",
+          "version": "Apache"
+        },
+        {
+          "port": 8080,
+          "proto": "tcp",
+          "service": "HTTP Mgmt",
+          "version": ""
+        }
+      ],
+      "protocols_ot": [],
+      "zone": "Zone 3 - Remote Access",
+      "criticality": "H",
+      "status": "Online - Auth required",
+      "notes": "Router accesso remoto. Porta 8080 da verificare."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "device_ip": "172.16.239.2",
+      "device_model": "HPE Aruba Switch",
+      "title": "Telnet abilitato su switch OT — protocollo di gestione in chiaro",
+      "description": "Il network switch HPE Aruba (172.16.239.2) ha il servizio Telnet (porta 23/tcp) attivo. Telnet trasmette tutte le comunicazioni incluse le credenziali di amministrazione in chiaro sulla rete. Un attaccante con accesso al segmento di rete puo intercettare e catturare le credenziali tramite passive sniffing, compromettendo l'intera infrastruttura di rete OT.",
+      "cvss_score": 9.1,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "severity": "Critical",
+      "iec62443_sr": [
+        "SR 3.1",
+        "SR 4.1",
+        "SR 7.7"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap 172.16.239.2: 23/tcp open telnet\nnmap -sV: 22/tcp Mocana NanoSSH 6.3, 80/tcp eHTTP v2.0 HP switch\nTelnet APERTO senza restrizioni dalla rete OT",
+      "remediation": "1. Disabilitare Telnet: 'no telnet-server' sulla CLI dello switch\n2. Utilizzare esclusivamente SSH per la gestione remota\n3. Limitare accesso SSH via ACL alle sole workstation di management\n4. Configurare timeout sessione e banner di autenticazione",
+      "remediation_priority": "Immediate"
+    },
+    {
+      "id": "F-002",
+      "device_ip": "172.16.224.201, 202, 203, 204",
+      "device_model": "B&R Idecon Bilance (4 device)",
+      "title": "Accesso non autenticato TCP/50000 con esposizione dati produzione in chiaro",
+      "description": "I 4 dispositivi B&R/Idecon espongono il servizio sulla porta TCP 50000 senza autenticazione. La connessione accettata restituisce immediatamente dati di produzione in tempo reale: pesi misurati (226g, 900g, 400g), codici ordine (ORDINE_PLC_TEST, ORD1000), ID dispositivo (02792-02795) e username 'supervisor'. Chiunque raggiunga la rete OT puo leggere e potenzialmente scrivere dati di processo senza credenziali.",
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "severity": "Critical",
+      "iec62443_sr": [
+        "SR 2.1",
+        "SR 4.1",
+        "SR 4.2",
+        "SR 1.2"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nc 172.16.224.201 50000: EVENT=19/03/2026 14:34:18|||226g|codeline|ID 02795|Cod. 1012|Remote connection : Local|supervisor|\nnc 172.16.224.202 50000: EVENT=19/03/2026 14:37:07|ORDINE_PLC_TEST||226g|ID 02792|supervisor|\nnc 172.16.224.203 50000: EVENT=19/03/2026 14:35:20|||900 g|ID 02794|supervisor|\nnc 172.16.224.204 50000: EVENT=19/03/2026 14:33:54|ORD1000||400 g|ID 02793|supervisor|",
+      "remediation": "1. Contattare Idecon/B&R per meccanismi di autenticazione disponibili\n2. ACL switch: accesso TCP/50000 solo da IP autorizzati\n3. Abilitare autenticazione applicativa se supportata dal protocollo\n4. Considerare tunnel VPN/TLS per le comunicazioni\n5. Non esporre questi device su segmenti non fidati",
+      "remediation_priority": "Immediate"
+    },
+    {
+      "id": "F-003",
+      "device_ip": "172.16.224.21, 22, 23, 24, 111",
+      "device_model": "Omron NJ501-1300 (5 PLC)",
+      "title": "Protocollo FINS esposto senza autenticazione (porta 9600/tcp)",
+      "description": "Tutti e 5 i PLC Omron NJ501-1300 espongono il protocollo FINS (Factory Interface Network Service) sulla porta 9600/tcp senza autenticazione nativa. FINS consente operazioni di lettura/scrittura sulla memoria del PLC, avvio/arresto del ciclo di programma e download/upload di firmware. Due PLC (.22 e .111) mostrano status 0x0034 (minor fault) che richiede investigazione.",
+      "cvss_score": 8.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L",
+      "severity": "High",
+      "iec62443_sr": [
+        "SR 2.1",
+        "SR 1.1",
+        "SR 3.6"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap -p 9600 --script omron-info 172.16.224.21-24,111: tutti i 5 PLC rispondono al protocollo FINS\nStatus .22: 0x0034 (Running + minor fault)\nStatus .111: 0x0034 (Running + minor fault)",
+      "remediation": "1. Configurare IP Filter su NJ501-1300 (Network Configurator > Security Settings > IP Filter)\n2. Limitare accesso FINS alle sole workstation engineering autorizzate\n3. Investigare causa minor fault su .22 e .111\n4. Verificare disponibilita FINS authentication nel firmware corrente",
+      "remediation_priority": "Immediate"
+    },
+    {
+      "id": "F-004",
+      "device_ip": "172.16.224.21, 22, 23, 24, 111",
+      "device_model": "Omron NJ501-1300 (5 PLC)",
+      "title": "EtherNet/IP esposto con device information disclosure (porta 44818)",
+      "description": "Tutti e 5 i PLC Omron espongono EtherNet/IP su porta 44818 TCP/UDP. Lo scan ENIP List Identity ha restituito senza autenticazione: vendor (Omron), modello (NJ501-1300), serial number, revision (2.9) e stato operativo. EtherNet/IP standard non prevede autenticazione delle connessioni implicite.",
+      "cvss_score": 7.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "severity": "High",
+      "iec62443_sr": [
+        "SR 2.1",
+        "SR 4.1"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap enip-info: productName: NJ501-1300, vendor: Omron Corporation (47), revision: 2.9, serialNumber: 0x01c5f556, status: 0x0030 -- senza autenticazione",
+      "remediation": "1. IP filtering per limitare accesso EtherNet/IP\n2. Verificare CIP Security (estensione ODVA per autenticazione/cifratura)\n3. Disabilitare risposta ENIP List Identity a host non autorizzati\n4. Implementare firewall industriale tra HMI Zone e PLC Zone",
+      "remediation_priority": "Short-term"
+    },
+    {
+      "id": "F-005",
+      "device_ip": "172.16.224.41, 42, 43, 44",
+      "device_model": "Hakko GR-series HMI (4 device)",
+      "title": "Interfaccia web HMI accessibile via HTTP non cifrato (porta 80)",
+      "description": "Le 4 HMI Hakko espongono l'interfaccia web di supervisione unicamente via HTTP senza HTTPS. Credenziali di accesso e dati operativi vengono trasmessi in chiaro sulla rete OT. Server identificato: GR-HTTPD Server/2.20 (HTTP/1.0).",
+      "cvss_score": 6.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "severity": "High",
+      "iec62443_sr": [
+        "SR 4.1",
+        "SR 3.1"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "curl http://172.16.224.41/: HTTP/1.0 404 Not Found, Server: GR-HTTPD Server/2.20 (nessun redirect HTTPS)",
+      "remediation": "1. Verificare se il firmware Hakko GR supporta HTTPS e aggiornare\n2. Se HTTPS non supportato: implementare reverse proxy TLS\n3. ACL switch: limitare accesso HTTP alle sole workstation operatore\n4. Valutare VLAN dedicata HMI con accesso controllato",
+      "remediation_priority": "Short-term"
+    },
+    {
+      "id": "F-006",
+      "device_ip": "172.16.224.10",
+      "device_model": "Host Windows/VMware (non documentato)",
+      "title": "Host Windows con SMB e servizi VMware nel segmento OT industriale",
+      "description": "Il dispositivo 172.16.224.10 espone porte tipiche Windows (135 MSRPC, 139 NetBIOS, 445 SMB) e VMware (902, 912). La presenza di SMB in una rete OT industriale e un vettore primario per ransomware e lateral movement. Il dispositivo non era documentato nell'inventario originale e la sua presenza non e giustificata.",
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "severity": "High",
+      "iec62443_sr": [
+        "SR 1.1",
+        "SR 2.1",
+        "SR 7.7"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap 172.16.224.10: 135/tcp msrpc, 139/tcp netbios, 445/tcp microsoft-ds, 902/tcp VMware, 912/tcp VMware, 161/udp snmp open|filtered\nMAC: 14:4F:D7:CD:E5:44 (D&S Cable Industries HK)",
+      "remediation": "1. Identificare immediatamente il device e il suo ruolo\n2. Se non necessario nel segmento OT: rimuovere o isolare in VLAN separata\n3. Disabilitare SMBv1, applicare patch Windows correnti\n4. Firewall: bloccare porte 135,139,445 dai device OT\n5. Se VMware ESXi: aggiornare e limitare accesso management\n6. Documentare nell'inventario ufficiale",
+      "remediation_priority": "Immediate"
+    },
+    {
+      "id": "F-007",
+      "device_ip": "172.16.224.111, 172.16.224.121",
+      "device_model": "Omron NJ501-1300 + Hakko GR",
+      "title": "Asset non documentati nell'inventario di sicurezza OT",
+      "description": "Due asset attivi nella rete OT non erano presenti nell'inventario originale: (1) 172.16.224.111 - PLC Omron NJ501-1300 rev 2.9 con minor fault (0x0034), identico agli altri 4 PLC. (2) 172.16.224.121 - HMI Hakko che espone SSH Dropbear 2022.83 e LPD printer (515), senza HTTP a differenza degli altri HMI. Asset non documentati sfuggono ai processi di patch management e hardening.",
+      "cvss_score": 5.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+      "severity": "Medium",
+      "iec62443_sr": [
+        "SR 1.1",
+        "SR 2.4"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap discovery: trovati .111 (MAC Omron 3C:F7:D1:80:3B:DB) e .121 (MAC Hakko 00:50:FF:15:CA:46)\nenip-info .111: NJ501-1300 rev 2.9, status 0x0034\nnmap .121: 22/tcp Dropbear sshd 2022.83, 515/tcp printer",
+      "remediation": "1. Documentare entrambi i device nell'inventario ufficiale\n2. Investigare e risolvere il minor fault su .111\n3. Verificare su .121 se SSH/LPD sono configurazioni intenzionali\n4. Disabilitare servizi non necessari su .121\n5. Implementare discovery automatica periodica (es. nmap settimanale + alert nuovi host)",
+      "remediation_priority": "Short-term"
+    },
+    {
+      "id": "F-008",
+      "device_ip": "172.16.224.21, 22, 23, 24, 111",
+      "device_model": "Omron NJ501-1300 (5 PLC)",
+      "title": "OPC-UA esposto — security mode non verificato (porta 4840)",
+      "description": "Tutti e 5 i PLC espongono OPC-UA sulla porta 4840. La configurazione di default di OPC-UA potrebbe non richiedere autenticazione (security mode 'None'). Lo script NSE opcua-info non era disponibile per verifica approfondita. Raccomandato test manuale con UA Expert per verificare le security policy configurate.",
+      "cvss_score": 6.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "severity": "Medium",
+      "iec62443_sr": [
+        "SR 2.1",
+        "SR 4.1"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap: 4840/tcp open opcua-tcp su tutti i 5 PLC. Script opcua-info non disponibile su Kali.",
+      "remediation": "1. Verificare con UA Expert il security mode configurato\n2. Configurare: Security Mode = Sign&Encrypt, Policy = Basic256Sha256\n3. Abilitare autenticazione con certificati X.509 o username/password\n4. Disabilitare security mode 'None'\n5. Configurare whitelist degli endpoint OPC-UA autorizzati",
+      "remediation_priority": "Short-term"
+    },
+    {
+      "id": "F-009",
+      "device_ip": "172.16.239.254",
+      "device_model": "Secomea SiteManager",
+      "title": "Porta HTTP 8080 aperta su router accesso remoto",
+      "description": "Il router Secomea SiteManager espone la porta 8080 accessibile dalla rete OT interna. Se questa porta espone un'interfaccia non autenticata o con credenziali deboli potrebbe consentire la compromissione del gateway di accesso remoto, con impatto su tutta la catena di accesso esterno.",
+      "cvss_score": 5.0,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "severity": "Medium",
+      "iec62443_sr": [
+        "SR 1.1",
+        "SR 2.1"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap: 443/tcp https + 8080/tcp http-proxy su 172.16.239.254\ncurl 443/tcp: 401 Authorization Required (HTTPS con auth OK)\ncurl 8080/tcp: non testato per prudenza",
+      "remediation": "1. Verificare utilizzo porta 8080 (management? API? redirect?)\n2. Se non necessaria: disabilitarla dalla configurazione Secomea\n3. Se necessaria: assicurarsi richieda autenticazione forte\n4. Limitare accesso porta 8080 tramite ACL switch",
+      "remediation_priority": "Short-term"
+    },
+    {
+      "id": "F-010",
+      "device_ip": "172.16.224.121",
+      "device_model": "Hakko GR (HMI .121)",
+      "title": "Servizi inattesi su HMI: SSH Dropbear e LPD printer (porta 515)",
+      "description": "L'HMI Hakko 172.16.224.121 presenta un profilo di porte anomalo rispetto agli altri HMI: espone SSH (Dropbear sshd 2022.83) e LPD printer (515) invece di HTTP. Dropbear e una implementazione SSH lightweight per sistemi embedded Linux. La porta 515 LPD e obsoleta e storicamente vulnerabile. Il profilo diverso suggerisce una configurazione non standard o modificata.",
+      "cvss_score": 4.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "severity": "Medium",
+      "iec62443_sr": [
+        "SR 1.1",
+        "SR 2.4"
+      ],
+      "iec62443_part": "3-3",
+      "evidence": "nmap .121: 22/tcp open Dropbear sshd 2022.83, 515/tcp open printer\n(altri HMI .41-.44: solo 80/tcp HTTP GR-HTTPD 2.20)",
+      "remediation": "1. Investigare se SSH e LPD sono configurazioni intenzionali\n2. Se non necessari: disabilitarli dalla configurazione HMI\n3. Verificare integrita del sistema (possibile installazione non standard)\n4. Documentare le differenze rispetto agli altri HMI",
+      "remediation_priority": "Short-term"
+    }
+  ]
+}

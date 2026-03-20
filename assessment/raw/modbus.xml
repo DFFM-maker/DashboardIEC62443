@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Thu Mar 19 08:38:10 2026 as: /usr/lib/nmap/nmap -p 502 -&#45;script modbus-discover -oX /home/kali/assessment/raw/modbus.xml 172.16.224.0/20 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -p 502 -&#45;script modbus-discover -oX /home/kali/assessment/raw/modbus.xml 172.16.224.0/20" start="1773923890" startstr="Thu Mar 19 08:38:10 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="1" services="502"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.2" addrtype="ipv4"/>
+<address addr="EC:EB:B8:B5:09:50" addrtype="mac" vendor="Hewlett Packard Enterprise &#xe2;&#x80;&#x93; WW Corporate Headquarters"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.42" addrtype="ipv4"/>
+<address addr="00:50:FF:14:CF:D6" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.43" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:85" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.44" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:6D" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.202" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:0A" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.204" addrtype="ipv4"/>
+<address addr="00:60:65:AF:E7:56" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.254" addrtype="ipv4"/>
+<address addr="00:C0:A2:09:60:C4" addrtype="mac" vendor="Intermedium A/S"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.41" addrtype="ipv4"/>
+<address addr="00:50:FF:14:C5:37" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.121" addrtype="ipv4"/>
+<address addr="00:50:FF:15:CA:46" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.201" addrtype="ipv4"/>
+<address addr="00:60:65:AF:ED:F4" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.203" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:10" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="128"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="120" rttvar="3826" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="3466" rttvar="1328" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="4390" rttvar="4141" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="2610" rttvar="3856" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="3057" rttvar="3778" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.41" addrtype="ipv4"/>
+<address addr="00:50:FF:14:C5:37" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="60"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1211" rttvar="2871" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.42" addrtype="ipv4"/>
+<address addr="00:50:FF:14:CF:D6" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="60"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1096" rttvar="3760" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.43" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:85" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="60"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1258" rttvar="3796" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.44" addrtype="ipv4"/>
+<address addr="00:50:FF:15:37:6D" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="60"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1156" rttvar="1187" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="2960" rttvar="1409" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.121" addrtype="ipv4"/>
+<address addr="00:50:FF:15:CA:46" addrtype="mac" vendor="Hakko Electronics"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1233" rttvar="1726" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.201" addrtype="ipv4"/>
+<address addr="00:60:65:AF:ED:F4" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="128"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1181" rttvar="3760" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.202" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:0A" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="128"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1317" rttvar="3763" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.203" addrtype="ipv4"/>
+<address addr="00:60:65:AF:EE:10" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="128"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1338" rttvar="2879" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.204" addrtype="ipv4"/>
+<address addr="00:60:65:AF:E7:56" addrtype="mac" vendor="B&amp;R Industrial Automation GmbH"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="128"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1154" rttvar="2257" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.2" addrtype="ipv4"/>
+<address addr="EC:EB:B8:B5:09:50" addrtype="mac" vendor="Hewlett Packard Enterprise &#xe2;&#x80;&#x93; WW Corporate Headquarters"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="0"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="1217" rttvar="2879" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.239.254" addrtype="ipv4"/>
+<address addr="00:C0:A2:09:60:C4" addrtype="mac" vendor="Intermedium A/S"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="3195" rttvar="3988" to="100000"/>
+</host>
+<host starttime="1773923899" endtime="1773923899"><status state="up" reason="localhost-response" reason_ttl="0"/>
+<address addr="172.16.224.250" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+</ports>
+<times srtt="34" rttvar="5000" to="100000"/>
+</host>
+<runstats><finished time="1773923899" timestr="Thu Mar 19 08:38:19 2026" summary="Nmap done at Thu Mar 19 08:38:19 2026; 4096 IP addresses (18 hosts up) scanned in 9.94 seconds" elapsed="9.94" exit="success"/><hosts up="18" down="4078" total="4096"/>
+</runstats>
+</nmaprun>

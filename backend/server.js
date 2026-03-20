@@ -1,0 +1,65 @@
+require('dotenv').config()
+const express = require('express')
+
+const http = require('http')
+const cors = require('cors')
+const path = require('path')
+const { Server } = require('socket.io')
+
+const app = express()
+const server = http.createServer(app)
+
+const io = new Server(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+})
+
+// Middleware
+app.use(cors({ origin: '*' }))
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+
+// Static assets (logos)
+app.use('/assets', express.static(path.join(__dirname, '../assets')))
+
+// Routes
+const assessmentsRoute = require('./routes/assessments')
+const { setIo } = assessmentsRoute
+setIo(io)
+
+app.use('/api/assessments', assessmentsRoute.router)
+app.use('/api/assets', require('./routes/assets'))
+app.use('/api/findings', require('./routes/findings'))
+app.use('/api/clients', require('./routes/clients'))
+app.use('/api/advisories', require('./routes/advisories'))
+app.use('/api/templates', require('./routes/templates'))
+app.use('/api/export', require('./routes/export'))
+app.use('/api/import', require('./routes/export'))
+app.use('/api/zones', require('./routes/zones'))
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, version: '2.0.0', timestamp: new Date() })
+})
+
+// Socket.io
+io.on('connection', (socket) => {
+  console.log('Client connesso:', socket.id)
+
+  socket.on('join', (assessmentId) => {
+    socket.join(assessmentId)
+    console.log(`Socket ${socket.id} joined room: ${assessmentId}`)
+  })
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnesso:', socket.id)
+  })
+})
+
+const PORT = process.env.PORT || 3001
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Tecnopack OT Security Dashboard v2.0`)
+  console.log(`Backend API → http://0.0.0.0:${PORT}`)
+  console.log(`Pronto.`)
+})
+
+module.exports = { app, io }

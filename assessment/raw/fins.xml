@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Thu Mar 19 09:01:35 2026 as: /usr/lib/nmap/nmap -p 9600 -&#45;script omron-info -oX /home/kali/assessment/raw/fins.xml 172.16.224.21,22,23,24,111 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -p 9600 -&#45;script omron-info -oX /home/kali/assessment/raw/fins.xml 172.16.224.21,22,23,24,111" start="1773925295" startstr="Thu Mar 19 09:01:35 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="1" services="9600"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1773925302" endtime="1773925302"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.21" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:8F" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/><script id="omron-info" output="&#xa;  Response Code: Unknown Response Code"><elem key="Response Code">Unknown Response Code</elem>
+</script></port>
+</ports>
+<times srtt="4303" rttvar="3832" to="100000"/>
+</host>
+<host starttime="1773925302" endtime="1773925302"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.22" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:BB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/><script id="omron-info" output="&#xa;  Response Code: Unknown Response Code"><elem key="Response Code">Unknown Response Code</elem>
+</script></port>
+</ports>
+<times srtt="2682" rttvar="3851" to="100000"/>
+</host>
+<host starttime="1773925302" endtime="1773925302"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.23" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3A:85" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/><script id="omron-info" output="&#xa;  Response Code: Unknown Response Code"><elem key="Response Code">Unknown Response Code</elem>
+</script></port>
+</ports>
+<times srtt="2538" rttvar="3842" to="100000"/>
+</host>
+<host starttime="1773925302" endtime="1773925302"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.24" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:4E:C9" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/><script id="omron-info" output="&#xa;  Response Code: Unknown Response Code"><elem key="Response Code">Unknown Response Code</elem>
+</script></port>
+</ports>
+<times srtt="2506" rttvar="3839" to="100000"/>
+</host>
+<host starttime="1773925302" endtime="1773925302"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.111" addrtype="ipv4"/>
+<address addr="3C:F7:D1:80:3B:DB" addrtype="mac" vendor="Omron"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9600"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="fins" method="probed" conf="10"/><script id="omron-info" output="&#xa;  Response Code: Unknown Response Code"><elem key="Response Code">Unknown Response Code</elem>
+</script></port>
+</ports>
+<times srtt="2473" rttvar="3842" to="100000"/>
+</host>
+<runstats><finished time="1773925302" timestr="Thu Mar 19 09:01:42 2026" summary="Nmap done at Thu Mar 19 09:01:42 2026; 5 IP addresses (5 hosts up) scanned in 6.75 seconds" elapsed="6.75" exit="success"/><hosts up="5" down="0" total="5"/>
+</runstats>
+</nmaprun>

@@ -1,0 +1,113 @@
+=== 172.16.224.41 ===
+*   Trying 172.16.224.41:80...
+* Established connection to 172.16.224.41 (172.16.224.41 port 80) from 172.16.224.250 port 48566 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 172.16.224.41
+> User-Agent: curl/8.17.0
+> Accept: */*
+> 
+* Request completely sent off
+* HTTP 1.0, assume close after body
+< HTTP/1.0 404 Not Found
+< Server: GR-HTTPD Server/2.20
+< Content-Type: text/html
+< 
+{ [127 bytes data]
+* shutting down connection #0
+<HEAD><TITLE>404 Not found</TITLE></HEAD>
+<BODY><H1>404 Not Found</H1>The requested URL was not found on this server.<P></BODY>
+=== 172.16.224.42 ===
+*   Trying 172.16.224.42:80...
+* Established connection to 172.16.224.42 (172.16.224.42 port 80) from 172.16.224.250 port 36998 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 172.16.224.42
+> User-Agent: curl/8.17.0
+> Accept: */*
+> 
+* Request completely sent off
+* HTTP 1.0, assume close after body
+< HTTP/1.0 404 Not Found
+< Server: GR-HTTPD Server/2.20
+< Content-Type: text/html
+< 
+{ [127 bytes data]
+* shutting down connection #0
+<HEAD><TITLE>404 Not found</TITLE></HEAD>
+<BODY><H1>404 Not Found</H1>The requested URL was not found on this server.<P></BODY>
+=== 172.16.224.43 ===
+*   Trying 172.16.224.43:80...
+* Established connection to 172.16.224.43 (172.16.224.43 port 80) from 172.16.224.250 port 49768 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 172.16.224.43
+> User-Agent: curl/8.17.0
+> Accept: */*
+> 
+* Request completely sent off
+* HTTP 1.0, assume close after body
+< HTTP/1.0 404 Not Found
+< Server: GR-HTTPD Server/2.20
+< Content-Type: text/html
+< 
+{ [127 bytes data]
+* shutting down connection #0
+<HEAD><TITLE>404 Not found</TITLE></HEAD>
+<BODY><H1>404 Not Found</H1>The requested URL was not found on this server.<P></BODY>
+=== 172.16.224.44 ===
+*   Trying 172.16.224.44:80...
+* Established connection to 172.16.224.44 (172.16.224.44 port 80) from 172.16.224.250 port 43410 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 172.16.224.44
+> User-Agent: curl/8.17.0
+> Accept: */*
+> 
+* Request completely sent off
+* HTTP 1.0, assume close after body
+< HTTP/1.0 404 Not Found
+< Server: GR-HTTPD Server/2.20
+< Content-Type: text/html
+< 
+{ [127 bytes data]
+* shutting down connection #0
+<HEAD><TITLE>404 Not found</TITLE></HEAD>
+<BODY><H1>404 Not Found</H1>The requested URL was not found on this server.<P></BODY>
+=== 172.16.224.121 ===
+*   Trying 172.16.224.121:80...
+* connect to 172.16.224.121 port 80 from 172.16.224.250 port 36190 failed: Connection refused
+* Failed to connect to 172.16.224.121 port 80 after 1 ms: Could not connect to server
+* closing connection #0
+
+=== 172.16.239.2 ===
+*   Trying 172.16.239.2:80...
+* Established connection to 172.16.239.2 (172.16.239.2 port 80) from 172.16.224.250 port 56676 
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: 172.16.239.2
+> User-Agent: curl/8.17.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: eHTTP v2.0
+< Connection: Keep-Alive
+< Content-Type: text/html
+< Content-Length: 124
+< Cache-Control: no-cache
+< X-Frame-Options: SAMEORIGIN
+< Set-Cookie: sessionId=N5dBjR2MjHRzVRdcvFhqGGBGiyDjk9XvTuYmAB2PBD2fq8bNDSsAmLBZI2k9uuS;path=/; postId=; 
+< 
+{ [124 bytes data]
+* Connection #0 to host 172.16.239.2:80 left intact
+<html>
+<head>
+<meta http-equiv="Refresh"
+content="1;url=/nextgen/ui/index.html#/">
+</head>
+
+<body>
+</body>
+</html>
+

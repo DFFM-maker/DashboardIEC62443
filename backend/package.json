@@ -1,0 +1,21 @@
+{
+  "name": "ot-dashboard-backend",
+  "version": "2.0.0",
+  "description": "Tecnopack OT Security Dashboard — Backend API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.3",
+    "multer": "^1.4.5-lts.1",
+    "puppeteer-core": "^22.4.0",
+    "socket.io": "^4.7.4",
+    "uuid": "^9.0.0"
+  }
+}

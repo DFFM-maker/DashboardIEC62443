@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Thu Mar 19 08:53:52 2026 as: /usr/lib/nmap/nmap -Pn -sS -sU -p T:1-1024,U:161,162,67,68,69,514 -&#45;version-intensity 5 -oX /home/kali/assessment/raw/unknown_10.xml 172.16.224.10 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -Pn -sS -sU -p T:1-1024,U:161,162,67,68,69,514 -&#45;version-intensity 5 -oX /home/kali/assessment/raw/unknown_10.xml 172.16.224.10" start="1773924832" startstr="Thu Mar 19 08:53:52 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="1024" services="1-1024"/>
+<scaninfo type="udp" protocol="udp" numservices="6" services="67-69,161-162,514"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1773924839" endtime="1773924846"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.16.224.10" addrtype="ipv4"/>
+<address addr="14:4F:D7:CD:E5:44" addrtype="mac" vendor="D&amp;S Cable Industries (HK) Limited"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="closed" count="1024">
+<extrareasons reason="reset" count="1019" proto="tcp" ports="1-134,136-138,140-444,446-901,903-911,913-1024"/>
+<extrareasons reason="port-unreach" count="5" proto="udp" ports="67-69,162,514"/>
+</extraports>
+<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="msrpc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="902"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="iss-realsecure" method="table" conf="3"/></port>
+<port protocol="tcp" portid="912"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="apex-mesh" method="table" conf="3"/></port>
+<port protocol="udp" portid="161"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="snmp" method="table" conf="3"/></port>
+</ports>
+<times srtt="432" rttvar="223" to="100000"/>
+</host>
+<runstats><finished time="1773924846" timestr="Thu Mar 19 08:54:06 2026" summary="Nmap done at Thu Mar 19 08:54:06 2026; 1 IP address (1 host up) scanned in 13.68 seconds" elapsed="13.68" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
