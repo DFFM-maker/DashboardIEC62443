@@ -14,7 +14,7 @@ import Settings from './pages/Settings'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="flex h-screen overflow-hidden bg-gray-950">
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
