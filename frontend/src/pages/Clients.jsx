@@ -10,6 +10,7 @@ export default function Clients() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editClient, setEditClient] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
   const [form, setForm] = useState(emptyForm)
 
   const load = () => {
@@ -30,9 +31,10 @@ export default function Clients() {
     } catch (err) { alert(err.message) }
   }
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`Eliminare cliente "${name}"?`)) return
-    try { await api.deleteClient(id); load() } catch (err) { alert(err.message) }
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try { await api.deleteClient(deleteTarget.id); setDeleteTarget(null); load() }
+    catch (err) { alert(err.message) }
   }
 
   if (loading) return <div className="flex items-center justify-center h-full"><div className="animate-spin w-8 h-8 border-2 border-brand-green border-t-transparent rounded-full" /></div>
@@ -70,7 +72,7 @@ export default function Clients() {
                   <button onClick={() => openEdit(c)} className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => handleDelete(c.id, c.name)} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors">
+                  <button onClick={() => setDeleteTarget({ id: c.id, name: c.name })} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -94,6 +96,22 @@ export default function Clients() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal conferma eliminazione */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-red-800 rounded-xl p-6 w-full max-w-sm">
+            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-red-400" /> Elimina Cliente
+            </h2>
+            <p className="text-gray-400 text-sm mb-4">Eliminare <strong className="text-white">"{deleteTarget.name}"</strong>?</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setDeleteTarget(null)} className="btn-secondary">Annulla</button>
+              <button onClick={handleDelete} className="btn-danger">Elimina</button>
+            </div>
+          </div>
         </div>
       )}
 

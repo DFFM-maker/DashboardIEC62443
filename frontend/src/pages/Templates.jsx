@@ -6,9 +6,11 @@ export default function Templates() {
   const [templates, setTemplates] = useState([])
   const [assessments, setAssessments] = useState([])
   const [loading, setLoading] = useState(true)
-  const [applyModal, setApplyModal] = useState(null) // template to apply
+  const [applyModal, setApplyModal] = useState(null)
   const [selectedAssessmentId, setSelectedAssessmentId] = useState('')
   const [applying, setApplying] = useState(false)
+  const [toast, setToast] = useState(null)
+  const showToast = (msg, type = 'info') => { setToast({ msg, type }); setTimeout(() => setToast(null), 4000) }
 
   const load = () => {
     Promise.all([api.getTemplates(), api.getAssessments()])
@@ -19,18 +21,17 @@ export default function Templates() {
   useEffect(() => { load() }, [])
 
   const handleDelete = async (id) => {
-    if (!confirm('Eliminare questo template?')) return
-    try { await api.deleteTemplate(id); load() } catch (err) { alert(err.message) }
+    try { await api.deleteTemplate(id); load() } catch (err) { showToast(err.message, 'error') }
   }
 
   const handleApply = async () => {
-    if (!selectedAssessmentId) return alert('Seleziona un assessment')
+    if (!selectedAssessmentId) return showToast('Seleziona un assessment', 'error')
     setApplying(true)
     try {
       const result = await api.applyTemplate(applyModal.id, selectedAssessmentId)
-      alert(`Template applicato: ${result.zones_created} zone e ${result.conduits_created} conduit creati`)
+      showToast(`Template applicato: ${result.zones_created} zone, ${result.conduits_created} conduit creati`, 'success')
       setApplyModal(null)
-    } catch (err) { alert(err.message) }
+    } catch (err) { showToast(err.message, 'error') }
     finally { setApplying(false) }
   }
 
@@ -75,6 +76,13 @@ export default function Templates() {
 
   return (
     <div className="p-6 space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm shadow-lg border ${
+          toast.type === 'error' ? 'bg-red-900/80 border-red-700 text-red-300' :
+          toast.type === 'success' ? 'bg-green-900/80 border-green-700 text-green-300' :
+          'bg-blue-900/80 border-blue-700 text-blue-300'
+        }`}>{toast.msg}</div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
