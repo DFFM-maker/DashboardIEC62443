@@ -45,7 +45,8 @@ export const api = {
 
   // Advisories
   getAdvisories: (params = {}) => {
-    const q = new URLSearchParams(params).toString()
+    const filtered = Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
+    const q = new URLSearchParams(filtered).toString()
     return request(`/advisories${q ? '?' + q : ''}`)
   },
   refreshAdvisories: () => request('/advisories/refresh', { method: 'POST' }),

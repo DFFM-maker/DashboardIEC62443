@@ -14,7 +14,10 @@ function getLogoLightSvg() {
 function getLogoInlineForPdf() {
   const svg = getLogoLightSvg()
   if (!svg) return '<span style="font-size:24px;font-weight:bold;color:#2e9650">TECNOPACK</span>'
-  return svg.replace('<svg ', '<svg height="60" ')
+  return svg
+    .replace(/\s+height="[^"]*"/, '')
+    .replace(/\s+width="[^"]*"/, '')
+    .replace('<svg ', '<svg height="60" style="width:auto" ')
 }
 
 function severityColor(sev) {
