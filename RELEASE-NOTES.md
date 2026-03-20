@@ -1,5 +1,20 @@
 # Release Notes
 
+## v2.1.1 — 2026-03-20
+
+### Bug Fix: Tasto elimina assessment non funzionava
+
+**File:** `frontend/src/pages/Assessments.jsx`
+
+**Causa:** Il codice usava `window.confirm()` per la conferma di cancellazione.
+Alcuni browser bloccano silenziosamente i dialog `confirm()` (ritornano `false`
+senza mostrare nulla), rendendo il tasto cestino apparentemente non funzionante.
+
+**Fix:** Sostituita la `confirm()` con una modale React dedicata con bordo rosso,
+nome dell'assessment da eliminare, avviso chiaro e pulsante "Elimina" esplicito.
+
+---
+
 ## v2.1.0 — 2026-03-20
 
 ### Feature: Fingerprinting automatico — zero IP hardcoded

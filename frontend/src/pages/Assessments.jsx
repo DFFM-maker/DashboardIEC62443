@@ -9,6 +9,7 @@ export default function Assessments() {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null) // { id, name }
   const [search, setSearch] = useState('')
   const [form, setForm] = useState({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '' })
 
@@ -31,9 +32,10 @@ export default function Assessments() {
     } catch (err) { alert(err.message) }
   }
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`Eliminare "${name}"? Tutti i dati saranno persi.`)) return
-    try { await api.deleteAssessment(id); load() } catch (err) { alert(err.message) }
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try { await api.deleteAssessment(deleteTarget.id); setDeleteTarget(null); load() }
+    catch (err) { alert(err.message) }
   }
 
   const filtered = assessments.filter(a =>
@@ -106,7 +108,7 @@ export default function Assessments() {
                     <FileText className="w-3.5 h-3.5" /> Dettagli
                   </Link>
                   <button
-                    onClick={() => handleDelete(a.id, a.name)}
+                    onClick={() => setDeleteTarget({ id: a.id, name: a.name })}
                     className="btn-danger flex items-center gap-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -160,6 +162,24 @@ export default function Assessments() {
                 <button type="submit" className="btn-primary">Crea Assessment</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal conferma eliminazione */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-red-800 rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-red-400" /> Elimina Assessment
+            </h2>
+            <p className="text-gray-400 text-sm mb-1">Stai per eliminare:</p>
+            <p className="text-white font-semibold mb-4">"{deleteTarget.name}"</p>
+            <p className="text-red-400 text-sm mb-6">Tutti gli asset, finding e log verranno eliminati definitivamente.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setDeleteTarget(null)} className="btn-secondary">Annulla</button>
+              <button onClick={handleDelete} className="btn-danger">Elimina</button>
+            </div>
           </div>
         </div>
       )}
