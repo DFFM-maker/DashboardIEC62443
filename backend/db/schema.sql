@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS assets (
   security_zone TEXT,
   criticality TEXT DEFAULT 'medium',
   notes TEXT,
+  classified_by TEXT DEFAULT 'auto',
   last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE
 );

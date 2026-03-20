@@ -35,7 +35,8 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
   const { vendor, device_type, device_model, firmware_version, security_zone, criticality, notes } = req.body
   db.run(
-    `UPDATE assets SET vendor=?, device_type=?, device_model=?, firmware_version=?, security_zone=?, criticality=?, notes=? WHERE id=?`,
+    `UPDATE assets SET vendor=?, device_type=?, device_model=?, firmware_version=?,
+     security_zone=?, criticality=?, notes=?, classified_by='manual' WHERE id=?`,
     [vendor, device_type, device_model, firmware_version, security_zone, criticality, notes, req.params.id]
   )
   res.json(db.get('SELECT * FROM assets WHERE id = ?', [req.params.id]))

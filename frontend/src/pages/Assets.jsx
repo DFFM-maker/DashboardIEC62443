@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { api } from '../lib/api'
-import { Search, Monitor } from 'lucide-react'
+import { Search, Monitor, Cpu, PenLine } from 'lucide-react'
 
 export default function Assets() {
   const [assets, setAssets] = useState([])
@@ -82,6 +82,7 @@ export default function Assets() {
               <th className="text-left py-2 pr-4">Firmware</th>
               <th className="text-left py-2 pr-4">Zona</th>
               <th className="text-left py-2 pr-4">Criticità</th>
+              <th className="text-left py-2 pr-4">Classe</th>
               <th className="text-left py-2">Porte</th>
             </tr>
           </thead>
@@ -103,6 +104,16 @@ export default function Assets() {
                   <span className={`text-xs font-bold ${a.criticality === 'high' ? 'text-red-400' : a.criticality === 'medium' ? 'text-yellow-400' : 'text-green-400'}`}>
                     {(a.criticality || 'medium').toUpperCase()}
                   </span>
+                </td>
+                <td className="py-2 pr-4">
+                  {a.classified_by === 'manual'
+                    ? <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-blue-900/40 text-blue-400 border border-blue-800/50" title="Modificato manualmente dall'assessor">
+                        <PenLine className="w-2.5 h-2.5" /> Manuale
+                      </span>
+                    : <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-gray-800/60 text-gray-500 border border-gray-700/50" title="Classificato automaticamente dalla scansione">
+                        <Cpu className="w-2.5 h-2.5" /> Auto
+                      </span>
+                  }
                 </td>
                 <td className="py-2 font-mono text-xs text-gray-500">
                   {(a.ports || []).map(p => `${p.port}/${p.protocol}`).join(', ')}
