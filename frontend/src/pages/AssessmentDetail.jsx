@@ -19,8 +19,14 @@ export default function AssessmentDetail() {
   const [loading, setLoading] = useState(true)
   const [scanning, setScanning] = useState(false)
   const [liveLog, setLiveLog] = useState([])
+  const [toast, setToast] = useState(null)
   const socketRef = useRef(null)
   const logEndRef = useRef(null)
+
+  const showToast = (msg, type = 'error') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 5000)
+  }
 
   const load = async () => {
     try {
@@ -81,7 +87,7 @@ export default function AssessmentDetail() {
   const downloadReport = async (format) => {
     try {
       const res = await api.generateReport(id, format)
-      if (!res.ok) { const e = await res.json(); alert(e.error); return }
+      if (!res.ok) { const e = await res.json().catch(() => ({})); showToast(e.error || `Errore generazione report ${format.toUpperCase()}`); return }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -89,13 +95,13 @@ export default function AssessmentDetail() {
       a.download = res.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] || `report.${format}`
       a.click()
       URL.revokeObjectURL(url)
-    } catch (err) { alert(err.message) }
+    } catch (err) { showToast(err.message) }
   }
 
   const exportOtsa = async () => {
     try {
       const res = await api.exportAssessment(id)
-      if (!res.ok) return alert('Export fallito')
+      if (!res.ok) { showToast('Export .otsa fallito'); return }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -103,7 +109,7 @@ export default function AssessmentDetail() {
       a.download = `assessment_${id}.otsa`
       a.click()
       URL.revokeObjectURL(url)
-    } catch (err) { alert(err.message) }
+    } catch (err) { showToast(err.message) }
   }
 
   const closeFinding = async (findingId, currentStatus) => {
@@ -117,6 +123,11 @@ export default function AssessmentDetail() {
 
   return (
     <div className="p-6 space-y-4">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm shadow-lg border max-w-sm ${
+          toast.type === 'error' ? 'bg-red-900/90 border-red-700 text-red-200' : 'bg-green-900/90 border-green-700 text-green-200'
+        }`}>{toast.msg}</div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
