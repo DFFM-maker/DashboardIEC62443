@@ -1,5 +1,25 @@
 # Release Notes
 
+## v2.0.2 — 2026-03-20
+
+### Bug Fix: Nessun advisory NVD recuperato per nessun vendor (Omron, Siemens, Rockwell…)
+
+**File:** `backend/services/advisoryService.js`
+
+**Causa:** L'URL di query all'API NVD includeva il parametro
+`keywordExactMatch=false`. L'API NVD v2.0 tratta `keywordExactMatch` come un
+flag booleano puro (presenza = attivo, assenza = disattivo) e **non ammette
+un valore esplicito**. Passando `=false`, il server rispondeva HTTP 404 con
+il messaggio `"keywordExactMatch parameter cannot have a value."` — il body
+era vuoto, il parsing JSON falliva silenziosamente e il fetch restituiva
+sempre `[]`.
+
+**Fix:** Rimosso il parametro `keywordExactMatch=false` dall'URL. Il
+comportamento di ricerca non-esatta è il default dell'API e non richiede
+parametri aggiuntivi.
+
+---
+
 ## v2.0.1 — 2026-03-20
 
 ### Bug Fix: Vulnerability Advisories non visualizzate
