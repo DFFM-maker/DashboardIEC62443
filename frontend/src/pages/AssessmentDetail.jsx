@@ -67,7 +67,6 @@ export default function AssessmentDetail() {
   }, [liveLog])
 
   const startScan = async () => {
-    if (!confirm('Avviare la scansione nmap? Tutti gli asset e finding esistenti saranno sostituiti.')) return
     setScanning(true)
     setLiveLog([])
     setTab('Log')
