@@ -99,7 +99,7 @@ export default function AssessmentDetail() {
       a.href = url
       a.download = res.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] || `report.${format}`
       a.click()
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
     } catch (err) { showToast(err.message) }
   }
 
@@ -113,7 +113,7 @@ export default function AssessmentDetail() {
       a.href = url
       a.download = `assessment_${id}.otsa`
       a.click()
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
     } catch (err) { showToast(err.message) }
   }
 

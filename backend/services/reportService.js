@@ -17,7 +17,7 @@ function getLogoInlineForPdf() {
   return svg
     .replace(/\s+height="[^"]*"/, '')
     .replace(/\s+width="[^"]*"/, '')
-    .replace('<svg ', '<svg height="60" style="width:auto" ')
+    .replace('<svg ', '<svg viewBox="0 0 949.6 205.44" height="60" style="width:auto;display:block" ')
 }
 
 function severityColor(sev) {

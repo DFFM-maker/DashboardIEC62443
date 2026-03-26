@@ -11,7 +11,7 @@ export default function Assessments() {
   const [showModal, setShowModal] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null) // { id, name }
   const [search, setSearch] = useState('')
-  const [form, setForm] = useState({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '' })
+  const [form, setForm] = useState({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '', snmp_community: 'tecnopack2026' })
 
   const load = () => {
     Promise.all([api.getAssessments(), api.getClients()])
@@ -27,7 +27,7 @@ export default function Assessments() {
     try {
       await api.createAssessment(form)
       setShowModal(false)
-      setForm({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '' })
+      setForm({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '', snmp_community: 'tecnopack2026' })
       load()
     } catch (err) { alert(err.message) }
   }
@@ -152,6 +152,11 @@ export default function Assessments() {
                     <option>SL-1</option><option>SL-2</option><option>SL-3</option><option>SL-4</option>
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="label">SNMP Community</label>
+                <input className="input w-full font-mono" value={form.snmp_community} onChange={e => setForm({...form, snmp_community: e.target.value})} placeholder="public" />
+                <p className="text-xs text-gray-600 mt-1">Community string per fingerprinting SNMP dei device</p>
               </div>
               <div>
                 <label className="label">Note</label>

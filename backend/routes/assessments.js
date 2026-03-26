@@ -23,13 +23,13 @@ router.get('/', (req, res) => {
 
 // POST /api/assessments
 router.post('/', (req, res) => {
-  const { name, subnet, client_id, assessor, iec62443_target_sl, notes } = req.body
+  const { name, subnet, client_id, assessor, iec62443_target_sl, notes, snmp_community } = req.body
   if (!name || !subnet) return res.status(400).json({ error: 'name e subnet sono obbligatori' })
   const id = uuidv4()
   db.run(
-    `INSERT INTO assessments (id, client_id, name, subnet, status, assessor, iec62443_target_sl, notes)
-     VALUES (?,?,?,?,?,?,?,?)`,
-    [id, client_id || null, name, subnet, 'pending', assessor || '', iec62443_target_sl || 'SL-2', notes || '']
+    `INSERT INTO assessments (id, client_id, name, subnet, status, assessor, iec62443_target_sl, notes, snmp_community)
+     VALUES (?,?,?,?,?,?,?,?,?)`,
+    [id, client_id || null, name, subnet, 'pending', assessor || '', iec62443_target_sl || 'SL-2', notes || '', snmp_community || 'public']
   )
   res.json(db.get('SELECT * FROM assessments WHERE id = ?', [id]))
 })
@@ -46,10 +46,10 @@ router.get('/:id', (req, res) => {
 
 // PUT /api/assessments/:id
 router.put('/:id', (req, res) => {
-  const { name, subnet, client_id, assessor, iec62443_target_sl, notes, status } = req.body
+  const { name, subnet, client_id, assessor, iec62443_target_sl, notes, status, snmp_community } = req.body
   db.run(
-    `UPDATE assessments SET name=?, subnet=?, client_id=?, assessor=?, iec62443_target_sl=?, notes=?, status=? WHERE id=?`,
-    [name, subnet, client_id || null, assessor, iec62443_target_sl, notes, status, req.params.id]
+    `UPDATE assessments SET name=?, subnet=?, client_id=?, assessor=?, iec62443_target_sl=?, notes=?, status=?, snmp_community=? WHERE id=?`,
+    [name, subnet, client_id || null, assessor, iec62443_target_sl, notes, status, snmp_community || 'public', req.params.id]
   )
   res.json(db.get('SELECT * FROM assessments WHERE id = ?', [req.params.id]))
 })
@@ -125,6 +125,7 @@ router.get('/:id/stats', (req, res) => {
 router.post('/:id/report/:format', async (req, res) => {
   try {
     const result = await reportService.generateReport(req.params.id, req.params.format)
+    res.setHeader('Content-Type', 'application/octet-stream')
     res.download(result.filePath, result.fileName)
   } catch (err) {
     res.status(500).json({ error: err.message })

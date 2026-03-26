@@ -15,6 +15,7 @@ db.exec(schema)
 
 // Migrations — aggiunge colonne introdotte dopo la creazione iniziale del DB
 try { db.exec("ALTER TABLE assets ADD COLUMN classified_by TEXT DEFAULT 'auto'") } catch (e) {}
+try { db.exec("ALTER TABLE assessments ADD COLUMN snmp_community TEXT DEFAULT 'public'") } catch (e) {}
 
 // Wrapper per compatibilità .get / .all / .run stile async
 db.get = (sql, params = []) => db.prepare(sql).get(...(Array.isArray(params) ? params : [params]))

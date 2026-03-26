@@ -1,5 +1,104 @@
 # Release Notes
 
+## v2.1.7 — 2026-03-26
+
+### Feature: SNMP Community String configurabile per assessment
+
+**Obiettivo:** supportare impianti con community SNMP non standard (`public`) senza modificare il codice.
+
+#### `backend/db/database.js`
+- Migration automatica: colonna `snmp_community TEXT DEFAULT 'public'` sulla tabella `assessments`
+
+#### `backend/routes/assessments.js`
+- POST e PUT `/api/assessments` accettano e persistono il campo `snmp_community`
+- Download report: aggiunto header `Content-Type: application/octet-stream` per forzare il salvataggio file anziché l'anteprima browser
+
+#### `backend/services/scannerService.js`
+- Il scanner legge `snmp_community` dall'assessment prima di avviare la scansione
+- Il valore viene passato a `grabSnmpDescr()` al posto del precedente `'public'` hardcoded
+
+#### `frontend/src/pages/Assessments.jsx`
+- Campo **SNMP Community** aggiunto al form "Nuovo Assessment" (default `tecnopack2026`)
+
+### Bug Fix: race condition su download report/export
+
+**File:** `frontend/src/pages/AssessmentDetail.jsx`
+
+**Causa:** `URL.revokeObjectURL()` veniva chiamato immediatamente dopo il click sul link sintetico.
+Su alcuni browser il download non aveva ancora iniziato a leggere il blob, causando un file vuoto o corrotto.
+
+**Fix:** `revokeObjectURL` posticipato di 10 secondi tramite `setTimeout`.
+
+### Bug Fix: logo SVG nel report non rispettava le proporzioni
+
+**File:** `backend/services/reportService.js`
+
+**Causa:** L'SVG privo di `viewBox` non poteva scalare correttamente una volta rimossi gli attributi `height`/`width` originali.
+
+**Fix:** Aggiunto `viewBox="0 0 949.6 205.44"` e `display:block` al tag `<svg>` iniettato nella copertina del report.
+
+---
+
+## v2.1.6 — 2026-03-20
+
+### Bug Fix: redirect automatico se ID assessment non esiste
+
+**File:** `frontend/src/pages/AssessmentDetail.jsx`
+
+**Causa:** Navigando su un assessment con ID inesistente (es. dopo eliminazione), la pagina rimaneva bloccata in stato di caricamento senza feedback.
+
+**Fix:** Se il backend risponde con 404 o l'assessment è null, l'utente viene reindirizzato automaticamente a `/assessments`.
+
+---
+
+## v2.1.5 — 2026-03-20
+
+### Bug Fix: errori download report/export mostrati con alert()
+
+**File:** `frontend/src/pages/AssessmentDetail.jsx`
+
+**Causa:** Gli errori nel download del report e nell'export `.otsa` usavano `alert()` bloccante.
+
+**Fix:** Sostituiti con `showToast()` non bloccante, coerente con il resto dell'UI.
+
+---
+
+## v2.1.4 — 2026-03-20
+
+### Bug Fix: warning React Router v6 in console
+
+**File:** `frontend/src/main.jsx` (o entry point router)
+
+**Causa:** React Router v6 emetteva warning su future flags non dichiarati (`v7_startTransition`, `v7_relativeSplatPath`).
+
+**Fix:** Aggiunti i future flags richiesti alla configurazione del router per eliminare i warning.
+
+---
+
+## v2.1.3 — 2026-03-20
+
+### Bug Fix: `confirm()` / `alert()` residui nel frontend
+
+**File:** `frontend/src/pages/` (varie pagine)
+
+**Causa:** Alcune pagine usavano ancora `window.confirm()` o `window.alert()` nativi, bloccanti e non stilizzati.
+
+**Fix:** Sostituiti sistematicamente con modali React o toast non bloccanti in tutto il frontend.
+
+---
+
+## v2.1.2 — 2026-03-20
+
+### Bug Fix: avvio scansione bloccato da `confirm()`
+
+**File:** `frontend/src/pages/AssessmentDetail.jsx`
+
+**Causa:** Il pulsante "Avvia scansione" mostrava un `window.confirm()` che alcuni browser bloccano silenziosamente, impedendo l'avvio della scansione.
+
+**Fix:** Sostituita la `confirm()` con una modale React con pulsante di conferma esplicito.
+
+---
+
 ## v2.1.1 — 2026-03-20
 
 ### Bug Fix: Tasto elimina assessment non funzionava

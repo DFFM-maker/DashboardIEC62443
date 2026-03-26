@@ -84,6 +84,9 @@ async function runScan(assessmentId, subnet, io) {
   emitLog(io, assessmentId, 'info', `Avvio scansione subnet ${subnet}...`)
   db.run('UPDATE assessments SET status = ? WHERE id = ?', ['scanning', assessmentId])
 
+  const assessment = db.get('SELECT snmp_community FROM assessments WHERE id = ?', [assessmentId])
+  const snmpCommunity = assessment?.snmp_community || 'public'
+
   const assessmentZones = db.all('SELECT id, name FROM zones WHERE assessment_id = ?', [assessmentId])
 
   try {
@@ -148,7 +151,7 @@ async function runScan(assessmentId, subnet, io) {
       const hasOtPorts = ports.some(p => [9600, 44818, 102, 502, 50000, 4840].includes(p.port))
 
       if (hasOtPorts || ports.some(p => p.port === 161)) {
-        host.snmpDescr = await grabSnmpDescr(ip)
+        host.snmpDescr = await grabSnmpDescr(ip, snmpCommunity)
         if (host.snmpDescr)
           emitLog(io, assessmentId, 'info', `  → ${ip} SNMP: ${host.snmpDescr.slice(0, 60)}`)
       }
