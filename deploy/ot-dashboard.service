@@ -1,0 +1,24 @@
+[Unit]
+Description=OT Security Dashboard Backend
+Documentation=https://github.com/DFFM-maker/DashboardIEC62443
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+EnvironmentFile=__APP_DIR__/backend/.env
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ot-dashboard
+
+# Sicurezza (opzionale, decommentare se si usano capability invece di sudo per nmap)
+# AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+# CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target

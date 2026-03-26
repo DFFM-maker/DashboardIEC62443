@@ -21,6 +21,12 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 // Static assets (logos)
 app.use('/assets', express.static(path.join(__dirname, '../assets')))
 
+// Frontend (produzione: serve dist/ buildato con "npm run build")
+const frontendDist = path.join(__dirname, '../frontend/dist')
+if (require('fs').existsSync(frontendDist)) {
+  app.use(express.static(frontendDist))
+}
+
 // Routes
 const assessmentsRoute = require('./routes/assessments')
 const { setIo } = assessmentsRoute
@@ -54,6 +60,13 @@ io.on('connection', (socket) => {
     console.log('Client disconnesso:', socket.id)
   })
 })
+
+// SPA fallback: tutte le route non-API servono index.html (solo in produzione)
+if (require('fs').existsSync(frontendDist)) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'))
+  })
+}
 
 const PORT = process.env.PORT || 3001
 server.listen(PORT, '0.0.0.0', () => {
