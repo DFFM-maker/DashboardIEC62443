@@ -94,13 +94,12 @@ chown -R "$APP_USER":"$APP_USER" "$APP_DIR/backend/reports"
 # --- 7. Seed database (se vuoto) ---------------------------------------------
 echo ""
 echo ">>> Verifica database..."
-sudo -u "$APP_USER" node -e "
-  process.chdir('$APP_DIR/backend')
+sudo -u "$APP_USER" bash -c "cd '$APP_DIR/backend' && node -e \"
   const db = require('./db/database')
   const count = db.get('SELECT COUNT(*) as n FROM assessments')
   if (count.n === 0) { require('./seed'); console.log('Seed eseguito.') }
   else { console.log('DB esistente (' + count.n + ' assessments), seed saltato.') }
-"
+\""
 ok "Database pronto"
 
 # --- 8. Systemd service ------------------------------------------------------
