@@ -41,6 +41,11 @@ app.use('/api/templates', require('./routes/templates'))
 app.use('/api/export', require('./routes/export'))
 app.use('/api/import', require('./routes/export'))
 app.use('/api/zones', require('./routes/zones'))
+app.use('/api/conduits', require('./routes/conduits'))
+app.use('/api/iec-controls', require('./routes/iec_controls'))
+app.use('/api/assessments/:assessmentId/risk-events', require('./routes/risk_events'))
+app.use('/api/zone-controls', require('./routes/zone_controls'))
+app.use('/api/assessments/:assessmentId/report', require('./routes/report'))
 
 // Health check
 app.get('/api/health', (req, res) => {

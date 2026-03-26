@@ -33,9 +33,11 @@ router.post('/', (req, res) => {
 
 // PUT /api/zones/:id
 router.put('/:id', (req, res) => {
-  const { name, security_level, description, color } = req.body
-  db.run('UPDATE zones SET name=?, security_level=?, description=?, color=? WHERE id=?',
-    [name, security_level, description, color, req.params.id])
+  const { name, security_level, description, color, x, y, width, height } = req.body
+  db.run(
+    'UPDATE zones SET name=?, security_level=?, description=?, color=?, x=?, y=?, width=?, height=? WHERE id=?',
+    [name, security_level, description, color, x ?? 0, y ?? 0, width ?? 200, height ?? 150, req.params.id]
+  )
   res.json(db.get('SELECT * FROM zones WHERE id = ?', [req.params.id]))
 })
 
@@ -58,15 +60,6 @@ router.post('/:id/assets/:assetId', (req, res) => {
 router.delete('/:id/assets/:assetId', (req, res) => {
   db.run('DELETE FROM zone_assets WHERE zone_id = ? AND asset_id = ?', [req.params.id, req.params.assetId])
   res.json({ ok: true })
-})
-
-// GET /api/conduits?assessment_id=...
-router.get('/conduits', (req, res) => {
-  const { assessment_id } = req.query
-  let sql = 'SELECT c.*, zf.name as from_zone_name, zt.name as to_zone_name FROM conduits c LEFT JOIN zones zf ON c.zone_from_id = zf.id LEFT JOIN zones zt ON c.zone_to_id = zt.id WHERE 1=1'
-  const params = []
-  if (assessment_id) { sql += ' AND c.assessment_id = ?'; params.push(assessment_id) }
-  res.json(db.all(sql, params))
 })
 
 module.exports = router

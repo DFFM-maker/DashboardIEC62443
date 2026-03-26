@@ -54,6 +54,28 @@ router.put('/:id', (req, res) => {
   res.json(db.get('SELECT * FROM assessments WHERE id = ?', [req.params.id]))
 })
 
+// PATCH /api/assessments/:id — auto-save wizard (aggiornamento parziale)
+const PATCH_ALLOWED_FIELDS = [
+  'suc_name', 'suc_function', 'machine_operation',
+  'data_sharing', 'access_points', 'physical_boundary',
+  'assumptions',
+  'name', 'assessor', 'notes', 'iec62443_target_sl', 'snmp_community'
+]
+
+router.patch('/:id', (req, res) => {
+  const assessment = db.get('SELECT id FROM assessments WHERE id = ?', [req.params.id])
+  if (!assessment) return res.status(404).json({ error: 'Assessment non trovato' })
+
+  const allowed = Object.fromEntries(
+    Object.entries(req.body).filter(([k]) => PATCH_ALLOWED_FIELDS.includes(k))
+  )
+  if (Object.keys(allowed).length === 0) return res.status(400).json({ error: 'Nessun campo valido' })
+
+  const sets = Object.keys(allowed).map(k => `${k} = ?`).join(', ')
+  db.prepare(`UPDATE assessments SET ${sets} WHERE id = ?`).run(...Object.values(allowed), req.params.id)
+  res.json(db.get('SELECT * FROM assessments WHERE id = ?', [req.params.id]))
+})
+
 // DELETE /api/assessments/:id
 router.delete('/:id', (req, res) => {
   db.run('DELETE FROM assessments WHERE id = ?', [req.params.id])

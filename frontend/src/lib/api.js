@@ -18,6 +18,7 @@ export const api = {
   getAssessment: id => request(`/assessments/${id}`),
   createAssessment: data => request('/assessments', { method: 'POST', body: JSON.stringify(data) }),
   updateAssessment: (id, data) => request(`/assessments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  patchAssessment: (id, data) => request(`/assessments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteAssessment: id => request(`/assessments/${id}`, { method: 'DELETE' }),
   startScan: id => request(`/assessments/${id}/scan`, { method: 'POST' }),
   getAssessmentStats: id => request(`/assessments/${id}/stats`),
@@ -61,6 +62,35 @@ export const api = {
   // Zones
   getZones: (assessmentId) => request(`/zones?assessment_id=${assessmentId}`),
   createZone: data => request('/zones', { method: 'POST', body: JSON.stringify(data) }),
+  updateZone: (id, data) => request(`/zones/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteZone: id => request(`/zones/${id}`, { method: 'DELETE' }),
+
+  // Conduits
+  getConduits: (assessmentId) => request(`/conduits?assessment_id=${assessmentId}`),
+  createConduit: data => request('/conduits', { method: 'POST', body: JSON.stringify(data) }),
+  deleteConduit: id => request(`/conduits/${id}`, { method: 'DELETE' }),
+
+  // Report
+  getReport: (assessmentId) => request(`/assessments/${assessmentId}/report`),
+
+  // IEC Controls
+  getIecControls: (params = {}) => {
+    const q = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v]) => v != null))).toString()
+    return request(`/iec-controls${q ? '?' + q : ''}`)
+  },
+
+  // Zone Controls (gap analysis)
+  getZoneControls: (params = {}) => {
+    const q = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v]) => v != null))).toString()
+    return request(`/zone-controls${q ? '?' + q : ''}`)
+  },
+  upsertZoneControl: (data) => request('/zone-controls', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Risk Events
+  getRiskEvents: (assessmentId) => request(`/assessments/${assessmentId}/risk-events`),
+  createRiskEvent: (assessmentId, data) => request(`/assessments/${assessmentId}/risk-events`, { method: 'POST', body: JSON.stringify(data) }),
+  updateRiskEvent: (assessmentId, eventId, data) => request(`/assessments/${assessmentId}/risk-events/${eventId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRiskEvent: (assessmentId, eventId) => request(`/assessments/${assessmentId}/risk-events/${eventId}`, { method: 'DELETE' }),
 
   // Export/Import
   exportAssessment: id => fetch(`${BASE}/export/${id}`, { method: 'POST' }),

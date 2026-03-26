@@ -11,6 +11,13 @@ import Advisories from './pages/Advisories'
 import Templates from './pages/Templates'
 import ImportPage from './pages/Import'
 import Settings from './pages/Settings'
+import WizardStep1_SUC from './pages/wizard/WizardStep1_SUC'
+import WizardStep2_RiskAssessment from './pages/wizard/WizardStep2_RiskAssessment'
+import WizardStep3_ZonesConduits from './pages/wizard/WizardStep3_ZonesConduits'
+import WizardStep4_TolerableRisk from './pages/wizard/WizardStep4_TolerableRisk'
+import WizardStep5_GapAnalysis from './pages/wizard/WizardStep5_GapAnalysis'
+import WizardStep6_Policies from './pages/wizard/WizardStep6_Policies'
+import WizardStep7_Report from './pages/wizard/WizardStep7_Report'
 
 export default function App() {
   return (
@@ -24,6 +31,13 @@ export default function App() {
             <Route path="/clients" element={<Clients />} />
             <Route path="/assessments" element={<Assessments />} />
             <Route path="/assessments/:id" element={<AssessmentDetail />} />
+            <Route path="/assessments/:id/step/1" element={<WizardStep1_SUC />} />
+            <Route path="/assessments/:id/step/2" element={<WizardStep2_RiskAssessment />} />
+            <Route path="/assessments/:id/step/3" element={<WizardStep3_ZonesConduits />} />
+            <Route path="/assessments/:id/step/4" element={<WizardStep4_TolerableRisk />} />
+            <Route path="/assessments/:id/step/5" element={<WizardStep5_GapAnalysis />} />
+            <Route path="/assessments/:id/step/6" element={<WizardStep6_Policies />} />
+            <Route path="/assessments/:id/step/7" element={<WizardStep7_Report />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/findings" element={<Findings />} />
             <Route path="/advisories" element={<Advisories />} />

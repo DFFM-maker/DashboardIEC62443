@@ -1,5 +1,275 @@
 # Release Notes
 
+## v2.8.0 — 2026-03-26
+
+### Feature: TASK 1.7 — Wizard Step 7 (Report Finale + Export)
+
+Report finale del wizard IEC 62443 con KPI aggregati, export Markdown e print/PDF.
+
+#### `frontend/src/pages/wizard/WizardStep7_Report.jsx` — nuova pagina
+- **KPI dashboard**: zone, risk events, copertura % totale, gap residui
+- **Sezione SUC**: tutti i campi compilati allo Step 1
+- **Tabella Risk Events**: descrizione, likelihood, impact, score, livello
+- **Tabella Zone**: SL-T, controlli coperti/totali, copertura %, gap count con icona
+- **Sezione Gap & Policy**: lista controlli con gap e policy text redatte allo Step 6
+- **Export Markdown**: genera `.md` con `Blob` + `URL.createObjectURL`, download diretto
+- **Print / PDF**: chiama `window.print()`, compatibile con `@media print`
+- Pulsante "Completa Assessment" torna a `/assessments/:id`
+
+#### `backend/routes/report.js` — nuova route
+- `GET /api/assessments/:id/report` — aggregazione completa: assessment, suc, risk_events, zones (con stats gap), gap_controls (con policy_text)
+- Calcolo copertura per zona: query `iec_controls` filtrata per SL-T × `zone_controls`
+
+#### `frontend/src/lib/api.js`
+- Aggiunto: `getReport(assessmentId)`
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/7` → `WizardStep7_Report`
+
+**Test: 75/75 frontend + 37/37 backend GREEN. Build pulita.**
+
+---
+
+## v2.7.0 — 2026-03-26
+
+### Feature: TASK 1.6 — Wizard Step 6 (Policy per controlli con Gap)
+
+Redazione e salvataggio delle policy di remediation per i controlli IEC 62443-3-3 con gap.
+
+#### `frontend/src/pages/wizard/WizardStep6_Policies.jsx` — nuova pagina
+- Mostra solo i controlli **con gap** (applicable=1, present=0) per la zona attiva
+- **Tab per zona** con badge contatore gap e icona ✓ se zero gap
+- **Editor textarea** per ogni policy, con auto-fill template per categoria (IAC, UC, SI, DC…)
+- **Pulsante "Generate"**: inserisce template Markdown predefinito con checklist azioni
+- **Pulsante "Save"**: chiama `POST /api/zone-controls` (upsert) con `policy_text`
+- Feedback visivo "Salvato" con auto-hide 2s
+- Contatore gap totali cross-zone nell'header
+- Navigazione Back → Step 5 / Generate Report → Step 7
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/6` → `WizardStep6_Policies`
+
+**Test: 75/75 frontend + 37/37 backend GREEN.**
+
+---
+
+## v2.6.0 — 2026-03-26
+
+### Feature: TASK 1.5 — Wizard Step 5 (Gap Analysis SL-T vs SL-A)
+
+Analisi del gap tra Security Level Target (SL-T) e Security Level Achieved (SL-A) per ogni zona, basata sui controlli IEC 62443-3-3.
+
+#### `frontend/src/pages/wizard/WizardStep5_GapAnalysis.jsx` — nuova pagina
+- **Tab per zona**: una tab per ogni zona con contatore `n/tot controlli coperti`
+- **Tabella controlli** filtrata per SL-T della zona, raggruppata per categoria (IAC, UC, SI, DC, RDF, TRE, RA)
+- **Checkbox "Present"** per ogni controllo: calcola automaticamente SL-A e salva via `POST /api/zone-controls` (upsert)
+- Badge gap: **OK** (verde), **GAP Δn** (giallo), **GAP** (rosso se non implementato)
+- Header di zona con badge `SL-T: SL-x`
+
+#### `backend/routes/zone_controls.js` — nuova route
+- `GET /api/zone-controls?zone_id=...` — lista controlli per zona
+- `GET /api/zone-controls?assessment_id=...` — tutti i controlli di tutte le zone di un assessment
+- `POST /api/zone-controls` — **upsert** (crea o aggiorna per zone_id + control_id)
+
+#### `frontend/src/lib/api.js`
+- Aggiunti: `getIecControls(params)`, `getZoneControls(params)`, `upsertZoneControl(data)`
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/5` → `WizardStep5_GapAnalysis`
+
+**Test: 58/58 frontend + 37/37 backend GREEN.**
+
+---
+
+## v2.5.0 — 2026-03-26
+
+### Fix: deploy.sh — health check con retry post-restart
+
+#### `deploy.sh`
+- Dopo `systemctl restart`, loop `curl /api/health` fino a 15 tentativi (1s ciascuno)
+- Se il backend non risponde entro 15s: `fail` con suggerimento `journalctl`
+- Log versione backend estratta dalla risposta JSON al completamento
+- Elimina il caso "backend carica il vecchio codice senza accorgersene"
+
+---
+
+## v2.5.0-task1.4 — 2026-03-26
+
+### Feature: TASK 1.4 — Wizard Step 4 (Tolerable Risk — SL-T per zona)
+
+Selezione del Target Security Level per ogni zona sulla base dei rischi identificati nello Step 2.
+
+#### `frontend/src/pages/wizard/WizardStep4_TolerableRisk.jsx` — nuova pagina
+- **Tabella zone** con dropdown SL-T inline (SL-1 → SL-4) e save immediato via `PUT /api/zones/:id`
+- **Banner contesto** con rischio massimo da Step 2 (se presente)
+- **Legenda SL** con descrizione normativa IEC 62443-3-3 per ogni livello
+- Colori differenziati per SL: blu (SL-1), verde (SL-2), giallo (SL-3), rosso (SL-4)
+- Empty state se nessuna zona definita
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/4` → `WizardStep4_TolerableRisk`
+
+**Test: 58/58 frontend + 37/37 backend GREEN.**
+
+---
+
+## v2.4.0 — 2026-03-26
+
+### Feature: TASK 1.3 — Wizard Step 3 (Zone & Conduits Canvas) + deploy.sh
+
+Canvas React Flow per la definizione di zone di sicurezza e condotti. Script di deploy automatizzato.
+
+#### `frontend/src/pages/wizard/WizardStep3_ZonesConduits.jsx` — nuova pagina
+- Canvas **React Flow** full-height con background grid, Controls, MiniMap
+- Sidebar sinistra con lista zone e form inline "Add Zone"
+- Drag & drop nodi sul canvas con persistenza posizione via `PUT /api/zones/:id`
+- Connessione edge tra zone → crea condotto via `POST /api/conduits`
+- Contatore zone/condotti nel pannello top-right
+- Navigazione Back → Step 2 / Next → Step 4
+
+#### `frontend/src/components/wizard/ZoneNode.jsx` — nuovo componente
+- Nodo React Flow custom con colori per SL-1 (blu) / SL-2 (verde) / SL-3 (giallo) / SL-4 (rosso)
+- Handle su 4 lati (source + target) per connessioni multi-direzionali
+- Ring visivo quando selezionato
+
+#### `backend/routes/conduits.js` — nuova route
+- `GET /api/conduits?assessment_id=...` — lista condotti con nome zone join
+- `POST /api/conduits` — crea condotto tra due zone
+- `DELETE /api/conduits/:id` — elimina condotto
+
+#### `backend/routes/zones.js`
+- `PUT /api/zones/:id` aggiornato per persistere `x`, `y`, `width`, `height` (coordinate canvas React Flow)
+
+#### `frontend/src/lib/api.js`
+- Aggiunti: `updateZone`, `deleteZone`, `getConduits`, `createConduit`, `deleteConduit`
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/3` → `WizardStep3_ZonesConduits`
+
+#### `deploy.sh` — nuovo script radice
+- `git pull` → `npm install --omit=dev` (backend) → `npm install && npm run build` (frontend) → `sudo systemctl restart ot-dashboard`
+- Supporta flag `--no-restart` per ambienti CI
+- Output colorato con log per ogni fase
+
+**@xyflow/react** installato come dipendenza frontend.
+
+**Test: 41/41 frontend + 37/37 backend GREEN. Build pulita (496KB JS gzip: 89KB).**
+
+---
+
+## v2.3.0 — 2026-03-26
+
+### Feature: TASK 1.1 + 1.2 — Wizard Step 1 (SUC) + Step 2 (Risk Assessment)
+
+Sprint 2 del wizard IEC 62443. Aggiunge i primi due step navigabili del wizard con form, auto-save, matrice di rischio interattiva e CRUD degli scenari di rischio.
+
+#### `backend/migrations/004_assumptions_field.sql` — nuova migration
+- Aggiunge la colonna `assumptions TEXT` alla tabella `assessments` (Step 2)
+
+#### `backend/routes/assessments.js`
+- Nuovo endpoint `PATCH /api/assessments/:id` con whitelist sicura dei campi modificabili (previene SQL injection)
+- Campo `assumptions` aggiunto alla whitelist
+
+#### `backend/routes/risk_events.js` — nuova route
+- `GET /api/assessments/:id/risk-events` — lista scenari di rischio per assessment
+- `POST /api/assessments/:id/risk-events` — crea nuovo scenario
+- `PUT /api/assessments/:id/risk-events/:eventId` — aggiorna scenario
+- `DELETE /api/assessments/:id/risk-events/:eventId` — elimina scenario
+- Whitelist campi: `consequence`, `risk_description`, `likelihood`, `safety_impact`, `calculated_risk`, `calculated_risk_label`, ecc.
+
+#### `backend/__tests__/wizard_api.test.js` — nuovi test
+- 6 test sulla logica PATCH (whitelist, partial update, campo non valido)
+
+#### `frontend/src/pages/wizard/WizardStep1_SUC.jsx` — nuova pagina
+- Form 6 campi SUC (`suc_name`*, `suc_function`*, `machine_operation`, `data_sharing`, `access_points`, `physical_boundary`)
+- **SessionStorage** persistenza immediata ad ogni modifica
+- **Auto-save** debounced 30s via `PATCH /api/assessments/:id`
+- Pulsante **Next** disabilitato fino a compilazione campi obbligatori
+
+#### `frontend/src/pages/wizard/WizardStep2_RiskAssessment.jsx` — nuova pagina
+- Textarea **Assumptions** con sessionStorage + auto-save 30s
+- Tabella **Risk Events** con stato empty state, edit e delete per riga
+- Modal form per creare/modificare scenari con **RiskMatrix5x5 interattiva** integrata
+- Navigazione Back → Step 1 / Next → Step 3
+
+#### `frontend/src/components/wizard/WizardStepper.jsx` — nuovo componente
+- Stepper orizzontale 7 step con indicatore attivo in `brand-green`
+- Step completati cliccabili con icona check; step futuri disabilitati
+- Label step corrente sotto il cerchio attivo
+
+#### `frontend/src/components/wizard/RiskMatrix5x5.jsx` — nuovo componente
+- Griglia 5×5 con score = likelihood × impact
+- 5 livelli di rischio con colori distinti: LOW / MEDIUM / HIGH / CRITICAL / CATASTROPHIC
+- Props: `likelihood`, `impact`, `interactive`, `showLegend`, `onRiskChange(l, i, score, label)`
+- Attributi `data-cell`, `data-active`, `data-score`, `data-label` per test e accessibilità
+- Legenda opzionale (`data-testid="risk-legend"`)
+
+#### `frontend/src/lib/api.js`
+- Aggiunti: `patchAssessment`, `getRiskEvents`, `createRiskEvent`, `updateRiskEvent`, `deleteRiskEvent`
+
+#### `frontend/src/App.jsx`
+- Route `/assessments/:id/step/1` → `WizardStep1_SUC`
+- Route `/assessments/:id/step/2` → `WizardStep2_RiskAssessment`
+
+#### `frontend/src/__tests__/`
+- `WizardStep1_SUC.test.jsx` — 8 test (form validation, stepper, sessionStorage, auto-save)
+- `WizardStep2_RiskAssessment.test.jsx` — 12 test (rendering, lista eventi, navigazione, sessionStorage)
+- `RiskMatrix5x5.test.jsx` — 13 test (25 celle, label assi, score boundaries, modalità interattiva, legenda)
+
+**Test totali:** 68/68 GREEN (37 backend Jest + 31 frontend Vitest)
+
+---
+
+## v2.2.0 — 2026-03-26
+
+### Feature: FASE 0 — Fondamenta Wizard IEC 62443-3-3
+
+Primo sprint del wizard IEC 62443 a 7 step. Aggiunge lo schema DB, il database normativo dei controlli e l'infrastruttura di test.
+
+#### `backend/db/database.js`
+- Nuovo **migration runner file-based**: legge ed esegue in ordine alfabetico tutti i file `.sql` in `backend/migrations/`, idempotente (ignora `duplicate column name`)
+- **Seed automatico** dei controlli IEC 62443-3-3 all'avvio tramite `backend/data/iec_controls_seed.js`
+
+#### `backend/migrations/` — nuova directory
+- **001_wizard_fields.sql**: aggiunge a `assessments` i campi SUC (`suc_name`, `suc_function`, `machine_operation`, `data_sharing`, `access_points`, `physical_boundary`)
+- **002_canvas_coords.sql**: aggiunge a `zones` le coordinate canvas (`x`, `y`, `width`, `height`) e a `conduits` i campi (`type`, `label`, `encryption`) per React Flow
+- **003_wizard_tables.sql**: crea le tabelle `risk_events`, `iec_controls`, `zone_controls`, `policies`
+
+#### `backend/data/iec_controls_seed.js` — nuovo file
+- **105 controlli IEC 62443-3-3** (SR + RE) suddivisi in 7 categorie: IAC, UC, SI, DC, RDF, TRE, RA
+- Copertura SR 1.1 → SR 7.8 con tutti i Requirement Enhancements e flag di applicabilità per SL1/SL2/SL3/SL4
+- Seed idempotente: non duplica se già presenti
+
+#### `backend/routes/iec_controls.js` — nuova route
+- `GET /api/iec-controls` — lista controlli con filtri opzionali: `?category=IAC`, `?sl=2`, `?sr_code=SR+1.1`
+- `GET /api/iec-controls/:id` — singolo controllo
+
+#### `backend/server.js`
+- Registrata la route `/api/iec-controls`
+
+#### `backend/package.json`
+- `better-sqlite3` aggiornato a **v12.8.0** (compatibilità Node.js v22 sistema + v24 nvm)
+- Aggiunto **Jest** (`jest`, `@jest/globals`, `supertest`) come devDependencies
+- Script `npm test` configurato
+
+#### `frontend/package.json` + `frontend/vite.config.js`
+- Aggiunti **Vitest** + `@testing-library/react` + `@testing-library/jest-dom` + `jsdom`
+- Script `npm test` e `npm run test:watch` configurati
+- Vitest configurato con environment `jsdom` e setup file
+
+#### `backend/__tests__/` — nuova directory test
+- `migrations.test.js` — 21 test sulle colonne e tabelle delle migrations (TDD)
+- `iec_controls.test.js` — 10 test sul seed IEC 62443-3-3
+- `helpers/testDb.js` — helper DB in-memory per test isolati
+
+#### `architecture-audit.md` — nuovo documento
+- Audit completo dell'architettura esistente: 19 API routes, 15 tabelle DB, 10 pagine React
+- Gap analysis con lista completa di tabelle, route e componenti da aggiungere per il wizard
+
+**Test:** 31/31 GREEN (`npm test`)
+
+---
+
 ## v2.1.7 — 2026-03-26
 
 ### Feature: SNMP Community String configurabile per assessment

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Plus, Play, Trash2, FileText, Search } from 'lucide-react'
 import SeverityBadge from '../components/SeverityBadge'
 
 export default function Assessments() {
+  const navigate = useNavigate()
   const [assessments, setAssessments] = useState([])
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
@@ -25,10 +26,10 @@ export default function Assessments() {
   const handleCreate = async (e) => {
     e.preventDefault()
     try {
-      await api.createAssessment(form)
+      const created = await api.createAssessment(form)
       setShowModal(false)
       setForm({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '', snmp_community: 'tecnopack2026' })
-      load()
+      navigate(`/assessments/${created.id}/step/1`)
     } catch (err) { alert(err.message) }
   }
 
