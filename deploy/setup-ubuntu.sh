@@ -11,7 +11,7 @@ set -e
 SERVER_HOST="${1:-localhost}"
 APP_DIR="/opt/ot-dashboard"
 APP_USER="${SUDO_USER:-ubuntu}"
-NODE_MIN=18
+NODE_MIN=22
 
 RED='\033[0;31m'; GRN='\033[0;32m'; YEL='\033[1;33m'; NC='\033[0m'
 ok()  { echo -e "${GRN}[OK]${NC}  $*"; }
@@ -30,14 +30,18 @@ apt-get update -q
 apt-get install -y -q \
   curl git nginx nmap \
   snmp snmp-mibs-downloader \
-  chromium-browser || \
-apt-get install -y -q chromium  # fallback nome pacchetto Ubuntu 22+
+  libasound2t64 \
+  libatk-bridge2.0-0 libdrm2 libxkbcommon0 \
+  libxcomposite1 libxdamage1 libxrandr2 libgbm1
+
+# Chromium: su Ubuntu 24.04 il pacchetto è "chromium" (non chromium-browser che è uno snap)
+apt-get install -y -q chromium || apt-get install -y -q chromium-browser
 
 # Node.js >= 18
 NODE_VER=$(node -v 2>/dev/null | sed 's/v//' | cut -d. -f1 || echo 0)
 if [ "$NODE_VER" -lt "$NODE_MIN" ]; then
-  warn "Node.js $NODE_VER trovato (minimo $NODE_MIN). Installazione Node.js 20..."
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  warn "Node.js $NODE_VER trovato (minimo $NODE_MIN). Installazione Node.js 22..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
   apt-get install -y nodejs
 fi
 ok "Node.js $(node -v)"
