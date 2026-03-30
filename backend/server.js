@@ -46,6 +46,8 @@ app.use('/api/iec-controls', require('./routes/iec_controls'))
 app.use('/api/assessments/:assessmentId/risk-events', require('./routes/risk_events'))
 app.use('/api/zone-controls', require('./routes/zone_controls'))
 app.use('/api/assessments/:assessmentId/report', require('./routes/report'))
+app.use('/api/assessments/:assessmentId', require('./routes/policies'))
+app.use('/api/assessments/:assessmentId/wizard-report', require('./routes/wizard_report').router)
 
 // Health check
 app.get('/api/health', (req, res) => {

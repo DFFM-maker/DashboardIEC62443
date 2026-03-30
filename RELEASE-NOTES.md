@@ -1,5 +1,66 @@
 # Release Notes
 
+## v2.9.0 — 2026-03-30
+
+### TASK 1.6 — WizardStep6_Policies: AI Policy Generation + Finalize
+
+#### `backend/routes/policies.js` — aggiornato
+- `POST /api/assessments/:id/generate-policy` — ora chiama Google Gemini API (gemini-1.5-flash)
+  con prompt IEC 62443 strutturato (Obiettivo / Ambito / Requisiti). Salva in tabella `policies` con `INSERT OR REPLACE` + aggiorna `zone_controls.policy_text`.
+  Richiede `GEMINI_API_KEY` configurata nel `.env`.
+- `GET /api/assessments/:id/policies` — lista policy per assessment
+- `PATCH /api/assessments/:id/policies/:policyId` — aggiorna `final` (0/1) e/o `policy_markdown`
+
+#### `frontend/src/pages/wizard/WizardStep6_Policies.jsx` — riscritto (Premium Aesthetic)
+- **UI Ridisegnata**: sfondo nero, glassmorphism, gradienti, animazioni Framer Motion.
+- Pulsante **"Genera con AI ✨"** (viola/sfumato): chiama Gemini API, popola card con testo AI via streaming/skeleton state
+- **Badge SR code + Titolo**: stili migliorati per ogni card di controllo con gap
+- **Checkbox "Finalizza"**: permette di selezionare quali policy includere nel report.
+- **Counter "Finalizzate / Totali"**: calcolo automatico cross-zone dei gap mitigati.
+- **Next abilitato sempre**: navigazione libera verso lo step finale (Step 7).
+
+#### `backend/.env`
+- Aggiunta riga `GEMINI_API_KEY=` (compilata con chiave Pro)
+
+#### `@google/generative-ai` — installato (npm install)
+
+---
+
+### TASK 1.7 — WizardStep7_Report: 3 card export + PDF Wizard
+
+#### `backend/routes/wizard_report.js` — nuovo file
+- `GET /api/assessments/:id/wizard-report` — genera e scarica markdown completo:
+  sezioni 1.SUC / 2.Risk Assessment / 3.Zone e Condotti / 4.Gap Analysis / 5.Policy (finalizzate prioritarie) / 6.Asset Inventory / 7.Finding
+- `POST /api/assessments/:id/wizard-report/pdf` — genera PDF wizard tramite reportService.generateWizardPdf()
+
+#### `backend/services/reportService.js` — aggiornato
+- Aggiunta funzione `generateWizardPdf(data)`: HTML self-contained con cover, 7 sezioni,
+  @page :first CSS trick (no header/footer sulla cover), logo e header standard Tecnopack su pagine 2+
+- Export: `module.exports = { generateReport, generateWizardPdf }`
+
+#### `frontend/src/pages/wizard/WizardStep7_Report.jsx` — riscritto
+- **Banner di completamento** verde (tutti 7 step completati)
+- **3 card export** (griglia 3 colonne):
+  1. "Scarica Markdown .md" → `GET /wizard-report` con blob download
+  2. "Scarica PDF Wizard" → `POST /wizard-report/pdf` con blob download + spinner
+  3. "Apri Report HTML" → link `<a target="_blank">` verso `/api/assessments/:id/report/html`
+- Sezioni report invariate (SUC, Risk Events, Zone, Gap & Policy)
+- Rimosso pulsante "Print / PDF" (sostituito dalle card)
+
+#### `frontend/src/lib/api.js` — aggiornato
+- `generatePolicy(assessmentId, data)` — POST generate-policy
+- `getPolicies(assessmentId)` — GET policies
+- `patchPolicy(assessmentId, policyId, data)` — PATCH policies/:id
+- `downloadWizardMarkdown(assessmentId)` — GET wizard-report (raw fetch)
+- `generateWizardPdf(assessmentId)` — POST wizard-report/pdf (raw fetch)
+
+#### `backend/server.js` — aggiornato
+- Registrate 2 nuove route: `policies.js` e `wizard_report.js`
+
+**Build frontend: OK. Test endpoint: policies [], wizard-report markdown OK (6.3 KB), wizard PDF OK (180 KB / 1 MB con findings).**
+
+---
+
 ## v2.8.0 — 2026-03-26
 
 ### Feature: TASK 1.7 — Wizard Step 7 (Report Finale + Export)

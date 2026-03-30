@@ -22,6 +22,69 @@
   }
 }
 
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm 12mm;
+  }
+
+  /* Nasconde tutto tranne il report */
+  body > * { visibility: hidden; }
+  aside { display: none !important; }
+  #print-report, #print-report * { visibility: visible; }
+  #print-report {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  /* Sfondo bianco su tutti i container */
+  #print-report .bg-gray-950,
+  #print-report .bg-gray-900,
+  #print-report .bg-gray-800,
+  #print-report .bg-gray-700 {
+    background-color: white !important;
+    border-color: #d1d5db !important;
+  }
+
+  /* Testo nero */
+  #print-report .text-white,
+  #print-report .text-gray-100,
+  #print-report .text-gray-200,
+  #print-report .text-gray-300,
+  #print-report .text-gray-400,
+  #print-report .text-gray-500,
+  #print-report .text-gray-600 {
+    color: #111827 !important;
+  }
+
+  /* Colori semantici mantenuti */
+  #print-report .text-green-400 { color: #16a34a !important; }
+  #print-report .text-red-400   { color: #dc2626 !important; }
+  #print-report .text-yellow-400 { color: #ca8a04 !important; }
+  #print-report .text-orange-400 { color: #ea580c !important; }
+  #print-report .text-blue-400  { color: #2563eb !important; }
+
+  /* Bordi tabelle */
+  #print-report .divide-y > * { border-color: #e5e7eb !important; }
+  #print-report table th,
+  #print-report table td { border-bottom: 1px solid #e5e7eb; }
+
+  /* No shadow, no rounded corners in print */
+  #print-report * { box-shadow: none !important; }
+
+  /* Evita page break a metà sezione */
+  #print-report section { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Nasconde elementi non necessari per la stampa */
+  #print-report .print\:hidden { display: none !important; }
+  .print-hide { display: none !important; }
+}
+
 @layer components {
   .card {
     @apply bg-gray-900 border border-gray-800 rounded-xl p-4;

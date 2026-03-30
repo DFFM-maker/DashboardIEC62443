@@ -92,6 +92,15 @@ export const api = {
   updateRiskEvent: (assessmentId, eventId, data) => request(`/assessments/${assessmentId}/risk-events/${eventId}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteRiskEvent: (assessmentId, eventId) => request(`/assessments/${assessmentId}/risk-events/${eventId}`, { method: 'DELETE' }),
 
+  // Policies (AI generation)
+  generatePolicy: (assessmentId, data) => request(`/assessments/${assessmentId}/generate-policy`, { method: 'POST', body: JSON.stringify(data) }),
+  getPolicies: (assessmentId) => request(`/assessments/${assessmentId}/policies`),
+  patchPolicy: (assessmentId, policyId, data) => request(`/assessments/${assessmentId}/policies/${policyId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Wizard Report
+  downloadWizardMarkdown: (assessmentId) => fetch(`${BASE}/assessments/${assessmentId}/wizard-report`),
+  generateWizardPdf: (assessmentId) => fetch(`${BASE}/assessments/${assessmentId}/wizard-report/pdf`, { method: 'POST' }),
+
   // Export/Import
   exportAssessment: id => fetch(`${BASE}/export/${id}`, { method: 'POST' }),
   importAssessment: (file, clientId) => {

@@ -1,15 +1,19 @@
 /**
- * TASK 1.6 — TDD: WizardStep6_Policies
+ * TASK 1.6 — TDD Update: WizardStep6_Policies with Gemini & Finalization
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import React from 'react'
 
 const mockGetAssessment = vi.fn()
 const mockGetZones = vi.fn()
 const mockGetIecControls = vi.fn()
 const mockGetZoneControls = vi.fn()
 const mockUpsertZoneControl = vi.fn()
+const mockGeneratePolicy = vi.fn()
+const mockGetPolicies = vi.fn()
+const mockPatchPolicy = vi.fn()
 
 vi.mock('../lib/api', () => ({
   api: {
@@ -18,14 +22,18 @@ vi.mock('../lib/api', () => ({
     getIecControls: mockGetIecControls,
     getZoneControls: mockGetZoneControls,
     upsertZoneControl: mockUpsertZoneControl,
+    generatePolicy: mockGeneratePolicy,
+    getPolicies: mockGetPolicies,
+    patchPolicy: mockPatchPolicy,
   }
 }))
 
+// We need to import the component after the mock
 const { default: WizardStep6_Policies } = await import('../pages/wizard/WizardStep6_Policies')
 
-const mockAssessment = { id: 'test-id', name: 'Test Assessment' }
+const mockAssessment = { id: 'test-id', name: 'Test Assessment', suc_function: 'Water Treatment' }
 const mockZones = [
-  { id: 'z1', name: 'PLC Zone', security_level: 'SL-2' },
+  { id: 'z1', name: 'PLC Zone', security_level: 'SL-2', color: '#ff0000' },
 ]
 const mockControls = [
   { id: 'c1', sr_code: 'SR 1.1', re_code: null, title: 'Human User Identification', sl1: 1, sl2: 1, sl3: 1, sl4: 1, category: 'IAC' },
@@ -42,6 +50,8 @@ function renderStep6() {
   mockGetZones.mockResolvedValue(mockZones)
   mockGetIecControls.mockResolvedValue(mockControls)
   mockGetZoneControls.mockResolvedValue(mockZoneControls)
+  mockGetPolicies.mockResolvedValue([])
+  
   return render(
     <MemoryRouter initialEntries={['/assessments/test-id/step/6']}>
       <Routes>
@@ -54,7 +64,9 @@ function renderStep6() {
 }
 
 describe('WizardStep6_Policies — rendering', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   it('mostra Step 6/7 nello stepper', async () => {
     renderStep6()
@@ -81,7 +93,7 @@ describe('WizardStep6_Policies — rendering', () => {
 
   it('mostra il contatore gap totale', async () => {
     renderStep6()
-    await waitFor(() => expect(screen.getAllByText(/1.*gap|gap.*1/i).length).toBeGreaterThan(0))
+    await waitFor(() => expect(screen.getByText(/1 \/ 1/)).toBeInTheDocument())
   })
 })
 
@@ -94,7 +106,7 @@ describe('WizardStep6_Policies — salvataggio policy', () => {
     await waitFor(() => screen.getByRole('textbox'))
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Implementare MFA' } })
-    fireEvent.click(screen.getByRole('button', { name: /save/i }))
+    fireEvent.click(screen.getByRole('button', { name: /salva bozza/i }))
 
     await waitFor(() => expect(mockUpsertZoneControl).toHaveBeenCalledWith(
       expect.objectContaining({ policy_text: 'Implementare MFA' })
@@ -102,18 +114,62 @@ describe('WizardStep6_Policies — salvataggio policy', () => {
   })
 })
 
+describe('WizardStep6_Policies — AI & Finalizzazione', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('chiama generatePolicy quando si clicca su Genera con AI', async () => {
+    mockGeneratePolicy.mockResolvedValue({ policy_markdown: 'Policy da Gemini' })
+    mockGetPolicies.mockResolvedValue([{ id: 'p1', zone_id: 'z1', control_id: 'c1', final: 0 }])
+    
+    renderStep6()
+    await waitFor(() => screen.getByRole('button', { name: /genera con ai/i }))
+    
+    fireEvent.click(screen.getByRole('button', { name: /genera con ai/i }))
+    
+    await waitFor(() => expect(mockGeneratePolicy).toHaveBeenCalledWith(
+      'test-id',
+      expect.objectContaining({ control_id: 'c1', sr_code: 'SR 1.1' })
+    ))
+    
+    await waitFor(() => expect(screen.getByRole('textbox').value).toBe('Policy da Gemini'))
+  })
+
+  it('mostra checkbox finalizza se esiste una policy', async () => {
+    mockGetPolicies.mockResolvedValue([{ id: 'p1', zone_id: 'z1', control_id: 'c1', final: 0 }])
+    renderStep6()
+    await waitFor(() => expect(screen.getByText(/finalizza per report/i)).toBeInTheDocument())
+  })
+
+  it('chiama patchPolicy quando si clicca su finalizza', async () => {
+    const mockPolicy = { id: 'p1', zone_id: 'z1', control_id: 'c1', final: 0 }
+    mockGetPolicies.mockResolvedValue([mockPolicy])
+    mockPatchPolicy.mockResolvedValue({ ...mockPolicy, final: 1 })
+    
+    renderStep6()
+    await waitFor(() => screen.getByText(/finalizza per report/i))
+    
+    fireEvent.click(screen.getByLabelText(/finalizza per report/i))
+    
+    await waitFor(() => expect(mockPatchPolicy).toHaveBeenCalledWith(
+      'test-id',
+      'p1',
+      { final: 1 }
+    ))
+  })
+})
+
 describe('WizardStep6_Policies — navigazione', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('ha pulsante Back (step 5)', async () => {
+  it('ha pulsante GAP ANALYSIS (torna allo step 5)', async () => {
     renderStep6()
     await waitFor(() => screen.getByText(/step 6\/7/i))
-    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument()
+    expect(screen.getByTestId('back-button')).toBeInTheDocument()
   })
 
-  it('ha pulsante Next / Generate Report (step 7)', async () => {
+  it('ha pulsante GENERA REPORT (va allo step 7)', async () => {
     renderStep6()
     await waitFor(() => screen.getByText(/step 6\/7/i))
-    expect(screen.getByRole('button', { name: /next|report/i })).toBeInTheDocument()
+    expect(screen.getByTestId('next-button')).toBeInTheDocument()
   })
 })

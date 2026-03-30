@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Download, Printer, CheckCircle, AlertTriangle, Shield } from 'lucide-react'
+import {
+  ChevronLeft, Download, FileText, CheckCircle, AlertTriangle,
+  Shield, FileDown, ExternalLink, Loader2
+} from 'lucide-react'
 import { api } from '../../lib/api'
 import WizardStepper from '../../components/wizard/WizardStepper'
 
@@ -19,76 +22,14 @@ const SL_COLORS = {
   'SL-4': 'text-red-400',
 }
 
-function buildMarkdown(report) {
-  const { assessment, suc, risk_events, zones, gap_controls, generated_at } = report
-  const date = new Date(generated_at).toLocaleDateString('it-IT')
-
-  let md = `# IEC 62443 Risk Assessment Report\n\n`
-  md += `**Assessment:** ${assessment.name}  \n`
-  md += `**Assessor:** ${assessment.assessor || '—'}  \n`
-  md += `**Data:** ${date}  \n\n`
-  md += `---\n\n`
-
-  md += `## 1. System Under Consideration (SUC)\n\n`
-  if (suc.suc_name)          md += `**Nome SUC:** ${suc.suc_name}  \n`
-  if (suc.suc_function)      md += `**Funzione:** ${suc.suc_function}  \n`
-  if (suc.assumptions)       md += `**Assunzioni:** ${suc.assumptions}  \n`
-  md += `\n`
-
-  md += `## 2. Risk Events\n\n`
-  if (risk_events.length === 0) {
-    md += `_Nessun risk event definito._\n\n`
-  } else {
-    md += `| # | Descrizione | L | I | Score | Livello |\n`
-    md += `|---|-------------|---|---|-------|---------|\n`
-    risk_events.forEach((e, i) => {
-      md += `| ${i + 1} | ${e.risk_description} | ${e.likelihood} | ${e.safety_impact} | ${e.calculated_risk} | ${e.calculated_risk_label} |\n`
-    })
-    md += `\n`
-  }
-
-  md += `## 3. Zone & Security Level Target\n\n`
-  zones.forEach(z => {
-    const pct = z.controls_total > 0 ? Math.round((z.controls_covered / z.controls_total) * 100) : 0
-    md += `### ${z.name} — ${z.security_level}\n`
-    md += `- Controlli applicabili: ${z.controls_total}\n`
-    md += `- Controlli implementati: ${z.controls_covered} (${pct}%)\n`
-    md += `- Gap residui: ${z.gap_count}\n\n`
-  })
-
-  md += `## 4. Gap Analysis & Policy\n\n`
-  if (gap_controls.length === 0) {
-    md += `_Nessun gap residuo — tutti i controlli SL-T sono implementati._\n\n`
-  } else {
-    const byZone = gap_controls.reduce((acc, g) => {
-      if (!acc[g.zone_name]) acc[g.zone_name] = []
-      acc[g.zone_name].push(g)
-      return acc
-    }, {})
-    for (const [zoneName, gaps] of Object.entries(byZone)) {
-      md += `### ${zoneName}\n\n`
-      gaps.forEach(g => {
-        md += `#### ${g.sr_code} — ${g.title}\n`
-        if (g.policy_text) {
-          md += g.policy_text + `\n\n`
-        } else {
-          md += `_Nessuna policy redatta._\n\n`
-        }
-      })
-    }
-  }
-
-  md += `---\n_Report generato il ${date} — OT Security Dashboard IEC 62443_\n`
-  return md
-}
-
 export default function WizardStep7_Report() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const printRef = useRef()
 
   const [loading, setLoading] = useState(true)
   const [report, setReport] = useState(null)
+  const [downloadingMd, setDownloadingMd] = useState(false)
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   useEffect(() => {
     api.getReport(id)
@@ -97,19 +38,50 @@ export default function WizardStep7_Report() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const handleExportMarkdown = () => {
-    if (!report) return
-    const md = buildMarkdown(report)
-    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `iec62443-report-${id}.md`
-    a.click()
-    URL.revokeObjectURL(url)
+  const handleDownloadMarkdown = async () => {
+    setDownloadingMd(true)
+    try {
+      const res = await api.downloadWizardMarkdown(id)
+      if (!res.ok) throw new Error('Errore download markdown')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `wizard-report-${id}.md`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Errore: ' + err.message)
+    } finally {
+      setDownloadingMd(false)
+    }
   }
 
-  const handlePrint = () => window.print()
+  const handleDownloadPdf = async () => {
+    setDownloadingPdf(true)
+    try {
+      const res = await api.generateWizardPdf(id)
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Errore generazione PDF')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `wizard-report-${id}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Errore PDF: ' + err.message)
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
+
+  const handleOpenHtml = () => {
+    window.open(`/api/assessments/${id}/report/${id}`, '_blank')
+  }
 
   if (loading) {
     return (
@@ -138,47 +110,92 @@ export default function WizardStep7_Report() {
 
       <WizardStepper currentStep={7} />
 
-      {/* Action bar */}
-      <div className="flex items-center justify-between mb-6 p-4 bg-gray-900 border border-gray-800 rounded-xl">
+      {/* Completion message */}
+      <div className="bg-green-900/20 border border-green-800/50 rounded-xl p-5 mb-6 flex items-center gap-4">
+        <CheckCircle className="w-8 h-8 text-green-400 shrink-0" />
         <div>
-          <h2 className="text-base font-semibold text-white">Report Finale</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Generato il {new Date(report.generated_at).toLocaleString('it-IT')}
+          <p className="text-sm font-semibold text-green-300">Assessment completato!</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Tutti i 7 step del wizard IEC 62443 sono stati completati. Scarica il report in uno dei formati disponibili.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 rounded-lg text-sm transition-colors"
-          >
-            <Printer className="w-4 h-4" /> Print / PDF
-          </button>
-          <button
-            onClick={handleExportMarkdown}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-green hover:opacity-90 text-white rounded-lg text-sm font-medium transition-opacity"
-          >
-            <Download className="w-4 h-4" /> Export Markdown
-          </button>
         </div>
       </div>
 
-      {/* Report body */}
-      <div ref={printRef} className="space-y-5 print:text-black">
+      {/* Export cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Markdown */}
+        <button
+          onClick={handleDownloadMarkdown}
+          disabled={downloadingMd}
+          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors disabled:opacity-60 group"
+        >
+          <div className="w-10 h-10 bg-gray-800 group-hover:bg-brand-green/20 rounded-lg flex items-center justify-center transition-colors">
+            {downloadingMd ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <FileText className="w-5 h-5 text-brand-green" />}
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-white">Scarica Markdown</p>
+            <p className="text-xs text-gray-500 mt-1">Report completo .md con tutte le sezioni</p>
+          </div>
+          <span className="text-xs text-brand-green font-medium flex items-center gap-1">
+            <Download className="w-3 h-3" /> .md
+          </span>
+        </button>
 
-        {/* Summary KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Zone', value: zones.length, color: 'text-blue-400' },
-            { label: 'Risk Events', value: risk_events.length, color: 'text-yellow-400' },
-            { label: 'Copertura', value: `${overallPct}%`, color: overallPct >= 80 ? 'text-green-400' : 'text-orange-400' },
-            { label: 'Gap residui', value: totalGaps, color: totalGaps === 0 ? 'text-green-400' : 'text-red-400' },
-          ].map(kpi => (
-            <div key={kpi.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-              <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{kpi.label}</p>
-            </div>
-          ))}
-        </div>
+        {/* PDF Wizard */}
+        <button
+          onClick={handleDownloadPdf}
+          disabled={downloadingPdf}
+          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors disabled:opacity-60 group"
+        >
+          <div className="w-10 h-10 bg-gray-800 group-hover:bg-brand-green/20 rounded-lg flex items-center justify-center transition-colors">
+            {downloadingPdf ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <FileDown className="w-5 h-5 text-brand-green" />}
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-white">Scarica PDF Wizard</p>
+            <p className="text-xs text-gray-500 mt-1">PDF con SUC, risk, gap analysis, policy</p>
+          </div>
+          <span className="text-xs text-brand-green font-medium flex items-center gap-1">
+            <Download className="w-3 h-3" /> .pdf
+          </span>
+        </button>
+
+        {/* HTML Report */}
+        <a
+          href={`/api/assessments/${id}/report/html`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors group"
+        >
+          <div className="w-10 h-10 bg-gray-800 group-hover:bg-brand-green/20 rounded-lg flex items-center justify-center transition-colors">
+            <ExternalLink className="w-5 h-5 text-brand-green" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-white">Apri Report HTML</p>
+            <p className="text-xs text-gray-500 mt-1">Report asset e finding nel browser</p>
+          </div>
+          <span className="text-xs text-brand-green font-medium flex items-center gap-1">
+            <ExternalLink className="w-3 h-3" /> apre in nuova tab
+          </span>
+        </a>
+      </div>
+
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: 'Zone', value: zones.length, color: 'text-blue-400' },
+          { label: 'Risk Events', value: risk_events.length, color: 'text-yellow-400' },
+          { label: 'Copertura', value: `${overallPct}%`, color: overallPct >= 80 ? 'text-green-400' : 'text-orange-400' },
+          { label: 'Gap residui', value: totalGaps, color: totalGaps === 0 ? 'text-green-400' : 'text-red-400' },
+        ].map(kpi => (
+          <div key={kpi.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+            <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
+            <p className="text-xs text-gray-500 mt-1">{kpi.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Report body */}
+      <div className="space-y-5">
 
         {/* 1. SUC */}
         <section className="bg-gray-900 border border-gray-800 rounded-xl p-5">
@@ -261,8 +278,8 @@ export default function WizardStep7_Report() {
                 const pct = z.controls_total > 0 ? Math.round((z.controls_covered / z.controls_total) * 100) : 0
                 return (
                   <tr key={z.id}>
-                    <td className="px-5 py-3 font-medium text-white flex items-center gap-2">
-                      <Shield className="w-3.5 h-3.5 text-gray-500" />{z.name}
+                    <td className="px-5 py-3 font-medium text-white">
+                      <div className="flex items-center gap-2"><Shield className="w-3.5 h-3.5 text-gray-500" />{z.name}</div>
                     </td>
                     <td className={`px-3 py-3 font-bold text-xs ${SL_COLORS[z.security_level] || 'text-gray-400'}`}>
                       {z.security_level}
@@ -318,7 +335,7 @@ export default function WizardStep7_Report() {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-6 print:hidden">
+      <div className="flex items-center justify-between mt-6">
         <button
           onClick={() => navigate(`/assessments/${id}/step/6`)}
           className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 rounded-lg text-sm transition-colors"

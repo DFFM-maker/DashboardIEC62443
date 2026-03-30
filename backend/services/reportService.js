@@ -6,18 +6,20 @@ const db = require('../db/database')
 const ASSETS_DIR = path.join(__dirname, '../../assets')
 const REPORTS_DIR = path.join(__dirname, '../reports/output')
 
-function getLogoLightSvg() {
+function getLogoBase64() {
   const p = path.join(ASSETS_DIR, 'logo-tecnopack-light.svg')
-  return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null
+  if (!fs.existsSync(p)) return null
+  return 'data:image/svg+xml;base64,' + fs.readFileSync(p).toString('base64')
 }
 
 function getLogoInlineForPdf() {
-  const svg = getLogoLightSvg()
-  if (!svg) return '<span style="font-size:24px;font-weight:bold;color:#2e9650">TECNOPACK</span>'
+  const p = path.join(ASSETS_DIR, 'logo-tecnopack-light.svg')
+  if (!fs.existsSync(p)) return '<span style="font-size:24px;font-weight:bold;color:#2e9650">TECNOPACK</span>'
+  const svg = fs.readFileSync(p, 'utf8')
   return svg
     .replace(/\s+height="[^"]*"/, '')
     .replace(/\s+width="[^"]*"/, '')
-    .replace('<svg ', '<svg viewBox="0 0 949.6 205.44" height="60" style="width:auto;display:block" ')
+    .replace('<svg ', '<svg viewBox="0 0 949.6 205.44" height="44" style="width:auto;display:block" ')
 }
 
 function severityColor(sev) {
@@ -36,86 +38,95 @@ function generateHtml(assessment, client, assets, portsMap, findings, zones, con
   const medCount = findings.filter(f => f.severity === 'medium').length
   const lowCount = findings.filter(f => f.severity === 'low').length
 
-  const svgBarWidth = 300
+  const svgBarWidth = 280
   const maxCount = Math.max(critCount, highCount, medCount, lowCount, 1)
   const barScale = svgBarWidth / maxCount
 
-  const logoHtml = getLogoInlineForPdf()
+  const docDate = new Date(assessment.created_at).toLocaleDateString('it-IT')
+  const docTitle = `${assessment.name} — OT Security Assessment`
+  const docRev = '1.0'
 
-  const assetRows = assets.map(a => {
+  // Check if any asset has open ports (to conditionally show the column)
+  const hasAnyPorts = assets.some(a => (portsMap[a.id] || []).length > 0)
+
+  // ── Severity badge helper ──────────────────────────────────────────────────
+  function badge(sev) {
+    const cfg = {
+      critical: { bg: '#dc2626', text: 'white' },
+      high: { bg: '#ea580c', text: 'white' },
+      medium: { bg: '#d97706', text: 'white' },
+      low: { bg: '#16a34a', text: 'white' },
+      info: { bg: '#2563eb', text: 'white' },
+    }
+    const c = cfg[(sev || '').toLowerCase()] || { bg: '#6b7280', text: 'white' }
+    return `<span style="display:inline-block;background:${c.bg};color:${c.text};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${sev || '—'}</span>`
+  }
+
+  // ── Asset rows ─────────────────────────────────────────────────────────────
+  const assetRows = assets.map((a, i) => {
     const ports = (portsMap[a.id] || []).map(p => `${p.port}/${p.protocol}`).join(', ')
-    return `<tr>
-      <td>${a.ip}</td>
-      <td>${a.mac || '—'}</td>
+    const bg = i % 2 === 0 ? '#ffffff' : '#f8f9fa'
+    return `<tr style="background:${bg}">
+      <td style="font-family:monospace;font-weight:600">${a.ip}</td>
+      <td style="font-family:monospace;font-size:11px">${a.mac || '—'}</td>
       <td>${a.vendor || '—'}</td>
       <td>${a.device_type || '—'}</td>
       <td>${a.device_model || '—'}</td>
       <td>${a.security_zone || '—'}</td>
-      <td><span style="color:${a.criticality === 'high' ? '#dc2626' : a.criticality === 'medium' ? '#d97706' : '#16a34a'};font-weight:600">${(a.criticality || 'medium').toUpperCase()}</span></td>
-      <td style="font-size:11px">${ports}</td>
-      <td style="font-size:11px">${a.notes || ''}</td>
+      <td style="text-align:center">${badge(a.criticality || 'medium')}</td>
+      ${hasAnyPorts ? `<td style="font-size:10px;font-family:monospace">${ports || '—'}</td>` : ''}
     </tr>`
   }).join('')
 
+  // ── Findings ───────────────────────────────────────────────────────────────
   const findingsSections = findings.map((f, i) => {
-    const srList = (() => { try { return JSON.parse(f.iec62443_sr || '[]') } catch (e) { return [] } })()
+    const srList = (() => { try { return JSON.parse(f.iec62443_sr || '[]') } catch (_) { return [] } })()
     return `
-    <div class="finding" style="border-left: 4px solid ${severityColor(f.severity)};background:${severityBg(f.severity)};margin:16px 0;padding:16px;border-radius:4px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-        <span style="background:${severityColor(f.severity)};color:white;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;text-transform:uppercase">${f.severity}</span>
-        <strong>F-${String(i + 1).padStart(3, '0')} — ${f.title}</strong>
-        <span style="margin-left:auto;font-size:12px;color:#6b7280">CVSS ${f.cvss_score || 'N/A'}</span>
+    <div style="border-left:4px solid ${severityColor(f.severity)};background:${severityBg(f.severity)};margin:12px 0;padding:14px 16px;page-break-inside:avoid">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        ${badge(f.severity)}
+        <strong style="font-size:13px">F-${String(i + 1).padStart(3, '0')} — ${f.title}</strong>
+        <span style="margin-left:auto;font-size:11px;color:#6b7280">CVSS ${f.cvss_score || 'N/A'}</span>
       </div>
-      <p style="margin:8px 0;color:#374151">${f.description}</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-        <div>
-          <strong style="font-size:12px;color:#6b7280">IP AFFETTI:</strong>
-          <p style="margin:4px 0;font-family:monospace;font-size:13px">${f.asset_ip || '—'}</p>
-          <strong style="font-size:12px;color:#6b7280">SR IEC 62443:</strong>
-          <p style="margin:4px 0;font-size:13px">${srList.join(', ')}</p>
-          <strong style="font-size:12px;color:#6b7280">CVSS Vector:</strong>
-          <p style="margin:4px 0;font-family:monospace;font-size:11px">${f.cvss_vector || '—'}</p>
-        </div>
-        <div>
-          <strong style="font-size:12px;color:#6b7280">REMEDIATION (${f.remediation_priority}):</strong>
-          <p style="margin:4px 0;font-size:13px;white-space:pre-line">${f.remediation || '—'}</p>
-        </div>
-      </div>
-      ${f.evidence ? `<details style="margin-top:12px"><summary style="cursor:pointer;font-size:12px;color:#6b7280">Evidence</summary><pre style="margin-top:8px;padding:8px;background:#f3f4f6;border-radius:4px;font-size:11px;overflow-x:auto">${f.evidence}</pre></details>` : ''}
+      <p style="margin:6px 0;font-size:13px;color:#374151">${f.description || ''}</p>
+      <table style="width:100%;margin-top:10px;font-size:12px;border-collapse:collapse">
+        <tr>
+          <td style="width:50%;vertical-align:top;padding-right:12px">
+            <span style="color:#6b7280;font-size:11px;text-transform:uppercase">IP affetti</span><br>
+            <code style="font-size:12px">${f.asset_ip || '—'}</code><br><br>
+            <span style="color:#6b7280;font-size:11px;text-transform:uppercase">SR IEC 62443</span><br>
+            ${srList.length ? srList.map(sr => `<code style="font-size:11px;background:#e5e7eb;padding:1px 5px;border-radius:3px;margin-right:4px">${sr}</code>`).join(' ') : '—'}
+          </td>
+          <td style="width:50%;vertical-align:top">
+            <span style="color:#6b7280;font-size:11px;text-transform:uppercase">Remediation (${f.remediation_priority || '—'})</span><br>
+            <span style="font-size:12px;white-space:pre-line">${f.remediation || '—'}</span>
+          </td>
+        </tr>
+      </table>
     </div>`
   }).join('')
 
-  // SVG Zone Map
-  const zoneColors = {
-    'PLC Zone': '#3b82f6',
-    'HMI Zone': '#22c55e',
-    'Infrastructure Zone': '#06b6d4',
-    'Remote Access Zone': '#f97316',
-    'Unclassified': '#6b7280'
-  }
+  // ── Zone SVG map ───────────────────────────────────────────────────────────
+  const zoneColors = { 'PLC Zone': '#3b82f6', 'HMI Zone': '#22c55e', 'Infrastructure Zone': '#06b6d4', 'Remote Access Zone': '#f97316', 'Unclassified': '#6b7280' }
   const zoneList = [...new Set(assets.map(a => a.security_zone).filter(Boolean))]
+  const svgHeight = Math.max(160, Math.ceil(zoneList.length / 3) * 130 + 40)
   const zoneBoxes = zoneList.map((zone, i) => {
     const x = 20 + (i % 3) * 220
     const y = 20 + Math.floor(i / 3) * 120
     const color = zoneColors[zone] || '#6b7280'
-    const zoneAssets = assets.filter(a => a.security_zone === zone)
+    const za = assets.filter(a => a.security_zone === zone)
     return `
-      <rect x="${x}" y="${y}" width="200" height="100" rx="8" fill="${color}22" stroke="${color}" stroke-width="2"/>
-      <text x="${x + 100}" y="${y + 20}" text-anchor="middle" font-weight="bold" font-size="13" fill="${color}">${zone}</text>
-      <text x="${x + 100}" y="${y + 38}" text-anchor="middle" font-size="11" fill="#374151">${zoneAssets.length} asset</text>
-      ${zoneAssets.slice(0, 3).map((a, ai) =>
-        `<text x="${x + 10}" y="${y + 55 + ai * 14}" font-size="10" fill="#4b5563">${a.ip} (${a.device_type || '?'})</text>`
-      ).join('')}
-      ${zoneAssets.length > 3 ? `<text x="${x + 10}" y="${y + 55 + 3 * 14}" font-size="10" fill="#9ca3af">+${zoneAssets.length - 3} altri...</text>` : ''}
-    `
+      <rect x="${x}" y="${y}" width="200" height="100" rx="6" fill="${color}18" stroke="${color}" stroke-width="1.5"/>
+      <text x="${x + 100}" y="${y + 18}" text-anchor="middle" font-weight="bold" font-size="12" fill="${color}">${zone}</text>
+      <text x="${x + 100}" y="${y + 34}" text-anchor="middle" font-size="10" fill="#374151">${za.length} asset</text>
+      ${za.slice(0, 3).map((a, ai) => `<text x="${x + 8}" y="${y + 52 + ai * 14}" font-size="9" fill="#4b5563">${a.ip} (${a.device_type || '?'})</text>`).join('')}
+      ${za.length > 3 ? `<text x="${x + 8}" y="${y + 52 + 42}" font-size="9" fill="#9ca3af">+${za.length - 3} altri...</text>` : ''}`
   }).join('')
 
-  const svgHeight = Math.max(200, Math.ceil(zoneList.length / 3) * 130 + 40)
-
-  // SR Compliance table (subset of IEC 62443-3-3)
+  // ── SR Compliance ──────────────────────────────────────────────────────────
   const srMapping = [
     { sr: 'SR 1.1', title: 'Human user identification and authentication' },
-    { sr: 'SR 1.2', title: 'Software process and device identification and authentication' },
+    { sr: 'SR 1.2', title: 'Software process and device identification' },
     { sr: 'SR 2.1', title: 'Authorization enforcement' },
     { sr: 'SR 2.4', title: 'Mobile code' },
     { sr: 'SR 3.1', title: 'Communication integrity' },
@@ -127,24 +138,16 @@ function generateHtml(assessment, client, assets, portsMap, findings, zones, con
     { sr: 'SR 7.6', title: 'Network and security configuration settings backup' },
     { sr: 'SR 7.7', title: 'Least functionality' },
   ]
-
   const violatedSRs = new Set()
-  for (const f of findings) {
-    try {
-      const srs = JSON.parse(f.iec62443_sr || '[]')
-      srs.forEach(sr => violatedSRs.add(sr))
-    } catch (e) {}
-  }
-
-  const srRows = srMapping.map(({ sr, title }) => {
+  for (const f of findings) { try { JSON.parse(f.iec62443_sr || '[]').forEach(s => violatedSRs.add(s)) } catch (_) { } }
+  const srRows = srMapping.map(({ sr, title }, i) => {
     const violated = violatedSRs.has(sr)
-    const status = violated ? 'Non Conforme' : 'Conforme'
-    const statusColor = violated ? '#dc2626' : '#16a34a'
-    const statusBg = violated ? '#fef2f2' : '#f0fdf4'
-    return `<tr>
-      <td style="font-family:monospace;font-weight:600">${sr}</td>
+    const bg = i % 2 === 0 ? '#ffffff' : '#f8f9fa'
+    return `<tr style="background:${bg}">
+      <td style="font-family:monospace;font-weight:600;color:#1f2937">${sr}</td>
       <td>${title}</td>
-      <td style="background:${statusBg};color:${statusColor};font-weight:600;text-align:center">${status}</td>
+      <td style="text-align:center">${badge(violated ? 'high' : 'low')}</td>
+      <td style="color:${violated ? '#dc2626' : '#16a34a'};font-weight:600;font-size:12px">${violated ? 'Non Conforme' : 'Conforme'}</td>
     </tr>`
   }).join('')
 
@@ -152,189 +155,280 @@ function generateHtml(assessment, client, assets, portsMap, findings, zones, con
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OT Security Assessment Report — ${assessment.name}</title>
+<title>${docTitle}</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1f2937; background: #fff; }
-  .cover { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px; background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%); color: white; text-align: center; page-break-after: always; }
-  .cover h1 { font-size: 36px; margin: 24px 0 8px; }
-  .cover h2 { font-size: 20px; font-weight: 400; opacity: 0.8; margin-bottom: 40px; }
-  .cover table { border-collapse: collapse; text-align: left; margin: 0 auto; }
-  .cover td { padding: 6px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .cover td:first-child { opacity: 0.7; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .cover td:last-child { font-weight: 600; }
-  .cover-footer { margin-top: 60px; opacity: 0.6; font-size: 13px; }
-  .page { max-width: 1100px; margin: 0 auto; padding: 40px 40px; }
-  h1.section { font-size: 28px; color: #1e3a5f; border-bottom: 3px solid #2e9650; padding-bottom: 12px; margin: 40px 0 24px; }
-  h2.section { font-size: 20px; color: #1e3a5f; margin: 28px 0 16px; }
-  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
-  .summary-card { padding: 20px; border-radius: 8px; text-align: center; }
-  .summary-card .count { font-size: 48px; font-weight: 800; line-height: 1; }
-  .summary-card .label { font-size: 13px; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  table.data { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
-  table.data th { background: #1e3a5f; color: white; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; }
-  table.data td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
-  table.data tr:nth-child(even) td { background: #f9fafb; }
-  .print-btn { position: fixed; bottom: 24px; right: 24px; background: #2e9650; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:#1f2937; background:#fff; font-size:13px; line-height:1.5; }
+
+  /* ── Cover ── */
+  .cover {
+    min-height:100vh; display:flex; flex-direction:column;
+    padding:0; page-break-after:always; background:#fff;
+  }
+  .cover-top {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:24px 40px 18px; border-bottom:3px solid #2e9650;
+  }
+  .cover-body {
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:60px 60px 40px;
+  }
+  .cover-title { font-size:30px; font-weight:800; color:#1f2937; text-align:center; margin-bottom:6px; }
+  .cover-sub   { font-size:16px; font-weight:400; color:#6b7280; margin-bottom:40px; }
+  .cover-meta  { border-collapse:collapse; width:100%; max-width:560px; font-size:13px; }
+  .cover-meta td { padding:8px 16px; border-bottom:1px solid #e5e7eb; }
+  .cover-meta td:first-child { color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:.05em; width:38%; }
+  .cover-meta td:last-child  { font-weight:600; color:#1f2937; }
+  .cover-class { margin-top:28px; padding:10px 24px; border:1.5px solid #dc2626; border-radius:4px; }
+  .cover-bottom {
+    padding:16px 40px; border-top:1px solid #e5e7eb;
+    font-size:11px; color:#9ca3af; display:flex; justify-content:space-between;
+  }
+
+  /* ── Page body ── */
+  .page { padding:0 0 32px; }
+
+  /* ── Section headings (numbered) ── */
+  h1.sec {
+    font-size:17px; font-weight:700; color:#2e9650;
+    border-bottom:2px solid #2e9650; padding-bottom:6px;
+    margin:32px 0 16px; page-break-after:avoid;
+  }
+  h2.sec {
+    font-size:14px; font-weight:700; color:#2e9650;
+    border-bottom:1px solid #d1fae5; padding-bottom:4px;
+    margin:20px 0 10px; page-break-after:avoid;
+  }
+
+  /* ── Summary cards ── */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0; }
+  .kpi-card  { padding:16px 12px; border:1px solid #e5e7eb; border-radius:6px; text-align:center; }
+  .kpi-count { font-size:36px; font-weight:800; line-height:1; }
+  .kpi-label { font-size:11px; margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; }
+
+  /* ── Tables ── */
+  table.data { width:100%; border-collapse:collapse; font-size:12px; margin:12px 0; }
+  table.data th {
+    background:#2e9650; color:#fff; padding:8px 12px;
+    text-align:left; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+  }
+  table.data td { padding:7px 12px; border:1px solid #dee2e6; vertical-align:top; }
+
+  /* ── Misc ── */
+  ul,ol { padding-left:20px; }
+  li { margin-bottom:4px; }
+  code { font-family:monospace; font-size:12px; }
+
+  /* ── Page margins: no header/footer on cover (page 1), full margins on pages 2+ ── */
+  @page :first { margin-top: 0; margin-bottom: 0; }
+  @page { margin-top: 20mm; margin-bottom: 14mm; }
+
   @media print {
-    .print-btn { display: none; }
-    .cover { page-break-after: always; }
-    .finding { page-break-inside: avoid; }
-    body { font-size: 12px; }
+    .cover { page-break-after:always; }
+    h1.sec,h2.sec { page-break-after:avoid; }
   }
 </style>
 </head>
 <body>
 
-<!-- COVER PAGE -->
+<!-- ══════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════ -->
 <div class="cover">
-  <div style="margin-bottom:32px">${logoHtml}</div>
-  <h1>OT Security Assessment Report</h1>
-  <h2>Conformità IEC 62443</h2>
-  <table>
-    <tr><td>Cliente</td><td>${client?.name || '—'}</td></tr>
-    <tr><td>Impianto</td><td>${assessment.name}</td></tr>
-    ${client?.address ? `<tr><td>Indirizzo</td><td>${client.address}, ${client.city}</td></tr>` : ''}
-    ${client?.contact_name ? `<tr><td>Referente</td><td>${client.contact_name}</td></tr>` : ''}
-    <tr><td>Assessor</td><td>${assessment.assessor || '—'}</td></tr>
-    <tr><td>Data</td><td>${new Date(assessment.created_at).toLocaleDateString('it-IT')}</td></tr>
-    <tr><td>Subnet analizzata</td><td>${assessment.subnet}</td></tr>
-    <tr><td>SL Target IEC 62443</td><td>${assessment.iec62443_target_sl || 'SL-2'}</td></tr>
-  </table>
-  <div class="cover-footer">
-    <p>Documento riservato — Tecnopack S.r.l.</p>
-    <p>Generato da Tecnopack OT Security Dashboard v2.0</p>
+  <div class="cover-body">
+    <p class="cover-title">OT Security Assessment Report</p>
+    <p class="cover-sub">Conformità IEC 62443-3-3</p>
+
+    <table class="cover-meta">
+      <tr><td>Cliente</td><td>${client?.name || '—'}</td></tr>
+      <tr><td>Impianto / Progetto</td><td>${assessment.name}</td></tr>
+      ${client?.address ? `<tr><td>Indirizzo</td><td>${client.address}${client.city ? ', ' + client.city : ''}</td></tr>` : ''}
+      ${client?.contact_name ? `<tr><td>Referente cliente</td><td>${client.contact_name}</td></tr>` : ''}
+      <tr><td>Assessor</td><td>${assessment.assessor || '—'}</td></tr>
+      <tr><td>Data assessment</td><td>${docDate}</td></tr>
+      <tr><td>Subnet analizzata</td><td><code>${assessment.subnet}</code></td></tr>
+      <tr><td>SL Target IEC 62443</td><td><strong>${assessment.iec62443_target_sl || 'SL-2'}</strong></td></tr>
+      <tr><td>Revisione documento</td><td>${docRev}</td></tr>
+    </table>
+
+    <div class="cover-class">
+      <span style="color:#dc2626;font-weight:700;font-size:13px">RISERVATO — Solo uso interno e cliente autorizzato</span>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <span>Generato da Tecnopack OT Security Dashboard v2.0 · ${docDate}</span>
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════
+     BODY
+══════════════════════════════════════════════════ -->
 <div class="page">
 
-<!-- EXECUTIVE SUMMARY -->
-<h1 class="section">Executive Summary</h1>
-<div class="summary-grid">
-  <div class="summary-card" style="background:#eff6ff;color:#1e40af">
-    <div class="count">${assets.length}</div>
-    <div class="label">Asset trovati</div>
+<!-- 1. EXECUTIVE SUMMARY -->
+<h1 class="sec">1&nbsp;&nbsp;Executive Summary</h1>
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-count" style="color:#2563eb">${assets.length}</div>
+    <div class="kpi-label">Asset rilevati</div>
   </div>
-  <div class="summary-card" style="background:#fef2f2;color:#dc2626">
-    <div class="count">${critCount}</div>
-    <div class="label">Critical</div>
+  <div class="kpi-card">
+    <div class="kpi-count" style="color:#dc2626">${critCount}</div>
+    <div class="kpi-label">Critical</div>
   </div>
-  <div class="summary-card" style="background:#fff7ed;color:#ea580c">
-    <div class="count">${highCount}</div>
-    <div class="label">High</div>
+  <div class="kpi-card">
+    <div class="kpi-count" style="color:#ea580c">${highCount}</div>
+    <div class="kpi-label">High</div>
   </div>
-  <div class="summary-card" style="background:#fffbeb;color:#d97706">
-    <div class="count">${medCount}</div>
-    <div class="label">Medium</div>
+  <div class="kpi-card">
+    <div class="kpi-count" style="color:#d97706">${medCount}</div>
+    <div class="kpi-label">Medium</div>
   </div>
 </div>
 
-<svg width="100%" height="120" viewBox="0 0 700 120" style="margin:16px 0">
+<svg width="100%" height="110" viewBox="0 0 620 110" style="margin:8px 0 16px">
   ${[
-    { label: 'Critical', count: critCount, color: '#dc2626', y: 10 },
-    { label: 'High', count: highCount, color: '#ea580c', y: 35 },
-    { label: 'Medium', count: medCount, color: '#d97706', y: 60 },
-    { label: 'Low', count: lowCount, color: '#16a34a', y: 85 },
-  ].map(({ label, count, color, y }) => `
-    <text x="0" y="${y + 14}" font-size="12" fill="#374151" font-family="sans-serif">${label}</text>
-    <rect x="70" y="${y}" width="${Math.round(count * barScale)}" height="18" rx="3" fill="${color}"/>
-    <text x="${72 + Math.round(count * barScale)}" y="${y + 14}" font-size="12" fill="${color}" font-weight="bold">${count}</text>
+      { label: 'Critical', count: critCount, color: '#dc2626', y: 6 },
+      { label: 'High', count: highCount, color: '#ea580c', y: 31 },
+      { label: 'Medium', count: medCount, color: '#d97706', y: 56 },
+      { label: 'Low', count: lowCount, color: '#16a34a', y: 81 },
+    ].map(({ label, count, color, y }) => `
+    <text x="0" y="${y + 14}" font-size="11" fill="#374151" font-family="sans-serif">${label}</text>
+    <rect x="68" y="${y}" width="${Math.max(2, Math.round(count * barScale))}" height="16" rx="2" fill="${color}"/>
+    <text x="${70 + Math.round(count * barScale)}" y="${y + 13}" font-size="11" fill="${color}" font-weight="bold">${count}</text>
   `).join('')}
 </svg>
 
-<h2 class="section">Principali Gap di Conformità</h2>
-<ul style="padding-left:20px;line-height:2">
-  ${critCount > 0 ? `<li><strong>CRITICO:</strong> ${critCount} finding critici richiedono azione immediata (Telnet, accesso non autenticato)</li>` : ''}
+<h2 class="sec">1.1&nbsp;&nbsp;Principali Gap di Conformità</h2>
+<ul>
+  ${critCount > 0 ? `<li><strong>CRITICO:</strong> ${critCount} finding richiedono intervento immediato</li>` : ''}
   ${highCount > 0 ? `<li><strong>ALTO:</strong> Protocolli OT esposti senza autenticazione (FINS, EtherNet/IP, SMB)</li>` : ''}
-  <li>Asset non documentati nell'inventario OT ufficiale</li>
-  <li>Firmware e versioni software obsolete su infrastruttura di rete</li>
+  <li>Asset non documentati nell'inventario OT</li>
+  <li>Firmware e versioni software obsolete</li>
 </ul>
 
-<h2 class="section">Top 3 Raccomandazioni</h2>
-<ol style="padding-left:20px;line-height:2">
-  <li>Disabilitare <strong>Telnet</strong> su switch OT e aggiornare firmware HPE 2530</li>
-  <li>Bloccare via ACL <strong>TCP/50000</strong> (B&R bilance) e <strong>FINS/9600</strong> (Omron PLC)</li>
-  <li>Isolare e documentare i <strong>3 asset non inventariati</strong> (.10, .111, .121)</li>
+<h2 class="sec">1.2&nbsp;&nbsp;Top Raccomandazioni</h2>
+<ol>
+  ${critCount > 0 ? '<li>Correggere immediatamente tutti i finding CRITICAL prima di riportare il sistema in produzione</li>' : ''}
+  <li>Bloccare via ACL i protocolli OT esposti su rete non segregata</li>
+  <li>Inventariare e documentare tutti gli asset non classificati</li>
 </ol>
 
-<!-- ASSET INVENTORY -->
-<h1 class="section">Asset Inventory</h1>
+<!-- 2. ASSET INVENTORY -->
+<h1 class="sec">2&nbsp;&nbsp;Asset Inventory</h1>
 <table class="data">
   <thead><tr>
     <th>IP</th><th>MAC</th><th>Vendor</th><th>Tipo</th><th>Modello</th>
-    <th>Zona</th><th>Criticità</th><th>Porte</th><th>Note</th>
+    <th>Zona</th><th>Criticità</th>${hasAnyPorts ? '<th>Porte aperte</th>' : ''}
   </tr></thead>
-  <tbody>${assetRows}</tbody>
+  <tbody>${assetRows || `<tr><td colspan="${hasAnyPorts ? 8 : 7}" style="text-align:center;color:#9ca3af;padding:20px">Nessun asset rilevato</td></tr>`}</tbody>
 </table>
 
-<!-- FINDINGS -->
-<h1 class="section">Security Findings (${findings.length})</h1>
-${findingsSections || '<p style="color:#6b7280">Nessun finding rilevato.</p>'}
+<!-- 3. SECURITY FINDINGS -->
+<h1 class="sec">3&nbsp;&nbsp;Security Findings (${findings.length})</h1>
+${findingsSections || '<p style="color:#9ca3af;font-style:italic">Nessun finding rilevato.</p>'}
 
-<!-- ZONE MAP -->
-<h1 class="section">Zone &amp; Conduit Map</h1>
-<svg width="100%" viewBox="0 0 700 ${svgHeight}" style="border:1px solid #e5e7eb;border-radius:8px;background:#fafafa;margin:16px 0">
-  ${zoneBoxes}
+<!-- 4. ZONE & CONDUIT MAP -->
+<h1 class="sec">4&nbsp;&nbsp;Zone &amp; Conduit Map</h1>
+<svg width="100%" viewBox="0 0 700 ${svgHeight}" style="border:1px solid #dee2e6;border-radius:6px;background:#fafafa;margin:8px 0">
+  ${zoneBoxes || '<text x="350" y="80" text-anchor="middle" font-size="13" fill="#9ca3af">Nessuna zona definita</text>'}
 </svg>
 
-<!-- IEC 62443 COMPLIANCE -->
-<h1 class="section">Mappatura IEC 62443-3-3 SR</h1>
+<!-- 5. IEC 62443-3-3 SR COMPLIANCE -->
+<h1 class="sec">5&nbsp;&nbsp;Mappatura IEC 62443-3-3 SR</h1>
 <table class="data">
-  <thead><tr><th>SR</th><th>Titolo</th><th>Stato</th></tr></thead>
+  <thead><tr><th style="width:100px">SR</th><th>Titolo</th><th style="width:80px;text-align:center">Livello</th><th style="width:110px">Stato</th></tr></thead>
   <tbody>${srRows}</tbody>
 </table>
 
-<!-- REMEDIATION ROADMAP -->
-<h1 class="section">Remediation Roadmap</h1>
-<div style="margin:16px 0">
-  ${['Immediate', 'Short-term', 'Long-term'].map(priority => {
-    const pf = findings.filter(f => f.remediation_priority === priority)
-    if (pf.length === 0) return ''
-    const colors = { Immediate: '#dc2626', 'Short-term': '#d97706', 'Long-term': '#2563eb' }
-    return `
-      <div style="margin-bottom:16px">
-        <h3 style="color:${colors[priority]};margin-bottom:8px">${priority} (${pf.length} finding)</h3>
-        <ul style="padding-left:20px;line-height:1.8">
-          ${pf.map(f => `<li>${f.title} — <em style="color:${severityColor(f.severity)}">${f.severity.toUpperCase()}</em></li>`).join('')}
-        </ul>
-      </div>`
-  }).join('')}
-</div>
+${findings.length > 0 ? `
+<!-- 6. REMEDIATION ROADMAP -->
+<h1 class="sec">6&nbsp;&nbsp;Remediation Roadmap</h1>
+${['Immediate', 'Short-term', 'Long-term'].map((priority, pi) => {
+      const pf = findings.filter(f => f.remediation_priority === priority)
+      if (pf.length === 0) return ''
+      const labels = { Immediate: 'Immediata (< 2 settimane)', 'Short-term': 'Breve termine (< 3 mesi)', 'Long-term': 'Lungo termine (> 3 mesi)' }
+      return `
+  <h2 class="sec">6.${pi + 1}&#160;&#160;${labels[priority]} — ${pf.length} finding</h2>
+  <ul>
+    ${pf.map(f => `<li>${badge(f.severity)} <strong>${f.title}</strong> — ${f.remediation || '—'}</li>`).join('')}
+  </ul>`
+    }).join('')}
+` : ''}
 
 </div><!-- /page -->
-
-<button class="print-btn" onclick="window.print()">Stampa / Esporta PDF</button>
 </body>
 </html>`
 }
 
-async function generatePdf(htmlPath, pdfPath) {
-  return new Promise((resolve, reject) => {
-    // Try chromium first (installed on Kali)
-    const chromiumPaths = [
-      '/usr/bin/chromium',
-      '/usr/bin/chromium-browser',
-      '/usr/bin/google-chrome',
-      '/snap/bin/chromium'
-    ]
-    const fs2 = require('fs')
-    const chromium = chromiumPaths.find(p => fs2.existsSync(p)) || 'chromium'
+async function generatePdf(htmlPath, pdfPath, logoBase64) {
+  const puppeteer = require('puppeteer-core')
 
-    const cmd = `${chromium} --headless --disable-gpu --no-sandbox --print-to-pdf="${pdfPath}" "file://${htmlPath}" 2>/dev/null`
-    exec(cmd, { timeout: 60000 }, (err) => {
-      if (err) {
-        // Try weasyprint
-        exec(`weasyprint "${htmlPath}" "${pdfPath}" 2>/dev/null`, { timeout: 60000 }, (err2) => {
-          if (err2) reject(new Error('PDF generation failed: install weasyprint or chromium'))
-          else resolve(pdfPath)
-        })
-      } else {
-        resolve(pdfPath)
-      }
-    })
+  const logoImg = logoBase64
+    ? `<img src="${logoBase64}" style="height:22px;width:auto;display:block" />`
+    : `<span style="font-size:11px;font-weight:700;color:#2e9650">TECNOPACK</span>`
+
+  // Header: "OT Security Assessment — Riservato" left, logo right.
+  // Hidden on page 1 via @page :first { margin-top: 0 } in the HTML CSS.
+  const headerTemplate = `
+    <div style="width:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:9px;
+                padding:4px 18mm 4px;box-sizing:border-box;
+                display:flex;justify-content:space-between;align-items:center;
+                border-bottom:2px solid #2e9650">
+      <span style="color:#666666">OT Security Assessment — Riservato</span>
+      ${logoImg}
+    </div>`
+
+  const footerTemplate = `
+    <div style="width:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:8px;
+                color:#9ca3af;padding:4px 18mm 2px;box-sizing:border-box;
+                display:flex;justify-content:space-between;align-items:center;
+                border-top:1px solid #dee2e6">
+      <span></span>
+      <span><span class="pageNumber"></span> di <span class="totalPages"></span></span>
+    </div>`
+
+  const CHROMIUM_PATHS = [
+    '/snap/chromium/current/usr/lib/chromium-browser/chrome',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+  ]
+  const executablePath = CHROMIUM_PATHS.find(p => fs.existsSync(p))
+  if (!executablePath) throw new Error('Chromium non trovato — installa puppeteer o chromium')
+
+  const browser = await puppeteer.launch({
+    executablePath,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    headless: true,
   })
+
+  try {
+    const page = await browser.newPage()
+    await page.goto('file://' + htmlPath, { waitUntil: 'networkidle0', timeout: 30000 })
+    await page.pdf({
+      path: pdfPath,
+      format: 'A4',
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate,
+      footerTemplate,
+      margin: { top: '20mm', bottom: '14mm', left: '18mm', right: '18mm' },
+    })
+  } finally {
+    await browser.close()
+  }
+
+  // Fallback: if puppeteer failed to write (permissions), try weasyprint
+  if (!fs.existsSync(pdfPath) || fs.statSync(pdfPath).size === 0) {
+    await new Promise((resolve, reject) => {
+      exec(`weasyprint "${htmlPath}" "${pdfPath}" 2>/dev/null`, { timeout: 60000 }, (err) => {
+        if (err) reject(new Error('PDF generation failed: puppeteer e weasyprint entrambi falliti'))
+        else resolve()
+      })
+    })
+  }
 }
 
 async function generateReport(assessmentId, format) {
@@ -375,7 +469,7 @@ async function generateReport(assessmentId, format) {
     }
 
     const pdfPath = path.join(REPORTS_DIR, `${safeName}_${ts}.pdf`)
-    await generatePdf(path.resolve(htmlPath), pdfPath)
+    await generatePdf(path.resolve(htmlPath), pdfPath, getLogoBase64())
     return { filePath: pdfPath, fileName: path.basename(pdfPath), mimeType: 'application/pdf' }
   }
 
@@ -467,7 +561,7 @@ async function generateReport(assessmentId, format) {
     })
     findings.forEach((f, i) => {
       let srStr = ''
-      try { srStr = JSON.parse(f.iec62443_sr || '[]').join(', ') } catch (e) {}
+      try { srStr = JSON.parse(f.iec62443_sr || '[]').join(', ') } catch (e) { }
       ws3.addRow({
         fid: `F-${String(i + 1).padStart(3, '0')}`,
         ip: f.asset_ip || '', title: f.title,
@@ -492,4 +586,223 @@ async function generateReport(assessmentId, format) {
   throw new Error(`Formato non supportato: ${format}`)
 }
 
-module.exports = { generateReport }
+async function generateWizardPdf(data) {
+  const { assessment, zones, conduits, riskEvents, assets, findings, policies } = data
+
+  const logoBase64 = getLogoBase64()
+  const docDate = new Date().toLocaleDateString('it-IT')
+  const sucName = assessment.suc_name || assessment.name
+
+  function badge(sev) {
+    const map = { critical:'#dc2626', high:'#ea580c', medium:'#d97706', low:'#16a34a', info:'#2563eb' }
+    const bg = map[(sev||'').toLowerCase()] || '#6b7280'
+    return `<span style="display:inline-block;background:${bg};color:#fff;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;text-transform:uppercase">${sev||'—'}</span>`
+  }
+
+  function riskBadge(label) {
+    const map = { LOW:'#16a34a', MEDIUM:'#d97706', HIGH:'#ea580c', CRITICAL:'#dc2626', CATASTROPHIC:'#7c3aed' }
+    const bg = map[(label||'').toUpperCase()] || '#6b7280'
+    return `<span style="display:inline-block;background:${bg};color:#fff;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700">${label||'—'}</span>`
+  }
+
+  const finalPolicies = policies.filter(p => p.final)
+  const displayPolicies = finalPolicies.length > 0 ? finalPolicies : policies
+
+  const html = `<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Wizard Report — ${sucName}</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:#1f2937; background:#fff; font-size:13px; line-height:1.5; }
+  @page :first { margin-top:0; margin-bottom:0; }
+  @page { margin-top:20mm; margin-bottom:14mm; }
+
+  /* Cover */
+  .cover { min-height:100vh; display:flex; flex-direction:column; background:#fff; page-break-after:always; }
+  .cover-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px; }
+  .cover-title { font-size:28px; font-weight:800; color:#1f2937; text-align:center; margin-bottom:8px; }
+  .cover-sub { font-size:14px; color:#6b7280; margin-bottom:40px; }
+  .cover-meta { border-collapse:collapse; width:100%; max-width:560px; font-size:13px; }
+  .cover-meta td { padding:8px 16px; border-bottom:1px solid #e5e7eb; }
+  .cover-meta td:first-child { color:#6b7280; font-size:11px; text-transform:uppercase; letter-spacing:.05em; width:40%; }
+  .cover-meta td:last-child { font-weight:600; }
+  .cover-bottom { padding:16px 40px; border-top:1px solid #e5e7eb; font-size:11px; color:#9ca3af; display:flex; justify-content:flex-end; }
+
+  /* Sections */
+  .page { padding:0 0 32px; }
+  h1.sec { font-size:16px; font-weight:700; color:#2e9650; border-bottom:2px solid #2e9650; padding-bottom:6px; margin:32px 0 14px; page-break-after:avoid; }
+  h2.sec { font-size:13px; font-weight:700; color:#2e9650; border-bottom:1px solid #d1fae5; padding-bottom:3px; margin:18px 0 8px; page-break-after:avoid; }
+
+  /* Tables */
+  table.data { width:100%; border-collapse:collapse; font-size:11px; margin:10px 0; }
+  table.data th { background:#2e9650; color:#fff; padding:7px 10px; text-align:left; font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+  table.data td { padding:6px 10px; border:1px solid #dee2e6; vertical-align:top; }
+
+  /* KPI */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0; }
+  .kpi-card { padding:14px 10px; border:1px solid #e5e7eb; border-radius:6px; text-align:center; }
+  .kpi-count { font-size:30px; font-weight:800; line-height:1; }
+  .kpi-label { font-size:10px; margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; }
+
+  /* Policy box */
+  .policy-box { border-left:3px solid #2e9650; background:#f0fdf4; padding:10px 14px; margin:8px 0; font-size:12px; white-space:pre-wrap; border-radius:0 4px 4px 0; }
+
+  @media print { .cover { page-break-after:always; } h1.sec,h2.sec { page-break-after:avoid; } }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-body">
+    <p class="cover-title">Cybersecurity Risk Assessment</p>
+    <p class="cover-sub">IEC 62443-3-3 — ${sucName}</p>
+    <table class="cover-meta">
+      ${assessment.suc_name ? `<tr><td>SUC</td><td>${assessment.suc_name}</td></tr>` : ''}
+      ${assessment.suc_function ? `<tr><td>Funzione</td><td>${assessment.suc_function}</td></tr>` : ''}
+      <tr><td>Assessment</td><td>${assessment.name}</td></tr>
+      <tr><td>Assessor</td><td>${assessment.assessor || '—'}</td></tr>
+      <tr><td>Data</td><td>${docDate}</td></tr>
+      <tr><td>Subnet</td><td><code>${assessment.subnet}</code></td></tr>
+      <tr><td>SL Target</td><td><strong>${assessment.iec62443_target_sl || 'SL-2'}</strong></td></tr>
+    </table>
+    <div style="margin-top:28px;padding:10px 24px;border:1.5px solid #dc2626;border-radius:4px">
+      <span style="color:#dc2626;font-weight:700;font-size:12px">RISERVATO — Solo uso interno e cliente autorizzato</span>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <span>Generato da Tecnopack OT Security Dashboard v2.0 · ${docDate}</span>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="page">
+
+<!-- 1. SUC -->
+<h1 class="sec">1&nbsp;&nbsp;System Under Consideration (SUC)</h1>
+<table class="data">
+  <thead><tr><th>Campo</th><th>Valore</th></tr></thead>
+  <tbody>
+    ${[
+      ['Nome SUC', assessment.suc_name],
+      ['Funzione IACS', assessment.suc_function],
+      ['Operatività macchina', assessment.machine_operation],
+      ['Data sharing', assessment.data_sharing],
+      ['Access points', assessment.access_points],
+      ['Confine fisico', assessment.physical_boundary],
+      ['SL Target', assessment.iec62443_target_sl],
+      ['Assumptions', assessment.assumptions],
+    ].filter(([,v]) => v).map(([k,v],i) => `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}"><td style="color:#6b7280;width:35%">${k}</td><td>${v}</td></tr>`).join('')}
+  </tbody>
+</table>
+
+<!-- 2. Risk Assessment -->
+<h1 class="sec">2&nbsp;&nbsp;Risk Assessment</h1>
+${riskEvents.length === 0 ? '<p style="color:#9ca3af;font-style:italic">Nessun risk event definito.</p>' : `
+<table class="data">
+  <thead><tr><th>#</th><th>Descrizione rischio</th><th style="width:40px;text-align:center">L</th><th style="width:40px;text-align:center">I</th><th style="width:50px;text-align:center">Score</th><th style="width:90px">Livello</th></tr></thead>
+  <tbody>${riskEvents.map((e,i) => `
+    <tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+      <td style="text-align:center;font-weight:700">${i+1}</td>
+      <td>${e.risk_description}</td>
+      <td style="text-align:center">${e.likelihood}</td>
+      <td style="text-align:center">${e.safety_impact}</td>
+      <td style="text-align:center;font-weight:700">${e.calculated_risk}</td>
+      <td>${riskBadge(e.calculated_risk_label)}</td>
+    </tr>`).join('')}</tbody>
+</table>`}
+
+<!-- 3. Zone e Condotti -->
+<h1 class="sec">3&nbsp;&nbsp;Zone e Condotti</h1>
+<table class="data">
+  <thead><tr><th>Zona</th><th>SL-T</th><th style="text-align:center">Controlli</th><th style="text-align:center">Copertura</th><th style="text-align:center">Gap</th></tr></thead>
+  <tbody>${zones.map((z,i) => {
+    const pct = z.controls_total > 0 ? Math.round((z.controls_covered/z.controls_total)*100) : 0
+    const pctColor = pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626'
+    return `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+      <td><strong>${z.name}</strong></td>
+      <td><strong>${z.security_level || '—'}</strong></td>
+      <td style="text-align:center">${z.controls_covered}/${z.controls_total}</td>
+      <td style="text-align:center;font-weight:700;color:${pctColor}">${pct}%</td>
+      <td style="text-align:center;font-weight:700;color:${z.gap_count===0?'#16a34a':'#dc2626'}">${z.gap_count}</td>
+    </tr>`
+  }).join('')}</tbody>
+</table>
+
+<!-- 4. Gap Analysis -->
+<h1 class="sec">4&nbsp;&nbsp;Gap Analysis</h1>
+${zones.flatMap(z => z.gap_controls).length === 0
+  ? '<p style="color:#9ca3af;font-style:italic">Nessun gap residuo.</p>'
+  : zones.filter(z => z.gap_controls.length > 0).map(z => `
+    <h2 class="sec">${z.name}</h2>
+    <table class="data">
+      <thead><tr><th style="width:80px">SR</th><th>Titolo</th><th style="width:80px">Categoria</th></tr></thead>
+      <tbody>${z.gap_controls.map((g,i) => `
+        <tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+          <td style="font-family:monospace;font-weight:600">${g.sr_code}</td>
+          <td>${g.title}</td>
+          <td style="font-size:10px">${g.category||'—'}</td>
+        </tr>`).join('')}</tbody>
+    </table>`).join('')}
+
+<!-- 5. Policy di Sicurezza -->
+<h1 class="sec">5&nbsp;&nbsp;Policy di Sicurezza${finalPolicies.length > 0 ? ' (Finalizzate)' : ''}</h1>
+${displayPolicies.length === 0
+  ? '<p style="color:#9ca3af;font-style:italic">Nessuna policy generata.</p>'
+  : displayPolicies.map(p => {
+      let params = {}
+      try { params = JSON.parse(p.parameters_json || '{}') } catch(_) {}
+      return `<div style="margin-bottom:16px;page-break-inside:avoid">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">${params.sr_code || ''} — ${params.title || ''} ${p.final ? '<span style="color:#16a34a;font-size:10px">✓ Finalizzata</span>' : ''}</div>
+        <div class="policy-box">${(p.policy_markdown||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>`
+    }).join('')}
+
+<!-- 6. Asset Inventory -->
+<h1 class="sec">6&nbsp;&nbsp;Asset Inventory</h1>
+${assets.length === 0
+  ? '<p style="color:#9ca3af;font-style:italic">Nessun asset rilevato.</p>'
+  : `<table class="data">
+      <thead><tr><th>IP</th><th>Vendor</th><th>Tipo</th><th>Modello</th><th>Zona</th><th>Criticità</th></tr></thead>
+      <tbody>${assets.map((a,i) => `
+        <tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+          <td style="font-family:monospace;font-weight:600">${a.ip}</td>
+          <td>${a.vendor||'—'}</td><td>${a.device_type||'—'}</td>
+          <td>${a.device_model||'—'}</td><td>${a.security_zone||'—'}</td>
+          <td style="text-align:center">${badge(a.criticality||'medium')}</td>
+        </tr>`).join('')}</tbody>
+    </table>`}
+
+<!-- 7. Finding di Sicurezza -->
+${findings.length > 0 ? `
+<h1 class="sec">7&nbsp;&nbsp;Finding di Sicurezza</h1>
+<table class="data">
+  <thead><tr><th>#</th><th>Titolo</th><th style="width:75px">Severity</th><th style="width:50px;text-align:center">CVSS</th><th>Remediation</th></tr></thead>
+  <tbody>${findings.map((f,i) => `
+    <tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+      <td style="text-align:center;font-weight:700">F-${String(i+1).padStart(3,'0')}</td>
+      <td>${f.title}</td>
+      <td>${badge(f.severity)}</td>
+      <td style="text-align:center;font-family:monospace">${f.cvss_score||'—'}</td>
+      <td style="font-size:11px">${(f.remediation||'—').slice(0,80)}</td>
+    </tr>`).join('')}</tbody>
+</table>` : ''}
+
+</div><!-- /page -->
+</body>
+</html>`
+
+  const ts = Date.now()
+  const safeName = (assessment.suc_name || assessment.name).replace(/[^a-z0-9]/gi, '_')
+  const htmlPath = path.join(REPORTS_DIR, `wizard_${safeName}_${ts}.html`)
+  fs.writeFileSync(htmlPath, html)
+
+  const pdfPath = path.join(REPORTS_DIR, `wizard_${safeName}_${ts}.pdf`)
+  await generatePdf(path.resolve(htmlPath), pdfPath, logoBase64)
+
+  return { filePath: pdfPath, fileName: `wizard-report-${safeName}.pdf`, mimeType: 'application/pdf' }
+}
+
+module.exports = { generateReport, generateWizardPdf }
