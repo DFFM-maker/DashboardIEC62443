@@ -6,7 +6,7 @@ import {
   MarkerType,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { ChevronLeft, ChevronRight, Plus, Trash2, Shield } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Trash2, Shield, Monitor } from 'lucide-react'
 import { api } from '../../lib/api'
 import WizardStepper from '../../components/wizard/WizardStepper'
 import ZoneNode from '../../components/wizard/ZoneNode'
@@ -51,23 +51,39 @@ export default function WizardStep3_ZonesConduits() {
 
   const [assessment, setAssessment] = useState(null)
   const [zones, setZones] = useState([])
+  const [assets, setAssets] = useState([])
+  // assetZoneMap: { assetId -> zoneId | '' }
+  const [assetZoneMap, setAssetZoneMap] = useState({})
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [showZoneForm, setShowZoneForm] = useState(false)
   const [zoneForm, setZoneForm] = useState(EMPTY_ZONE_FORM)
+  const [sidebarTab, setSidebarTab] = useState('zones') // 'zones' | 'assets'
 
-  useEffect(() => {
-    Promise.all([
+  const loadAll = useCallback(() => {
+    return Promise.all([
       api.getAssessment(id),
       api.getZones(id),
       api.getConduits(id),
-    ]).then(([a, z, c]) => {
+      api.getAssets(id),
+    ]).then(([a, z, c, ass]) => {
       setAssessment(a)
       setZones(z)
       setNodes(z.map(zoneToNode))
       setEdges(c.map(conduitToEdge))
+      setAssets(ass)
+      // Build assetZoneMap from zone.assets
+      const map = {}
+      for (const zone of z) {
+        for (const za of (zone.assets || [])) {
+          map[za.id] = zone.id
+        }
+      }
+      setAssetZoneMap(map)
     })
   }, [id])
+
+  useEffect(() => { loadAll() }, [loadAll])
 
   // Persist node position when dragged
   const onNodeDragStop = useCallback(async (_event, node) => {
@@ -109,6 +125,20 @@ export default function WizardStep3_ZonesConduits() {
     setZones(prev => prev.filter(z => z.id !== zoneId))
     setNodes(prev => prev.filter(n => n.id !== zoneId))
     setEdges(prev => prev.filter(e => e.source !== zoneId && e.target !== zoneId))
+    setAssetZoneMap(prev => {
+      const next = { ...prev }
+      for (const [aid, zid] of Object.entries(next)) {
+        if (zid === zoneId) delete next[aid]
+      }
+      return next
+    })
+  }
+
+  const handleAssetZoneChange = async (assetId, newZoneId) => {
+    const oldZoneId = assetZoneMap[assetId]
+    if (oldZoneId) await api.removeAssetFromZone(oldZoneId, assetId)
+    if (newZoneId) await api.addAssetToZone(newZoneId, assetId)
+    setAssetZoneMap(prev => ({ ...prev, [assetId]: newZoneId || '' }))
   }
 
   if (!assessment) {
@@ -134,89 +164,123 @@ export default function WizardStep3_ZonesConduits() {
       <div className="flex flex-1 min-h-0 px-6 pb-0 gap-4">
 
         {/* Sidebar */}
-        <aside className="w-64 shrink-0 flex flex-col gap-3">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col gap-3 flex-1 overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Shield className="w-4 h-4 text-brand-green" /> Zones
-              </h2>
+        <aside className="w-72 shrink-0 flex flex-col gap-3">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl flex flex-col flex-1 overflow-hidden">
+
+            {/* Tab bar */}
+            <div className="flex border-b border-gray-800 shrink-0">
               <button
-                onClick={() => setShowZoneForm(v => !v)}
-                className="flex items-center gap-1 px-2 py-1 bg-brand-green hover:opacity-90 text-white rounded text-xs font-medium"
+                onClick={() => setSidebarTab('zones')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${sidebarTab === 'zones' ? 'text-brand-green border-b-2 border-brand-green' : 'text-gray-500 hover:text-gray-300'}`}
               >
-                <Plus className="w-3 h-3" /> Add Zone
+                <Shield className="w-3.5 h-3.5" /> Zone ({zones.length})
+              </button>
+              <button
+                onClick={() => setSidebarTab('assets')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${sidebarTab === 'assets' ? 'text-brand-green border-b-2 border-brand-green' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                <Monitor className="w-3.5 h-3.5" /> Asset ({assets.length})
               </button>
             </div>
 
-            {/* Inline add form */}
-            {showZoneForm && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 space-y-2">
-                <input
-                  autoFocus
-                  placeholder="Zone name"
-                  value={zoneForm.name}
-                  onChange={e => setZoneForm(f => ({ ...f, name: e.target.value }))}
-                  onKeyDown={e => e.key === 'Enter' && handleAddZone()}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-green"
-                />
-                <select
-                  value={zoneForm.security_level}
-                  onChange={e => setZoneForm(f => ({ ...f, security_level: e.target.value }))}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-green"
-                >
-                  <option>SL-1</option>
-                  <option>SL-2</option>
-                  <option>SL-3</option>
-                  <option>SL-4</option>
-                </select>
-                <div className="flex gap-2">
+            {/* Tab: Zone */}
+            {sidebarTab === 'zones' && (
+              <div className="flex flex-col gap-3 p-4 overflow-y-auto flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">Definisci le zone di sicurezza</span>
                   <button
-                    onClick={handleAddZone}
-                    className="flex-1 py-1 bg-brand-green hover:opacity-90 text-white rounded text-xs font-medium"
-                    aria-label="Add"
+                    onClick={() => setShowZoneForm(v => !v)}
+                    className="flex items-center gap-1 px-2 py-1 bg-brand-green hover:opacity-90 text-white rounded text-xs font-medium"
                   >
-                    Add
+                    <Plus className="w-3 h-3" /> Add
                   </button>
-                  <button
-                    onClick={() => { setShowZoneForm(false); setZoneForm(EMPTY_ZONE_FORM) }}
-                    className="flex-1 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs"
-                  >
-                    Cancel
-                  </button>
+                </div>
+
+                {showZoneForm && (
+                  <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 space-y-2">
+                    <input
+                      autoFocus
+                      placeholder="Zone name (es. PLC Zone)"
+                      value={zoneForm.name}
+                      onChange={e => setZoneForm(f => ({ ...f, name: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && handleAddZone()}
+                      className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-green"
+                    />
+                    <select
+                      value={zoneForm.security_level}
+                      onChange={e => setZoneForm(f => ({ ...f, security_level: e.target.value }))}
+                      className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:border-brand-green"
+                    >
+                      <option>SL-1</option>
+                      <option>SL-2</option>
+                      <option>SL-3</option>
+                      <option>SL-4</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <button onClick={handleAddZone} className="flex-1 py-1 bg-brand-green hover:opacity-90 text-white rounded text-xs font-medium">Add</button>
+                      <button onClick={() => { setShowZoneForm(false); setZoneForm(EMPTY_ZONE_FORM) }} className="flex-1 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs">Cancel</button>
+                    </div>
+                  </div>
+                )}
+
+                {zones.length === 0 && !showZoneForm ? (
+                  <p className="text-xs text-gray-500 text-center py-4">Nessuna zona.<br />Clicca "Add" per iniziare.</p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {zones.map(zone => (
+                      <li key={zone.id} className="flex items-center gap-2 p-2 bg-gray-800 border border-gray-700 rounded-lg group">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: SL_COLORS[zone.security_level] || '#6b7280' }} />
+                        <span className="flex-1 text-xs text-white truncate">{zone.name}</span>
+                        <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
+                        <button onClick={() => handleDeleteZone(zone.id)} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="mt-auto pt-3 border-t border-gray-800">
+                  <p className="text-xs text-gray-600">Trascina le zone sul canvas.<br />Collega due zone per creare un condotto.</p>
                 </div>
               </div>
             )}
 
-            {/* Zone list */}
-            {zones.length === 0 && !showZoneForm ? (
-              <p className="text-xs text-gray-500 text-center py-4">No zones yet.<br />Click "Add Zone" to start.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {zones.map(zone => (
-                  <li key={zone.id} className="flex items-center gap-2 p-2 bg-gray-800 border border-gray-700 rounded-lg group">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: SL_COLORS[zone.security_level] || '#6b7280' }}
-                    />
-                    <span className="flex-1 text-xs text-white truncate">{zone.name}</span>
-                    <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
-                    <button
-                      onClick={() => handleDeleteZone(zone.id)}
-                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            {/* Tab: Asset */}
+            {sidebarTab === 'assets' && (
+              <div className="flex flex-col gap-2 p-4 overflow-y-auto flex-1">
+                {zones.length === 0 ? (
+                  <p className="text-xs text-yellow-500 text-center py-4">Crea prima le zone,<br />poi assegna gli asset.</p>
+                ) : assets.length === 0 ? (
+                  <p className="text-xs text-gray-500 text-center py-4">Nessun asset trovato<br />per questo assessment.</p>
+                ) : (
+                  <>
+                    <p className="text-xs text-gray-500 mb-1">Assegna ogni asset alla zona di appartenenza.</p>
+                    <ul className="space-y-1.5">
+                      {assets.map(asset => (
+                        <li key={asset.id} className="bg-gray-800 border border-gray-700 rounded-lg p-2 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-green-400">{asset.ip}</span>
+                            <span className="text-xs text-gray-500 truncate">{asset.device_type || '—'}</span>
+                          </div>
+                          <select
+                            value={assetZoneMap[asset.id] || ''}
+                            onChange={e => handleAssetZoneChange(asset.id, e.target.value)}
+                            className="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-green"
+                          >
+                            <option value="">— Nessuna zona —</option>
+                            {zones.map(z => (
+                              <option key={z.id} value={z.id}>{z.name} ({z.security_level})</option>
+                            ))}
+                          </select>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
             )}
 
-            <div className="mt-auto pt-3 border-t border-gray-800">
-              <p className="text-xs text-gray-600">
-                Trascina le zone sul canvas.<br />
-                Collega due zone per creare un condotto.
-              </p>
-            </div>
           </div>
         </aside>
 

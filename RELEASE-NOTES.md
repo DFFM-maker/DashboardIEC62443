@@ -1,5 +1,26 @@
 # Release Notes
 
+## v2.9.1 — 2026-03-30
+
+### LM Studio — Sostituzione Gemini con LLM locale
+
+#### `backend/routes/policies.js` — aggiornato
+- `POST /api/assessments/:id/generate-policy` — ora chiama **LM Studio** (OpenAI-compatible API)
+  anziché Google Gemini. Usa `fetch` nativo verso `ANTHROPIC_BASE_URL/v1/chat/completions`
+  con `Authorization: Bearer <ANTHROPIC_AUTH_TOKEN>`. Nessuna dipendenza SDK esterna.
+- Rimosso `require('@google/generative-ai')` — dipendenza Gemini non più necessaria.
+
+#### `backend/.env` — aggiornato
+- Aggiunte variabili LM Studio:
+  - `ANTHROPIC_BASE_URL=http://172.16.238.200:1234`
+  - `ANTHROPIC_AUTH_TOKEN=lmstudio`
+  - `ANTHROPIC_MODEL=qwen2.5-coder-7b-instruct`
+
+#### `frontend/src/pages/wizard/WizardStep6_Policies.jsx` — aggiornato
+- Messaggio errore aggiornato da "Errore generazione AI Gemini" a "Errore generazione AI LM Studio"
+
+---
+
 ## v2.9.0 — 2026-03-30
 
 ### TASK 1.6 — WizardStep6_Policies: AI Policy Generation + Finalize

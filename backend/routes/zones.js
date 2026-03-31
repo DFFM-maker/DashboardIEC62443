@@ -33,11 +33,18 @@ router.post('/', (req, res) => {
 
 // PUT /api/zones/:id
 router.put('/:id', (req, res) => {
-  const { name, security_level, description, color, x, y, width, height } = req.body
-  db.run(
-    'UPDATE zones SET name=?, security_level=?, description=?, color=?, x=?, y=?, width=?, height=? WHERE id=?',
-    [name, security_level, description, color, x ?? 0, y ?? 0, width ?? 200, height ?? 150, req.params.id]
-  )
+  const allowed = ['name', 'security_level', 'description', 'color', 'x', 'y', 'width', 'height']
+  const fields = []
+  const values = []
+  for (const key of allowed) {
+    if (key in req.body) {
+      fields.push(`${key} = ?`)
+      values.push(req.body[key])
+    }
+  }
+  if (fields.length === 0) return res.status(400).json({ error: 'Nessun campo da aggiornare' })
+  values.push(req.params.id)
+  db.run(`UPDATE zones SET ${fields.join(', ')} WHERE id = ?`, values)
   res.json(db.get('SELECT * FROM zones WHERE id = ?', [req.params.id]))
 })
 

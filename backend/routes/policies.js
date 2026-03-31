@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router({ mergeParams: true })
 const { v4: uuidv4 } = require('uuid')
 const db = require('../db/database')
-const { GoogleGenerativeAI } = require('@google/generative-ai')
 
 // POST /api/assessments/:assessmentId/generate-policy
 // Body: { zone_id, control_id, sr_code, title, suc_function }
@@ -14,27 +13,42 @@ router.post('/generate-policy', async (req, res) => {
     return res.status(400).json({ error: 'zone_id, control_id, sr_code, title sono richiesti' })
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return res.status(503).json({ error: 'GEMINI_API_KEY non configurata nel .env' })
-  }
+  const baseUrl = process.env.ANTHROPIC_BASE_URL || 'http://172.16.238.200:1234'
+  const token = process.env.ANTHROPIC_AUTH_TOKEN || 'lmstudio'
+  const model = process.env.ANTHROPIC_MODEL || 'qwen2.5-coder-7b-instruct'
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-    const prompt = `Genera una policy di sicurezza IEC 62443 per il 
-controllo ${sr_code} '${title}' per un sistema IACS con funzione: 
+    const prompt = `Genera una policy di sicurezza IEC 62443 per il
+controllo ${sr_code} '${title}' per un sistema IACS con funzione:
 ${suc_function || 'non specificata'}.
 Rispondi SOLO in italiano, massimo 150 parole, con questa struttura:
 **Obiettivo:** [testo]
-**Ambito:** [testo]  
+**Ambito:** [testo]
 **Requisiti:**
 - [requisito 1]
 - [requisito 2]
 - [requisito 3]`
 
-    const result = await model.generateContent(prompt)
-    const generatedText = result.response.text()
+    const lmRes = await fetch(`${baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 500
+      })
+    })
+
+    if (!lmRes.ok) {
+      const errText = await lmRes.text()
+      throw new Error(`LM Studio error ${lmRes.status}: ${errText}`)
+    }
+
+    const lmData = await lmRes.json()
+    const generatedText = lmData.choices[0].message.content
 
     // Find existing policy to get the same ID for REPLACE if it exists
     const existing = db.get(

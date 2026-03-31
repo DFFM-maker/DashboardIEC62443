@@ -111,7 +111,7 @@ async function runScan(assessmentId, subnet, io) {
     const portscanXml = `/tmp/portscan_${assessmentId}.xml`
     await runCommand(
       `sudo nmap -sS -p 21,22,23,25,80,102,135,139,443,445,502,515,902,912,4840,8080,9600,20000,44818,50000 ` +
-      `--max-rate 50 -T2 --open ${ipList} -oX ${portscanXml} 2>/dev/null`, 240000)
+      `--max-rate 100 -T3 --open --host-timeout 15s ${ipList} -oX ${portscanXml} 2>/dev/null`, 240000)
     const { stdout: ps } = await runCommand(`cat ${portscanXml}`)
     const scannedHosts = parseNmapXml(ps)
 
@@ -120,7 +120,7 @@ async function runScan(assessmentId, subnet, io) {
     const versionsXml = `/tmp/versions_${assessmentId}.xml`
     await runCommand(
       `sudo nmap -sV --version-intensity 5 -p 80,443,22,23,4840,9600,44818,50000,8080 ` +
-      `--max-rate 30 -T2 ${ipList} -oX ${versionsXml} 2>/dev/null`, 300000)
+      `--max-rate 50 -T3 --host-timeout 15s ${ipList} -oX ${versionsXml} 2>/dev/null`, 300000)
     const { stdout: vs } = await runCommand(`cat ${versionsXml}`)
     const versionedHosts = parseNmapXml(vs)
 
@@ -147,14 +147,14 @@ async function runScan(assessmentId, subnet, io) {
     emitLog(io, assessmentId, 'info', 'Fase 4/5: SNMP banner + HTTP fingerprinting...')
     for (const [ip, host] of Object.entries(hostMap)) {
       const ports = host.ports || []
-      const hasHttp    = ports.some(p => [80, 443, 8080].includes(p.port))
-      const hasOtPorts = ports.some(p => [9600, 44818, 102, 502, 50000, 4840].includes(p.port))
+      const hasHttp = ports.some(p => [80, 443, 8080].includes(p.port))
 
-      if (hasOtPorts || ports.some(p => p.port === 161)) {
-        host.snmpDescr = await grabSnmpDescr(ip, snmpCommunity)
-        if (host.snmpDescr)
-          emitLog(io, assessmentId, 'info', `  → ${ip} SNMP: ${host.snmpDescr.slice(0, 60)}`)
-      }
+      // SNMP su tutti gli host (non solo quelli con porte OT già trovate —
+      // il port scan potrebbe aver mancato le porte per timeout)
+      host.snmpDescr = await grabSnmpDescr(ip, snmpCommunity)
+      if (host.snmpDescr)
+        emitLog(io, assessmentId, 'info', `  → ${ip} SNMP: ${host.snmpDescr.slice(0, 60)}`)
+
       if (hasHttp) host.httpBanner = await grabHttpBanner(ip)
     }
 

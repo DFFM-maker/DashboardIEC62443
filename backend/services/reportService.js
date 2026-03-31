@@ -107,21 +107,32 @@ function generateHtml(assessment, client, assets, portsMap, findings, zones, con
   }).join('')
 
   // ── Zone SVG map ───────────────────────────────────────────────────────────
-  const zoneColors = { 'PLC Zone': '#3b82f6', 'HMI Zone': '#22c55e', 'Infrastructure Zone': '#06b6d4', 'Remote Access Zone': '#f97316', 'Unclassified': '#6b7280' }
-  const zoneList = [...new Set(assets.map(a => a.security_zone).filter(Boolean))]
-  const svgHeight = Math.max(160, Math.ceil(zoneList.length / 3) * 130 + 40)
-  const zoneBoxes = zoneList.map((zone, i) => {
-    const x = 20 + (i % 3) * 220
-    const y = 20 + Math.floor(i / 3) * 120
-    const color = zoneColors[zone] || '#6b7280'
-    const za = assets.filter(a => a.security_zone === zone)
-    return `
-      <rect x="${x}" y="${y}" width="200" height="100" rx="6" fill="${color}18" stroke="${color}" stroke-width="1.5"/>
-      <text x="${x + 100}" y="${y + 18}" text-anchor="middle" font-weight="bold" font-size="12" fill="${color}">${zone}</text>
-      <text x="${x + 100}" y="${y + 34}" text-anchor="middle" font-size="10" fill="#374151">${za.length} asset</text>
-      ${za.slice(0, 3).map((a, ai) => `<text x="${x + 8}" y="${y + 52 + ai * 14}" font-size="9" fill="#4b5563">${a.ip} (${a.device_type || '?'})</text>`).join('')}
-      ${za.length > 3 ? `<text x="${x + 8}" y="${y + 52 + 42}" font-size="9" fill="#9ca3af">+${za.length - 3} altri...</text>` : ''}`
-  }).join('')
+  const slColors = { 'SL-1': '#3b82f6', 'SL-2': '#22c55e', 'SL-3': '#f59e0b', 'SL-4': '#ef4444' }
+  const namedZones = zones.filter(z => z.name)
+  const hasZoneAssets = namedZones.some(z => z.assets.length > 0)
+  let zoneBoxes = ''
+  if (!hasZoneAssets) {
+    zoneBoxes = `<text x="350" y="70" text-anchor="middle" font-size="13" fill="#9ca3af">Nessun asset assegnato alle zone</text>
+      <text x="350" y="90" text-anchor="middle" font-size="11" fill="#6b7280">Completare il wizard Step 3 per assegnare gli asset alle zone</text>`
+  } else {
+    const svgZones = namedZones.filter(z => z.assets.length > 0)
+    zoneBoxes = svgZones.map((zone, i) => {
+      const x = 20 + (i % 3) * 220
+      const y = 20 + Math.floor(i / 3) * 120
+      const color = slColors[zone.security_level] || '#6b7280'
+      const label = zone.name || `Zona ${i + 1}`
+      const sl = zone.security_level || ''
+      return `
+        <rect x="${x}" y="${y}" width="200" height="100" rx="6" fill="${color}18" stroke="${color}" stroke-width="1.5"/>
+        <text x="${x + 100}" y="${y + 18}" text-anchor="middle" font-weight="bold" font-size="12" fill="${color}">${label}${sl ? ' · ' + sl : ''}</text>
+        <text x="${x + 100}" y="${y + 34}" text-anchor="middle" font-size="10" fill="#374151">${zone.assets.length} asset</text>
+        ${zone.assets.slice(0, 3).map((a, ai) => `<text x="${x + 8}" y="${y + 52 + ai * 14}" font-size="9" fill="#4b5563">${a.ip} (${a.device_type || '?'})</text>`).join('')}
+        ${zone.assets.length > 3 ? `<text x="${x + 8}" y="${y + 94}" font-size="9" fill="#9ca3af">+${zone.assets.length - 3} altri...</text>` : ''}`
+    }).join('')
+  }
+  const svgHeight = hasZoneAssets
+    ? Math.max(160, Math.ceil(namedZones.filter(z => z.assets.length > 0).length / 3) * 130 + 40)
+    : 120
 
   // ── SR Compliance ──────────────────────────────────────────────────────────
   const srMapping = [
@@ -441,8 +452,26 @@ async function generateReport(assessmentId, format) {
   const client = assessment.client_id ? db.get('SELECT * FROM clients WHERE id = ?', [assessment.client_id]) : null
   const assets = db.all('SELECT * FROM assets WHERE assessment_id = ? ORDER BY ip', [assessmentId])
   const findings = db.all('SELECT * FROM findings WHERE assessment_id = ? ORDER BY cvss_score DESC', [assessmentId])
-  const zones = db.all('SELECT * FROM zones WHERE assessment_id = ?', [assessmentId])
   const conduits = db.all('SELECT * FROM conduits WHERE assessment_id = ?', [assessmentId])
+
+  // Build zones with their assets via zone_assets join
+  const zonesRaw = db.all(`
+    SELECT z.*, GROUP_CONCAT(a.ip || '|' || COALESCE(a.device_type,'?'), ';;;') as assets_raw
+    FROM zones z
+    LEFT JOIN zone_assets za ON za.zone_id = z.id
+    LEFT JOIN assets a ON a.id = za.asset_id
+    WHERE z.assessment_id = ?
+    GROUP BY z.id
+  `, [assessmentId])
+  const zones = zonesRaw.map(z => ({
+    ...z,
+    assets: z.assets_raw
+      ? z.assets_raw.split(';;;').filter(Boolean).map(a => {
+          const [ip, device_type] = a.split('|')
+          return { ip, device_type }
+        })
+      : []
+  }))
 
   const portsMap = {}
   for (const asset of assets) {

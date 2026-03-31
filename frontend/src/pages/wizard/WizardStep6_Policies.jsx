@@ -167,7 +167,7 @@ export default function WizardStep6_Policies() {
       for (const p of (pols || [])) pmap[`${p.zone_id}:${p.control_id}`] = p
       setPoliciesMap(pmap)
     } catch (err) {
-      alert('Errore generazione AI Gemini: ' + err.message)
+      alert('Errore generazione AI LM Studio: ' + err.message)
     } finally {
       setGenerating(prev => ({ ...prev, [key]: false }))
     }

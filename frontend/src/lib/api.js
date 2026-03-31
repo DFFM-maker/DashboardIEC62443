@@ -64,6 +64,8 @@ export const api = {
   createZone: data => request('/zones', { method: 'POST', body: JSON.stringify(data) }),
   updateZone: (id, data) => request(`/zones/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteZone: id => request(`/zones/${id}`, { method: 'DELETE' }),
+  addAssetToZone: (zoneId, assetId) => request(`/zones/${zoneId}/assets/${assetId}`, { method: 'POST' }),
+  removeAssetFromZone: (zoneId, assetId) => request(`/zones/${zoneId}/assets/${assetId}`, { method: 'DELETE' }),
 
   // Conduits
   getConduits: (assessmentId) => request(`/conduits?assessment_id=${assessmentId}`),

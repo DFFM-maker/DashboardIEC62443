@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { api } from '../lib/api'
 import SeverityBadge from '../components/SeverityBadge'
-import { Play, Download, FileSpreadsheet, FileText, Package, ChevronDown, ChevronUp, Terminal } from 'lucide-react'
+import { Play, Download, FileSpreadsheet, FileText, Package, ChevronDown, ChevronUp, Terminal, ClipboardCheck } from 'lucide-react'
 
 const TABS = ['Overview', 'Asset', 'Finding', 'Zone', 'Report', 'Log']
 
@@ -154,16 +154,25 @@ export default function AssessmentDetail() {
             }`}>{assessment.status}</span>
           </div>
         </div>
-        <button
-          onClick={startScan}
-          disabled={scanning}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-            scanning ? 'bg-blue-900/50 text-blue-400 cursor-not-allowed animate-pulse' : 'btn-primary'
-          }`}
-        >
-          <Play className="w-4 h-4" />
-          {scanning ? 'Scansione in corso...' : 'Avvia Scansione'}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/assessments/${id}/step/1`}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-purple-900/60 hover:bg-purple-800/80 text-purple-300 hover:text-purple-100 border border-purple-700/50 transition-all"
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            Wizard IEC 62443
+          </Link>
+          <button
+            onClick={startScan}
+            disabled={scanning}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+              scanning ? 'bg-blue-900/50 text-blue-400 cursor-not-allowed animate-pulse' : 'btn-primary'
+            }`}
+          >
+            <Play className="w-4 h-4" />
+            {scanning ? 'Scansione in corso...' : 'Avvia Scansione'}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
