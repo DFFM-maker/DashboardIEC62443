@@ -48,6 +48,7 @@ app.use('/api/zone-controls', require('./routes/zone_controls'))
 app.use('/api/assessments/:assessmentId/report', require('./routes/report'))
 app.use('/api/assessments/:assessmentId/wizard-report', require('./routes/wizard_report').router)
 app.use('/api/assessments/:assessmentId', require('./routes/policies'))
+app.use('/api/policies/standard', require('./routes/standard_policies'))
 
 // Health check
 app.get('/api/health', (req, res) => {

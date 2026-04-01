@@ -1,5 +1,49 @@
 # Release Notes
 
+## v3.0.0 — 2026-04-01
+
+### Guided Zone Templates IEC 62443-3-3
+
+Implementato sistema di template zone guidate dalle Linee Guida Sicurezza OT IEC 62443.
+
+#### DB — Migration 005
+Aggiunte 4 nuove colonne alla tabella `zones`:
+- `excluded_from_assessment` (INTEGER 0/1): la zona è esclusa da Gap Analysis e scoring SL-A
+- `excluded_from_report` (INTEGER 0/1): la zona non appare nel report PDF
+- `inventory_only` (INTEGER 0/1): la zona è usata solo come inventario asset
+- `zone_template` (TEXT): chiave template di origine (es. `PLC-Zone`, `Management-Zone`)
+
+#### Backend — zone_templates.js
+Nuovo file `backend/data/zone_templates.js` con:
+- `BASELINE_SR`: 15 SR minimi IEC 62443-3-3 per l'assessment di base
+- `ZONE_TEMPLATES`: 5 template (PLC-Zone, HMI-Zone, Router-Zone, Driver-Zone, Management-Zone) con colori, SL e SR di default
+
+#### Backend — POST /api/assessments/:id/init-zones
+Nuovo endpoint che crea automaticamente le 5 zone template se l'assessment non ha ancora zone.
+- Idempotente: restituisce `{ skipped: true }` se le zone esistono già
+- Inserisce zone_controls con `applicable=1, present=0` per gli SR di default di ogni zona
+- Management-Zone: `excluded_from_assessment=1`, `excluded_from_report=1`, `inventory_only=1`, nessun SR
+
+#### Backend — Report filtering
+- `reportService.js`: query zone filtra `excluded_from_report = 0`; aggiunta nota nel PDF se zone escluse
+- `wizard_report.js`: `buildWizardData` filtra `excluded_from_assessment = 0`; nota in markdown per zone escluse
+
+#### Frontend — WizardStep3 (Zone & Conduit Map)
+- Chiama automaticamente `POST /init-zones` al mount (idempotente)
+- Le 5 zone template appaiono pre-posizionate sul canvas con i colori IEC
+- Badge "Solo inventario" per Management-Zone; badge nome template per le altre
+- Bordo colorato basato su `zone.color` dal DB; bordo tratteggiato per `inventory_only`
+
+#### Frontend — WizardStep5 (Gap Analysis)
+- Filtra le zone con `excluded_from_assessment=1` (non mostrate come tab)
+- Banner informativo se ci sono zone escluse: "La Gap Analysis include solo le zone operative"
+- SR limitati ai 15 BASELINE_SR di default; toggle "Mostra tutti gli SR IEC 62443-3-3" per utenti avanzati
+
+#### Test
+Aggiunto `backend/__tests__/init_zones.test.js` con 9 test case.
+
+---
+
 ## v2.9.1 — 2026-03-30
 
 ### LM Studio — Sostituzione Gemini con LLM locale

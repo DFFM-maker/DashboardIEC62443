@@ -9,7 +9,14 @@ function buildWizardData(assessmentId) {
   const assessment = db.get('SELECT * FROM assessments WHERE id = ?', [assessmentId])
   if (!assessment) return null
 
-  const zones = db.all('SELECT * FROM zones WHERE assessment_id = ? ORDER BY name', [assessmentId])
+  const zones = db.all(
+    'SELECT * FROM zones WHERE assessment_id = ? AND (excluded_from_assessment IS NULL OR excluded_from_assessment = 0) ORDER BY name',
+    [assessmentId]
+  )
+  const excludedZones = db.all(
+    'SELECT name FROM zones WHERE assessment_id = ? AND excluded_from_report = 1',
+    [assessmentId]
+  )
   const conduits = db.all('SELECT * FROM conduits WHERE assessment_id = ?', [assessmentId])
   const riskEvents = db.all('SELECT * FROM risk_events WHERE assessment_id = ? ORDER BY calculated_risk DESC', [assessmentId])
   const assets = db.all('SELECT * FROM assets WHERE assessment_id = ? ORDER BY ip', [assessmentId])
@@ -38,11 +45,11 @@ function buildWizardData(assessmentId) {
     }
   })
 
-  return { assessment, zones: enrichedZones, conduits, riskEvents, assets, findings, policies }
+  return { assessment, zones: enrichedZones, conduits, riskEvents, assets, findings, policies, excludedZones }
 }
 
 function buildMarkdown(data) {
-  const { assessment, zones, conduits, riskEvents, assets, findings, policies } = data
+  const { assessment, zones, conduits, riskEvents, assets, findings, policies, excludedZones = [] } = data
   const date = new Date().toLocaleDateString('it-IT')
   const sucName = assessment.suc_name || assessment.name
 
@@ -84,6 +91,9 @@ function buildMarkdown(data) {
 
   // 3. Zone e Condotti
   md += `## 3. Zone e Condotti\n\n`
+  if (excludedZones.length > 0) {
+    md += `> **Nota:** ${excludedZones.length} zona/e escluse dal report (solo inventario): ${excludedZones.map(z => z.name).join(', ')}.\n\n`
+  }
   zones.forEach(z => {
     const pct = z.controls_total > 0 ? Math.round((z.controls_covered / z.controls_total) * 100) : 0
     md += `### ${z.name} (${z.security_level})\n`

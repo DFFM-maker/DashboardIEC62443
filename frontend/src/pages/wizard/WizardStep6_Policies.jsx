@@ -53,6 +53,8 @@ export default function WizardStep6_Policies() {
   const [generating, setGenerating] = useState({})
   const [finalizing, setFinalizing] = useState({})
   const [activeZoneId, setActiveZoneId] = useState(null)
+  // policySource: { [key]: 'standard' | 'ai' | 'custom' }
+  const [policySource, setPolicySource] = useState({})
 
   const fetchData = useCallback(async () => {
     try {
@@ -63,7 +65,7 @@ export default function WizardStep6_Policies() {
         api.getZoneControls({ assessment_id: id }),
         api.getPolicies(id),
       ])
-      
+
       setAssessment(a)
       setZones(z)
       setControls(c)
@@ -75,8 +77,38 @@ export default function WizardStep6_Policies() {
         map[key] = item
         drafts[key] = item.policy_text || ''
       }
+
+      // Pre-load standard policies for zones that have a zone_template and no existing policy text
+      const sources = {}
+      const zonesWithTemplates = z.filter(zone => zone.zone_template && !zone.excluded_from_assessment)
+      const standardPoliciesCache = {}
+      await Promise.all(zonesWithTemplates.map(async (zone) => {
+        try {
+          const stdPolicies = await api.getStandardPolicies(zone.zone_template)
+          standardPoliciesCache[zone.zone_template] = stdPolicies
+        } catch (_) { /* ignore */ }
+      }))
+
+      for (const zone of zonesWithTemplates) {
+        const stdPolicies = standardPoliciesCache[zone.zone_template] || {}
+        for (const [srCode, policy] of Object.entries(stdPolicies)) {
+          // Find the matching zone_control entry by sr_code
+          const zcEntry = Object.values(map).find(
+            item => item.zone_id === zone.id && item.sr_code === srCode
+          )
+          if (zcEntry) {
+            const key = `${zcEntry.zone_id}:${zcEntry.control_id}`
+            if (!drafts[key]) {
+              drafts[key] = policy.text
+              sources[key] = 'standard'
+            }
+          }
+        }
+      }
+
       setZcMap(map)
       setPolicyDrafts(drafts)
+      setPolicySource(sources)
 
       const pmap = {}
       for (const p of (pols || [])) {
@@ -154,6 +186,7 @@ export default function WizardStep6_Policies() {
       
       const generatedText = result.policy_markdown
       setPolicyDrafts(prev => ({ ...prev, [key]: generatedText }))
+      setPolicySource(prev => ({ ...prev, [key]: 'ai' }))
       
       // Update local state for immediate feedback
       setZcMap(prev => ({
@@ -362,6 +395,7 @@ export default function WizardStep6_Policies() {
                             const isFinalizing = finalizing[key]
                             const policy = policiesMap[key]
                             const isFinal = !!policy?.final
+                            const src = policySource[key]
 
                             return (
                               <motion.div 
@@ -413,7 +447,10 @@ export default function WizardStep6_Policies() {
                                   <div className="relative">
                                     <textarea
                                       value={draft}
-                                      onChange={e => setPolicyDrafts(prev => ({ ...prev, [key]: e.target.value }))}
+                                      onChange={e => {
+                                        setPolicyDrafts(prev => ({ ...prev, [key]: e.target.value }))
+                                        setPolicySource(prev => ({ ...prev, [key]: 'custom' }))
+                                      }}
                                       placeholder={`Nessuna policy generata. Clicca su "Genera con AI" per creare una policy IEC 62443 per ${control.sr_code}...`}
                                       rows={6}
                                       className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-gray-300 placeholder-gray-700 focus:outline-none focus:border-brand-green/50 focus:ring-1 focus:ring-brand-green/20 transition-all font-mono leading-relaxed"

@@ -21,6 +21,7 @@ export const api = {
   patchAssessment: (id, data) => request(`/assessments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteAssessment: id => request(`/assessments/${id}`, { method: 'DELETE' }),
   startScan: id => request(`/assessments/${id}/scan`, { method: 'POST' }),
+  initZones: id => request(`/assessments/${id}/init-zones`, { method: 'POST' }),
   getAssessmentStats: id => request(`/assessments/${id}/stats`),
   getLogs: id => request(`/assessments/${id}/logs`),
   generateReport: (id, format) => fetch(`${BASE}/assessments/${id}/report/${format}`, { method: 'POST' }),
@@ -95,6 +96,7 @@ export const api = {
   deleteRiskEvent: (assessmentId, eventId) => request(`/assessments/${assessmentId}/risk-events/${eventId}`, { method: 'DELETE' }),
 
   // Policies (AI generation)
+  getStandardPolicies: (zoneTemplate) => request(`/policies/standard?zone_template=${encodeURIComponent(zoneTemplate)}`),
   generatePolicy: (assessmentId, data) => request(`/assessments/${assessmentId}/generate-policy`, { method: 'POST', body: JSON.stringify(data) }),
   getPolicies: (assessmentId) => request(`/assessments/${assessmentId}/policies`),
   patchPolicy: (assessmentId, policyId, data) => request(`/assessments/${assessmentId}/policies/${policyId}`, { method: 'PATCH', body: JSON.stringify(data) }),

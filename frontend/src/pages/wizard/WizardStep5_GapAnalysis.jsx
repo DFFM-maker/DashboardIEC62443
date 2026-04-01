@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react'
 import { api } from '../../lib/api'
 import WizardStepper from '../../components/wizard/WizardStepper'
+
+const BASELINE_SR = new Set([
+  'SR 1.2', 'SR 1.3', 'SR 1.7', 'SR 2.1', 'SR 2.8',
+  'SR 3.2', 'SR 3.4', 'SR 4.1', 'SR 4.3', 'SR 5.1',
+  'SR 5.2', 'SR 6.2', 'SR 7.1', 'SR 7.3', 'SR 7.8'
+])
 
 const SL_NUM = { 'SL-1': 1, 'SL-2': 2, 'SL-3': 3, 'SL-4': 4 }
 
@@ -38,9 +44,11 @@ export default function WizardStep5_GapAnalysis() {
   const [loading, setLoading] = useState(true)
   const [assessment, setAssessment] = useState(null)
   const [zones, setZones] = useState([])
+  const [excludedZoneNames, setExcludedZoneNames] = useState([])
   const [controls, setControls] = useState([])
   const [zoneControlsMap, setZoneControlsMap] = useState({}) // keyed by zone_id:control_id
   const [activeZoneId, setActiveZoneId] = useState(null)
+  const [showAllSR, setShowAllSR] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -50,7 +58,11 @@ export default function WizardStep5_GapAnalysis() {
       api.getZoneControls({ assessment_id: id }),
     ]).then(([a, z, c, zc]) => {
       setAssessment(a)
-      setZones(z)
+      // Separate excluded zones from operational zones
+      const excluded = z.filter(zone => zone.excluded_from_assessment)
+      const operational = z.filter(zone => !zone.excluded_from_assessment)
+      setExcludedZoneNames(excluded.map(zone => zone.name))
+      setZones(operational)
       setControls(c)
       // Build lookup map — works fine with empty array []
       const map = {}
@@ -58,7 +70,7 @@ export default function WizardStep5_GapAnalysis() {
         map[`${item.zone_id}:${item.control_id}`] = item
       }
       setZoneControlsMap(map)
-      if (z.length > 0) setActiveZoneId(z[0].id)
+      if (operational.length > 0) setActiveZoneId(operational[0].id)
     }).catch(console.error)
       .finally(() => setLoading(false))
   }, [id])
@@ -66,8 +78,10 @@ export default function WizardStep5_GapAnalysis() {
   const activeZone = zones.find(z => z.id === activeZoneId)
   const slTNum = activeZone ? (SL_NUM[activeZone.security_level] || 2) : 2
 
-  // Controls applicable for this zone's SL-T
-  const applicableControls = controls.filter(c => slApplies(c, slTNum))
+  // Controls applicable for this zone's SL-T, filtered to baseline by default
+  const applicableControls = controls.filter(c =>
+    slApplies(c, slTNum) && (showAllSR || BASELINE_SR.has(c.sr_code))
+  )
 
   // Group by category
   const byCategory = applicableControls.reduce((acc, c) => {
@@ -98,7 +112,9 @@ export default function WizardStep5_GapAnalysis() {
   // Summary stats per zone
   const getZoneSummary = (zone) => {
     const zSlTNum = SL_NUM[zone.security_level] || 1
-    const applicable = controls.filter(c => slApplies(c, zSlTNum))
+    const applicable = controls.filter(c =>
+      slApplies(c, zSlTNum) && (showAllSR || BASELINE_SR.has(c.sr_code))
+    )
     const covered = applicable.filter(c => {
       const zc = zoneControlsMap[`${zone.id}:${c.id}`]
       return zc?.present
@@ -131,12 +147,35 @@ export default function WizardStep5_GapAnalysis() {
 
       <WizardStepper currentStep={5} />
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-5">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
         <h2 className="text-base font-semibold text-white mb-1">Gap Analysis — SL-T vs SL-A</h2>
         <p className="text-xs text-gray-500">
           Per ogni zona, verifica quali controlli IEC 62443-3-3 sono implementati (SL-A) rispetto al target (SL-T).
           Spunta i controlli presenti per calcolare il gap residuo.
         </p>
+      </div>
+
+      {/* Exclusion banner */}
+      {excludedZoneNames.length > 0 && (
+        <div className="flex items-start gap-2 bg-gray-800/60 border border-gray-700 rounded-lg px-4 py-3 mb-4 text-xs text-gray-400">
+          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <span>
+            La Gap Analysis include solo le zone operative.{' '}
+            <strong className="text-gray-300">{excludedZoneNames.join(', ')}</strong>{' '}
+            {excludedZoneNames.length === 1 ? 'è esclusa' : 'sono escluse'} (solo inventario asset).
+          </span>
+        </div>
+      )}
+
+      {/* Baseline toggle */}
+      <div className="flex items-center justify-end gap-2 mb-3">
+        <span className="text-xs text-gray-500">Mostra tutti gli SR IEC 62443-3-3</span>
+        <button
+          onClick={() => setShowAllSR(v => !v)}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${showAllSR ? 'bg-brand-green' : 'bg-gray-600'}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${showAllSR ? 'translate-x-4' : 'translate-x-0'}`} />
+        </button>
       </div>
 
       {/* Zone tabs */}

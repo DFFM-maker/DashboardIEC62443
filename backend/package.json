@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "/usr/bin/node node_modules/.bin/jest --forceExit",
-    "test:coverage": "jest --coverage --forceExit"
+    "test": "node node_modules/.bin/jest --forceExit",
+    "test:coverage": "node node_modules/.bin/jest --coverage --forceExit"
   },
   "jest": {
     "testEnvironment": "node",

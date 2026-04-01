@@ -25,8 +25,19 @@ function zoneToNode(zone) {
     id: zone.id,
     type: 'zone',
     position: { x: zone.x ?? 50, y: zone.y ?? 50 },
-    style: { width: zone.width ?? 200, height: zone.height ?? 150 },
-    data: { label: zone.name, security_level: zone.security_level, zoneId: zone.id },
+    style: {
+      width: zone.width ?? 200,
+      height: zone.height ?? 150,
+      borderColor: zone.color || undefined,
+      borderStyle: zone.inventory_only ? 'dashed' : 'solid',
+    },
+    data: {
+      label: zone.name,
+      security_level: zone.security_level,
+      zoneId: zone.id,
+      color: zone.color,
+      inventory_only: zone.inventory_only,
+    },
   }
 }
 
@@ -61,26 +72,29 @@ export default function WizardStep3_ZonesConduits() {
   const [sidebarTab, setSidebarTab] = useState('zones') // 'zones' | 'assets'
 
   const loadAll = useCallback(() => {
-    return Promise.all([
-      api.getAssessment(id),
-      api.getZones(id),
-      api.getConduits(id),
-      api.getAssets(id),
-    ]).then(([a, z, c, ass]) => {
-      setAssessment(a)
-      setZones(z)
-      setNodes(z.map(zoneToNode))
-      setEdges(c.map(conduitToEdge))
-      setAssets(ass)
-      // Build assetZoneMap from zone.assets
-      const map = {}
-      for (const zone of z) {
-        for (const za of (zone.assets || [])) {
-          map[za.id] = zone.id
+    return api.initZones(id)
+      .catch(() => {})
+      .then(() => Promise.all([
+        api.getAssessment(id),
+        api.getZones(id),
+        api.getConduits(id),
+        api.getAssets(id),
+      ]))
+      .then(([a, z, c, ass]) => {
+        setAssessment(a)
+        setZones(z)
+        setNodes(z.map(zoneToNode))
+        setEdges(c.map(conduitToEdge))
+        setAssets(ass)
+        // Build assetZoneMap from zone.assets
+        const map = {}
+        for (const zone of z) {
+          for (const za of (zone.assets || [])) {
+            map[za.id] = zone.id
+          }
         }
-      }
-      setAssetZoneMap(map)
-    })
+        setAssetZoneMap(map)
+      })
   }, [id])
 
   useEffect(() => { loadAll() }, [loadAll])
@@ -228,13 +242,22 @@ export default function WizardStep3_ZonesConduits() {
                 ) : (
                   <ul className="space-y-1.5">
                     {zones.map(zone => (
-                      <li key={zone.id} className="flex items-center gap-2 p-2 bg-gray-800 border border-gray-700 rounded-lg group">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: SL_COLORS[zone.security_level] || '#6b7280' }} />
-                        <span className="flex-1 text-xs text-white truncate">{zone.name}</span>
-                        <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
-                        <button onClick={() => handleDeleteZone(zone.id)} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+                      <li key={zone.id} className="flex flex-col gap-1 p-2 bg-gray-800 border border-gray-700 rounded-lg group"
+                        style={{ borderLeftWidth: 3, borderLeftColor: zone.color || SL_COLORS[zone.security_level] || '#6b7280' }}>
+                        <div className="flex items-center gap-2">
+                          <span className="flex-1 text-xs text-white truncate font-medium">{zone.name}</span>
+                          <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
+                          <button onClick={() => handleDeleteZone(zone.id)} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {zone.inventory_only ? (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-400 border border-gray-600">Solo inventario</span>
+                          ) : zone.zone_template ? (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-400 border border-gray-600">{zone.zone_template}</span>
+                          ) : null}
+                        </div>
                       </li>
                     ))}
                   </ul>

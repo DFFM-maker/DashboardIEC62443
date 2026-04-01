@@ -33,7 +33,8 @@ router.post('/', (req, res) => {
 
 // PUT /api/zones/:id
 router.put('/:id', (req, res) => {
-  const allowed = ['name', 'security_level', 'description', 'color', 'x', 'y', 'width', 'height']
+  const allowed = ['name', 'security_level', 'description', 'color', 'x', 'y', 'width', 'height',
+                   'excluded_from_assessment', 'excluded_from_report', 'inventory_only', 'zone_template']
   const fields = []
   const values = []
   for (const key of allowed) {

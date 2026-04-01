@@ -32,7 +32,7 @@ function severityBg(sev) {
   return map[(sev || '').toLowerCase()] || '#f9fafb'
 }
 
-function generateHtml(assessment, client, assets, portsMap, findings, zones, conduits) {
+function generateHtml(assessment, client, assets, portsMap, findings, zones, conduits, excludedZones = []) {
   const critCount = findings.filter(f => f.severity === 'critical').length
   const highCount = findings.filter(f => f.severity === 'high').length
   const medCount = findings.filter(f => f.severity === 'medium').length
@@ -342,6 +342,7 @@ ${findingsSections || '<p style="color:#9ca3af;font-style:italic">Nessun finding
 
 <!-- 4. ZONE & CONDUIT MAP -->
 <h1 class="sec">4&nbsp;&nbsp;Zone &amp; Conduit Map</h1>
+${excludedZones.length > 0 ? `<p style="margin:8px 0 12px;font-size:12px;color:#6b7280;font-style:italic">${excludedZones.length} zona/e (${excludedZones.map(z => z.name).join(', ')}) escluse dal report — solo inventario.</p>` : ''}
 <svg width="100%" viewBox="0 0 700 ${svgHeight}" style="border:1px solid #dee2e6;border-radius:6px;background:#fafafa;margin:8px 0">
   ${zoneBoxes || '<text x="350" y="80" text-anchor="middle" font-size="13" fill="#9ca3af">Nessuna zona definita</text>'}
 </svg>
@@ -454,13 +455,13 @@ async function generateReport(assessmentId, format) {
   const findings = db.all('SELECT * FROM findings WHERE assessment_id = ? ORDER BY cvss_score DESC', [assessmentId])
   const conduits = db.all('SELECT * FROM conduits WHERE assessment_id = ?', [assessmentId])
 
-  // Build zones with their assets via zone_assets join
+  // Build zones with their assets via zone_assets join (exclude report-excluded zones)
   const zonesRaw = db.all(`
     SELECT z.*, GROUP_CONCAT(a.ip || '|' || COALESCE(a.device_type,'?'), ';;;') as assets_raw
     FROM zones z
     LEFT JOIN zone_assets za ON za.zone_id = z.id
     LEFT JOIN assets a ON a.id = za.asset_id
-    WHERE z.assessment_id = ?
+    WHERE z.assessment_id = ? AND (z.excluded_from_report IS NULL OR z.excluded_from_report = 0)
     GROUP BY z.id
   `, [assessmentId])
   const zones = zonesRaw.map(z => ({
@@ -478,6 +479,12 @@ async function generateReport(assessmentId, format) {
     portsMap[asset.id] = db.all('SELECT * FROM open_ports WHERE asset_id = ? ORDER BY port', [asset.id])
   }
 
+  // Count zones excluded from report (for note in generated report)
+  const excludedZones = db.all(
+    `SELECT name FROM zones WHERE assessment_id = ? AND excluded_from_report = 1`,
+    [assessmentId]
+  )
+
   // Add asset_ip to findings
   const assetIpMap = {}
   for (const a of assets) assetIpMap[a.id] = a.ip
@@ -489,7 +496,7 @@ async function generateReport(assessmentId, format) {
   const safeName = assessment.name.replace(/[^a-z0-9]/gi, '_')
 
   if (format === 'html' || format === 'pdf') {
-    const htmlContent = generateHtml(assessment, client, assets, portsMap, findings, zones, conduits)
+    const htmlContent = generateHtml(assessment, client, assets, portsMap, findings, zones, conduits, excludedZones)
     const htmlPath = path.join(REPORTS_DIR, `${safeName}_${ts}.html`)
     fs.writeFileSync(htmlPath, htmlContent)
 

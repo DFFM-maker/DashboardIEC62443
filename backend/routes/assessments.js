@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid')
 const db = require('../db/database')
 const scannerService = require('../services/scannerService')
 const reportService = require('../services/reportService')
+const { ZONE_TEMPLATES, BASELINE_SR } = require('../data/zone_templates')
 
 let io = null
 function setIo(socketIo) { io = socketIo }
@@ -152,6 +153,58 @@ router.post('/:id/report/:format', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
+})
+
+// POST /api/assessments/:id/init-zones
+// Creates the 5 standard IEC 62443 zone templates if the assessment has no zones yet.
+router.post('/:id/init-zones', (req, res) => {
+  const assessmentId = req.params.id
+
+  const assessment = db.get('SELECT id FROM assessments WHERE id = ?', [assessmentId])
+  if (!assessment) return res.status(404).json({ error: 'Assessment non trovato' })
+
+  const existing = db.all('SELECT id FROM zones WHERE assessment_id = ?', [assessmentId])
+  if (existing.length > 0) return res.json({ skipped: true, reason: 'Zone già presenti' })
+
+  const createdZones = []
+
+  for (const [templateKey, tpl] of Object.entries(ZONE_TEMPLATES)) {
+    const zoneId = uuidv4()
+    db.run(
+      `INSERT INTO zones
+        (id, assessment_id, name, security_level, color, x, y, width, height,
+         excluded_from_assessment, excluded_from_report, inventory_only, zone_template)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [
+        zoneId, assessmentId, tpl.name, tpl.security_level, tpl.color,
+        tpl.x, tpl.y, 200, 150,
+        tpl.excluded_from_assessment ? 1 : 0,
+        tpl.excluded_from_report ? 1 : 0,
+        tpl.inventory_only ? 1 : 0,
+        templateKey
+      ]
+    )
+
+    // Insert default zone_controls for non-excluded zones
+    if (!tpl.excluded_from_assessment && tpl.defaultSR.length > 0) {
+      for (const srCode of tpl.defaultSR) {
+        const control = db.get('SELECT id FROM iec_controls WHERE sr_code = ? LIMIT 1', [srCode])
+        if (control) {
+          const zcId = uuidv4()
+          db.run(
+            `INSERT OR IGNORE INTO zone_controls
+              (id, zone_id, control_id, applicable, present, sl_achieved, sl_target)
+             VALUES (?,?,?,1,0,0,?)`,
+            [zcId, zoneId, control.id, 2]
+          )
+        }
+      }
+    }
+
+    createdZones.push(db.get('SELECT * FROM zones WHERE id = ?', [zoneId]))
+  }
+
+  res.json({ created: createdZones.length, zones: createdZones })
 })
 
 module.exports = { router, setIo }
