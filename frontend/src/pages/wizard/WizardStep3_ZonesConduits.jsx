@@ -134,52 +134,29 @@ export default function WizardStep3_ZonesConduits() {
     setShowZoneForm(false)
   }
 
-  const handleDeleteZone = async (zoneId) => {
-    if (!window.confirm('Sei sicuro di voler eliminare questa zona? Tutti i condotti associati verranno rimossi.')) return
+  const handleDeleteZone = useCallback(async (deletedNodes) => {
     try {
-      await api.deleteZone(zoneId)
+      for (const node of deletedNodes) {
+        if (window.confirm("Eliminare questa Zona e i suoi conduit?")) {
+          await api.delete('/api/zones/' + node.id)
+        }
+      }
       await loadAll()
     } catch (err) {
       console.error('Error deleting zone:', err)
     }
-  }
+  }, [loadAll])
 
-  const handleDeleteConduit = async (conduitId) => {
+  const handleDeleteConduit = useCallback(async (deletedEdges) => {
     try {
-      await api.deleteConduit(conduitId)
+      for (const edge of deletedEdges) {
+        if (window.confirm("Eliminare questo Conduit?")) {
+          await api.delete('/api/conduits/' + edge.id)
+        }
+      }
       await loadAll()
     } catch (err) {
       console.error('Error deleting conduit:', err)
-    }
-  }
-
-  const onNodesDelete = useCallback(async (deletedNodes) => {
-    if (deletedNodes.length === 0) return
-    const ok = window.confirm(`Sei sicuro di voler eliminare ${deletedNodes.length} zona/e e i relativi condotti?`)
-    if (!ok) {
-      await loadAll()
-      return
-    }
-    try {
-      for (const node of deletedNodes) {
-        await api.deleteZone(node.id)
-      }
-      await loadAll()
-    } catch (err) {
-      console.error('Error deleting nodes:', err)
-      await loadAll()
-    }
-  }, [loadAll])
-
-  const onEdgesDelete = useCallback(async (deletedEdges) => {
-    try {
-      for (const edge of deletedEdges) {
-        await api.deleteConduit(edge.id)
-      }
-      await loadAll()
-    } catch (err) {
-      console.error('Error deleting edges:', err)
-      await loadAll()
     }
   }, [loadAll])
 
@@ -286,7 +263,7 @@ export default function WizardStep3_ZonesConduits() {
                         <div className="flex items-center gap-2">
                           <span className="flex-1 text-xs text-white truncate font-medium">{zone.name}</span>
                           <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
-                          <button onClick={() => handleDeleteZone(zone.id)} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
+                          <button onClick={() => handleDeleteZone([{ id: zone.id }])} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
@@ -355,8 +332,8 @@ export default function WizardStep3_ZonesConduits() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
-            onNodesDelete={onNodesDelete}
-            onEdgesDelete={onEdgesDelete}
+            onNodesDelete={handleDeleteZone}
+            onEdgesDelete={handleDeleteConduit}
             nodeTypes={NODE_TYPES}
             fitView
             deleteKeyCode="Delete"

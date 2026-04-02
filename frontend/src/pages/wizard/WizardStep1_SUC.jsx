@@ -70,7 +70,7 @@ export default function WizardStep1_SUC() {
   const [savedAt, setSavedAt] = useState(null)
   const autoSaveTimer = useRef(null)
 
-  // Carica assessment e ripristina da sessionStorage
+  // Carica assessment e ripristina da sessionStorage con default Tecnopack
   useEffect(() => {
     api.getAssessment(id).then(a => {
       setAssessment(a)
@@ -79,12 +79,12 @@ export default function WizardStep1_SUC() {
         setForm(prev => ({ ...prev, ...JSON.parse(saved) }))
       } else {
         setForm({
-          suc_name: a.suc_name || '',
-          suc_function: a.suc_function || '',
-          machine_operation: a.machine_operation || '',
-          data_sharing: a.data_sharing || '',
-          access_points: a.access_points || '',
-          physical_boundary: a.physical_boundary || '',
+          suc_name: a.suc_name || 'Esempio: Linea X Cliente TCOXXX (Modulo + Flowpack + Multipack)',
+          suc_function: a.suc_function || 'Controllo e automazione linea di confezionamento.',
+          machine_operation: a.machine_operation || 'Reparto di produzione industriale (ambiente controllato), operatività continua su più turni.',
+          data_sharing: a.data_sharing || 'Scambio dati di campo via protocolli OT deterministici (es. Profinet/EtherCAT). Scambio dati IT/MES tramite protocollo OPC-UA (es. gestione ricette, lotto, contatori scarti).',
+          access_points: a.access_points || 'Prese di rete (RJ45) a bordo quadro per manutenzione locale. Gateway di teleassistenza (es. Secomea SiteManager) per accesso remoto fornitori.',
+          physical_boundary: a.physical_boundary || 'Quadro elettrico bordo macchina e relative canalizzazioni fisiche di campo.',
         })
       }
     })

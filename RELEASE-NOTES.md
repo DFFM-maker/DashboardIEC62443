@@ -1,5 +1,35 @@
 # Release Notes
 
+## v3.4.0 — 2026-04-02
+
+### Edit Assessment & Policy Templates Fallback
+
+#### Frontend — Assessments.jsx
+- **Bottone Modifica**: Aggiunta icona matita (`Pencil`) nella card di ogni assessment, tra "Dettagli" e il cestino.
+- **Modal di Modifica**: Nuovo modal pre-compilato con tutti i dati esistenti dell'assessment (nome, subnet, cliente, assessor, SL target, SNMP community, note). Chiama `PUT /api/assessments/:id` al salvataggio.
+- I dati del wizard (SUC, zone, policy) non vengono toccati dalla modifica.
+
+**Build frontend: OK.**
+
+---
+
+## v3.3.0 — 2026-04-02
+
+### Policy Templates Fallback & Sidebar Fix
+
+#### Frontend — WizardStep6_Policies.jsx
+- **DEFAULT_POLICY_TEMPLATES**: Aggiunto dizionario di fallback con 12 template in italiano per gli SR più comuni della baseline IEC 62443-3-3 (SR 1.1, 1.2, 1.3, 3.2, 3.4, 4.1, 5.1, 5.2, 6.2, 7.1, 7.3, 7.8).
+- **Pre-fill automatico**: Quando il backend non restituisce una policy standard per un SR (zona senza template o SR non coperto), il sistema applica automaticamente il template locale come fallback. Il testo salvato dall'utente non viene mai sovrascritto.
+- **SR 4.1 contestualizzata**: Il template SR 4.1 distingue esplicitamente tra traffico interno alla Cell/Area Zone (plaintext per requisiti di latenza deterministica) e traffico remoto perimetrale (cifratura TLS 1.2+/VPN obbligatoria), evitando conflitti con protocolli industriali come CIP Security.
+- **Ordine di priorità policy**: testo salvato > standard dal backend > DEFAULT_POLICY_TEMPLATES > vuoto.
+
+#### Frontend — Sidebar.jsx
+- **Fix logo "OT Security"**: Risolto il clipping della lettera "Y" nel testo del logo. Layout refactored da verticale a orizzontale (`flex items-center gap-3`), rimossi gli stili inline, applicato `leading-tight` come soluzione Tailwind-only.
+
+**Build frontend: OK.**
+
+---
+
 ## v3.2.0 — 2026-04-02
 
 ### Persistent Topology Deletion & Standard DMZ Initialization

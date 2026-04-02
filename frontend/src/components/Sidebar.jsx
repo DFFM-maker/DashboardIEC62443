@@ -7,14 +7,14 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { to: '/dashboard',   label: 'Dashboard',       icon: LayoutDashboard },
-  { to: '/clients',     label: 'Impianti/Clienti', icon: Building2 },
-  { to: '/assessments', label: 'Assessment',       icon: ClipboardList },
-  { to: '/assets',      label: 'Asset Inventory',  icon: Monitor },
-  { to: '/findings',    label: 'Finding',          icon: AlertTriangle },
-  { to: '/advisories',  label: 'Advisory',         icon: Newspaper },
-  { to: '/templates',   label: 'Template Zone',    icon: LayoutTemplate },
-  { to: '/import',      label: 'Import .otsa',     icon: Upload },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/clients', label: 'Impianti/Clienti', icon: Building2 },
+  { to: '/assessments', label: 'Assessment', icon: ClipboardList },
+  { to: '/assets', label: 'Asset Inventory', icon: Monitor },
+  { to: '/findings', label: 'Finding', icon: AlertTriangle },
+  { to: '/advisories', label: 'Advisory', icon: Newspaper },
+  { to: '/templates', label: 'Template Zone', icon: LayoutTemplate },
+  { to: '/import', label: 'Import .otsa', icon: Upload },
 ]
 
 export default function Sidebar() {
@@ -22,7 +22,7 @@ export default function Sidebar() {
   const location = useLocation()
 
   return (
-    <aside className={`flex flex-col bg-gray-900 border-r border-gray-800 transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'} shrink-0`}>
+    <aside className={`flex flex-col bg-gray-900 border-r border-gray-800 transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'} shrink-0`}>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-800">
         <img
@@ -32,7 +32,8 @@ export default function Sidebar() {
         />
         {!collapsed && (
           <div className="min-w-0">
-            <p className="text-xs font-bold text-brand-green uppercase tracking-widest leading-none">OT Security</p>
+            {/* Tolto leading-none e messo leading-tight per salvare la lettera Y */}
+            <p className="text-xs font-bold text-brand-green uppercase tracking-widest leading-tight">OT Security</p>
             <p className="text-[10px] text-gray-500 mt-0.5">IEC 62443 Dashboard</p>
           </div>
         )}
@@ -45,10 +46,9 @@ export default function Sidebar() {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg mb-0.5 transition-all text-sm font-medium ${
-                isActive
-                  ? 'bg-brand-green/20 text-brand-green border border-brand-green/30'
-                  : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
+              `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg mb-0.5 transition-all text-sm font-medium ${isActive
+                ? 'bg-brand-green/20 text-brand-green border border-brand-green/30'
+                : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
               }`
             }
             title={collapsed ? label : undefined}
@@ -64,8 +64,7 @@ export default function Sidebar() {
         <NavLink
           to="/settings"
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg mb-1 transition-all text-sm font-medium ${
-              isActive ? 'bg-gray-700 text-gray-100' : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
+            `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg mb-1 transition-all text-sm font-medium ${isActive ? 'bg-gray-700 text-gray-100' : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
             }`
           }
           title={collapsed ? 'Impostazioni' : undefined}
