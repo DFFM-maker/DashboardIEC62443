@@ -156,7 +156,7 @@ router.post('/:id/report/:format', async (req, res) => {
 })
 
 // POST /api/assessments/:id/init-zones
-// Creates the 5 standard IEC 62443 zone templates if the assessment has no zones yet.
+// Creates exactly a 3-zone topology with 2 conduits based on standard IEC 62443 DMZ architecture.
 router.post('/:id/init-zones', (req, res) => {
   const assessmentId = req.params.id
 
@@ -166,45 +166,63 @@ router.post('/:id/init-zones', (req, res) => {
   const existing = db.all('SELECT id FROM zones WHERE assessment_id = ?', [assessmentId])
   if (existing.length > 0) return res.json({ skipped: true, reason: 'Zone già presenti' })
 
-  const createdZones = []
+  try {
+    const itZoneId = uuidv4()
+    const dmzZoneId = uuidv4()
+    const otZoneId = uuidv4()
 
-  for (const [templateKey, tpl] of Object.entries(ZONE_TEMPLATES)) {
-    const zoneId = uuidv4()
+    // 1. Zona IT
     db.run(
-      `INSERT INTO zones
-        (id, assessment_id, name, security_level, color, x, y, width, height,
-         excluded_from_assessment, excluded_from_report, inventory_only, zone_template)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [
-        zoneId, assessmentId, tpl.name, tpl.security_level, tpl.color,
-        tpl.x, tpl.y, 200, 150,
-        tpl.excluded_from_assessment ? 1 : 0,
-        tpl.excluded_from_report ? 1 : 0,
-        tpl.inventory_only ? 1 : 0,
-        templateKey
-      ]
+      `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
+       VALUES (?,?,'Rete IT Aziendale','SL-0','#6b7280',100,200,220,150,1,'it-external')`,
+      [itZoneId, assessmentId]
     )
 
-    // Insert default zone_controls for non-excluded zones
-    if (!tpl.excluded_from_assessment && tpl.defaultSR.length > 0) {
-      for (const srCode of tpl.defaultSR) {
-        const control = db.get('SELECT id FROM iec_controls WHERE sr_code = ? LIMIT 1', [srCode])
-        if (control) {
-          const zcId = uuidv4()
-          db.run(
-            `INSERT OR IGNORE INTO zone_controls
-              (id, zone_id, control_id, applicable, present, sl_achieved, sl_target)
-             VALUES (?,?,?,1,1,0,?)`,
-            [zcId, zoneId, control.id, 2]
-          )
-        }
+    // 2. Zona DMZ
+    db.run(
+      `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
+       VALUES (?,?,'DMZ Secomea / Gateway','SL-1','#f59e0b',450,200,220,150,0,'transit')`,
+      [dmzZoneId, assessmentId]
+    )
+
+    // 3. Zona OT
+    db.run(
+      `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
+       VALUES (?,?,'Rete Piatta Macchina (TCO2357)','SL-2','#22c55e',800,200,220,150,0,'ot-cell')`,
+      [otZoneId, assessmentId]
+    )
+
+    // 4. Conduit IT -> DMZ
+    db.run(
+      `INSERT INTO conduits (id, assessment_id, name, zone_from_id, zone_to_id, type)
+       VALUES (?,?,'Traffico WAN / VPN Inbound',?,?,'wired')`,
+      [uuidv4(), assessmentId, itZoneId, dmzZoneId]
+    )
+
+    // 5. Conduit DMZ -> OT
+    db.run(
+      `INSERT INTO conduits (id, assessment_id, name, zone_from_id, zone_to_id, type)
+       VALUES (?,?,'Port Forwarding / NAT OPC UA',?,?,'wired')`,
+      [uuidv4(), assessmentId, dmzZoneId, otZoneId]
+    )
+
+    // Add baseline SR only to OT Zone for simplicity or to all relevant zones
+    const otControls = ['SR 1.2', 'SR 3.2', 'SR 3.4', 'SR 4.1', 'SR 5.1', 'SR 5.2', 'SR 7.1', 'SR 7.3', 'SR 7.8']
+    for (const srCode of otControls) {
+      const control = db.get('SELECT id FROM iec_controls WHERE sr_code = ? LIMIT 1', [srCode])
+      if (control) {
+        db.run(
+          'INSERT OR IGNORE INTO zone_controls (id, zone_id, control_id, applicable, present, sl_achieved, sl_target) VALUES (?,?,?,1,1,0,2)',
+          [uuidv4(), otZoneId, control.id]
+        )
       }
     }
 
-    createdZones.push(db.get('SELECT * FROM zones WHERE id = ?', [zoneId]))
+    res.json({ success: true, message: 'Topologia DMZ inizializzata' })
+  } catch (err) {
+    console.error('Error initializing zones:', err)
+    res.status(500).json({ error: 'Errore durante l\'inizializzazione delle zone' })
   }
-
-  res.json({ created: createdZones.length, zones: createdZones })
 })
 
 module.exports = { router, setIo }

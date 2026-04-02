@@ -1,5 +1,32 @@
 # Release Notes
 
+## v3.2.0 — 2026-04-02
+
+### Persistent Topology Deletion & Standard DMZ Initialization
+
+Migliorata l'affidabilità del canvas delle zone e introdotta una nuova architettura di default conforme alle best practice IEC 62443 per la segmentazione IT/OT.
+
+#### Frontend — WizardStep3_ZonesConduits.jsx
+- **Delete Persistente**: Implementati gli handler `onNodesDelete` e `onEdgesDelete` per React Flow.
+- **Sincronizzazione API**: La cancellazione di zone e condotti tramite tastiera (Backspace/Delete) ora invoca correttamente i rispettivi endpoint API (`api.deleteZone`, `api.deleteConduit`).
+- **Prompt di Conferma**: Aggiunto un popup di conferma (`window.confirm`) prima dell'eliminazione di zone/nodi per prevenire perdite accidentali di dati.
+- **Refresh Automatico**: Dopo ogni operazione di eliminazione, il sistema esegue un refresh completo dello stato (`loadAll`) per garantire l'allineamento con il database.
+
+#### Backend — Deletion Cascade
+- **`backend/routes/zones.js`**: Aggiornata la rotta `DELETE /api/zones/:id` per includere la cancellazione manuale in CASCADE dei condotti associati alla zona eliminata. Questo risolve il problema dei "condotti orfani" nel database SQLite.
+
+#### Backend — Standard DMZ Topology
+- **`backend/routes/assessments.js`**: Refactoring dell'endpoint `init-zones`. Ora inizializza una topologia a 3 zone basata su architettura DMZ Secomea/Gateway:
+    1. **Rete IT Aziendale** (SL-0, Grigia): Zona esterna, solo inventario.
+    2. **DMZ Secomea / Gateway** (SL-1, Arancione): Zona di transito per traffico WAN/VPN.
+    3. **Rete Piatta Macchina (TCO2357)** (SL-2, Verde): Zona OT/Cell per i componenti critici.
+- **Auto-conduits**: Creazione automatica dei condotti tra IT->DMZ (*Traffico WAN / VPN Inbound*) e DMZ->OT (*Port Forwarding / NAT OPC UA*).
+- **`backend/data/zone_templates.js`**: Aggiornati i template predefiniti per riflettere la nuova architettura di riferimento.
+
+**Build frontend: OK. Service restart: OK. Verifica persistenza: OK.**
+
+---
+
 ## v3.1.0 — 2026-04-01
 
 ### Standard Policies IEC 62443-3-3 for Security Zones

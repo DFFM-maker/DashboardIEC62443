@@ -135,24 +135,63 @@ export default function WizardStep3_ZonesConduits() {
   }
 
   const handleDeleteZone = async (zoneId) => {
-    await api.deleteZone(zoneId)
-    setZones(prev => prev.filter(z => z.id !== zoneId))
-    setNodes(prev => prev.filter(n => n.id !== zoneId))
-    setEdges(prev => prev.filter(e => e.source !== zoneId && e.target !== zoneId))
-    setAssetZoneMap(prev => {
-      const next = { ...prev }
-      for (const [aid, zid] of Object.entries(next)) {
-        if (zid === zoneId) delete next[aid]
-      }
-      return next
-    })
+    if (!window.confirm('Sei sicuro di voler eliminare questa zona? Tutti i condotti associati verranno rimossi.')) return
+    try {
+      await api.deleteZone(zoneId)
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting zone:', err)
+    }
   }
 
+  const handleDeleteConduit = async (conduitId) => {
+    try {
+      await api.deleteConduit(conduitId)
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting conduit:', err)
+    }
+  }
+
+  const onNodesDelete = useCallback(async (deletedNodes) => {
+    if (deletedNodes.length === 0) return
+    const ok = window.confirm(`Sei sicuro di voler eliminare ${deletedNodes.length} zona/e e i relativi condotti?`)
+    if (!ok) {
+      await loadAll()
+      return
+    }
+    try {
+      for (const node of deletedNodes) {
+        await api.deleteZone(node.id)
+      }
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting nodes:', err)
+      await loadAll()
+    }
+  }, [loadAll])
+
+  const onEdgesDelete = useCallback(async (deletedEdges) => {
+    try {
+      for (const edge of deletedEdges) {
+        await api.deleteConduit(edge.id)
+      }
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting edges:', err)
+      await loadAll()
+    }
+  }, [loadAll])
+
   const handleAssetZoneChange = async (assetId, newZoneId) => {
-    const oldZoneId = assetZoneMap[assetId]
-    if (oldZoneId) await api.removeAssetFromZone(oldZoneId, assetId)
-    if (newZoneId) await api.addAssetToZone(newZoneId, assetId)
-    setAssetZoneMap(prev => ({ ...prev, [assetId]: newZoneId || '' }))
+    try {
+      const oldZoneId = assetZoneMap[assetId]
+      if (oldZoneId) await api.removeAssetFromZone(oldZoneId, assetId)
+      if (newZoneId) await api.addAssetToZone(newZoneId, assetId)
+      setAssetZoneMap(prev => ({ ...prev, [assetId]: newZoneId || '' }))
+    } catch (err) {
+      console.error('Error updating asset zone:', err)
+    }
   }
 
   if (!assessment) {
@@ -316,6 +355,8 @@ export default function WizardStep3_ZonesConduits() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
+            onNodesDelete={onNodesDelete}
+            onEdgesDelete={onEdgesDelete}
             nodeTypes={NODE_TYPES}
             fitView
             deleteKeyCode="Delete"
