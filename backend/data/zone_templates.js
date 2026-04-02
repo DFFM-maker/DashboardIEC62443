@@ -1,7 +1,7 @@
 /**
  * IEC 62443-3-3 guided zone templates.
  * BASELINE_SR: 15 SR codes that form the minimum assessment baseline.
- * ZONE_TEMPLATES: Refactored to DMZ-based architecture (IT, DMZ, OT).
+ * ZONE_TEMPLATES: Refactored to DMZ-based architecture following Purdue/IEC 62443 levels.
  */
 
 const BASELINE_SR = [
@@ -12,7 +12,7 @@ const BASELINE_SR = [
 
 const ZONE_TEMPLATES = {
   'it-external': {
-    name: 'Rete IT Aziendale',
+    name: 'Enterprise IT Zone (Livello 4/5)',
     color: '#6b7280',
     security_level: 'SL-0',
     excluded_from_assessment: true,
@@ -23,7 +23,7 @@ const ZONE_TEMPLATES = {
     defaultSR: []
   },
   'transit': {
-    name: 'DMZ Secomea / Gateway',
+    name: 'Industrial DMZ (IDMZ)',
     color: '#f59e0b',
     security_level: 'SL-1',
     excluded_from_assessment: false,
@@ -34,7 +34,7 @@ const ZONE_TEMPLATES = {
     defaultSR: ['SR 1.3', 'SR 4.3', 'SR 5.1', 'SR 7.8']
   },
   'ot-cell': {
-    name: 'Rete Piatta Macchina (TCO2357)',
+    name: 'Cell/Area Zone (Livello 0-3)',
     color: '#22c55e',
     security_level: 'SL-2',
     excluded_from_assessment: false,

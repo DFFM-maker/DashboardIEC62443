@@ -174,35 +174,35 @@ router.post('/:id/init-zones', (req, res) => {
     // 1. Zona IT
     db.run(
       `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
-       VALUES (?,?,'Rete IT Aziendale','SL-0','#6b7280',100,200,220,150,1,'it-external')`,
+       VALUES (?,?,'Enterprise IT Zone (Livello 4/5)','SL-0','#6b7280',100,200,220,150,1,'it-external')`,
       [itZoneId, assessmentId]
     )
 
     // 2. Zona DMZ
     db.run(
       `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
-       VALUES (?,?,'DMZ Secomea / Gateway','SL-1','#f59e0b',450,200,220,150,0,'transit')`,
+       VALUES (?,?,'Industrial DMZ (IDMZ)','SL-1','#f59e0b',450,200,220,150,0,'transit')`,
       [dmzZoneId, assessmentId]
     )
 
     // 3. Zona OT
     db.run(
       `INSERT INTO zones (id, assessment_id, name, security_level, color, x, y, width, height, inventory_only, zone_template)
-       VALUES (?,?,'Rete Piatta Macchina (TCO2357)','SL-2','#22c55e',800,200,220,150,0,'ot-cell')`,
+       VALUES (?,?,'Cell/Area Zone (Livello 0-3)','SL-2','#22c55e',800,200,220,150,0,'ot-cell')`,
       [otZoneId, assessmentId]
     )
 
     // 4. Conduit IT -> DMZ
     db.run(
       `INSERT INTO conduits (id, assessment_id, name, zone_from_id, zone_to_id, type)
-       VALUES (?,?,'Traffico WAN / VPN Inbound',?,?,'wired')`,
+       VALUES (?,?,'IT/OT Boundary Conduit',?,?,'wired')`,
       [uuidv4(), assessmentId, itZoneId, dmzZoneId]
     )
 
     // 5. Conduit DMZ -> OT
     db.run(
       `INSERT INTO conduits (id, assessment_id, name, zone_from_id, zone_to_id, type)
-       VALUES (?,?,'Port Forwarding / NAT OPC UA',?,?,'wired')`,
+       VALUES (?,?,'Cell/Area Access Conduit',?,?,'wired')`,
       [uuidv4(), assessmentId, dmzZoneId, otZoneId]
     )
 
