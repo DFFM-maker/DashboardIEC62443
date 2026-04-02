@@ -1,8 +1,64 @@
 # Release Notes
 
+## v3.1.0 — 2026-04-01
+
+### Standard Policies IEC 62443-3-3 for Security Zones
+
+Implementato il sistema di policy standard basate sui 15 SR della baseline IEC 62443-3-3, contestualizzate per zona di sicurezza.
+
+#### Backend — policies_seed.js
+- Creato il nuovo file `backend/data/policies_seed.js` con policy standard complete per tutti gli SR di baseline
+- Copertura completa dei **15 SR della baseline** (1.2, 1.3, 1.7, 2.1, 2.8, 3.2, 3.4, 4.1, 4.3, 5.1, 5.2, 6.2, 7.1, 7.3, 7.8)
+- Policy contestualizzate per tipologia di zona: **PLC-Zone**, **HMI-Zone**, **Router-Zone**, **Driver-Zone**
+- Testo strutturato secondo le linee guida: **Obiettivo**, **Ambito**, **Requisiti** (3-5 punti operativi e misurabili)
+- Linguaggio tecnico ma comprensibile, con riferimenti normativi specifici IEC 62443-3-3
+- Esempi di qualità elevata seguendo le linee guida fornite (es. SR 5.1 Network Segmentation, SR 4.1 Information Confidentiality)
+
+#### Backend — Standard Policies Endpoint
+- `GET /api/policies/standard?zone_template=...`: Endpoint per recuperare le policy standard filtrate per template di zona
+- Restituisce JSON strutturato per facile consumo dal frontend
+
+#### Frontend — WizardStep6_Policies
+- **Auto-prefilling migliorato**: Quando si apre lo step 6, se una zona ha un template e non ha ancora policy text, il sistema carica automaticamente le standard da `/api/policies/standard`
+- **Source Badges**: Etichette visive per distinguere l'origine della policy:
+  - `STANDARD` (Grigio): Policy pre-caricata dallo standard IEC 62443-3-3
+  - `AI` (Viola): Policy generate tramite LM Studio (Local LLM)
+  - `PERSONALIZZATA` (Verde): Policy modificate manualmente dall'assessor
+- Bottone "Genera con AI ✨" disponibile per sovrascrivere la policy standard con una personalizzata per il SUC
+- UI migliorata con gestione dei badge e feedback visivo
+
+---
+
 ## v3.0.0 — 2026-04-01
 
-### Guided Zone Templates IEC 62443-3-3
+### Automated Standard Policies IEC 62443
+
+Implementato il pre-caricamento delle policy standard basate sui 15 SR della baseline IEC 62443-3-3 per zona.
+
+#### Backend — policies_seed.js
+Riorganizzato e completato il file `backend/data/policies_seed.js`:
+- Copertura completa dei **15 SR della baseline** (1.2, 1.3, 1.7, 2.1, 2.8, 3.2, 3.4, 4.1, 4.3, 5.1, 5.2, 6.2, 7.1, 7.3, 7.8).
+- Policy contestualizzate per tipologia di zona: **PLC-Zone**, **HMI-Zone**, **Router-Zone**, **Driver-Zone**.
+- Testo strutturato secondo le linee guida: **Obiettivo**, **Ambito**, **Requisiti**.
+
+#### Backend — AI Policy Generation (LM Studio)
+- `backend/routes/policies.js`: Mantenuta la generazione tramite **LM Studio** (Local LLM) per garantire privacy e operatività offline.
+- Utilizza l'API OpenAI-compatible all'indirizzo `http://172.16.238.200:1234`.
+- Supporto per prompt strutturati IEC 62443: **Obiettivo**, **Ambito**, **Requisiti**.
+- Risolto errore di avvio server tramite `npm rebuild better-sqlite3`.
+
+#### Backend — Standard Policies Endpoint
+- `GET /api/policies/standard?zone_template=...`: Nuovo endpoint per recuperare i testi standard delle policy filtrati per template di zona.
+
+#### Frontend — WizardStep6_Policies
+- **Auto-prefilling**: Se una zona ha un template (es. PLC-Zone) e non ha ancora una policy redatta, il sistema pre-carica automaticamente il testo standard.
+- **Source Badges**: Introdotte nuove etichette visive per distinguere l'origine della policy:
+  - `STANDARD` (Grigio): Testo pre-caricato dal database normativo.
+  - `AI` (Viola): Testo generato tramite Google Gemini.
+  - `PERSONALIZZATA` (Blu): Testo modificato manualmente dall'assessor.
+- UI migliorata con `flex-wrap` per gestire più badge (es. Fonte + Finalizzata).
+
+---
 
 Implementato sistema di template zone guidate dalle Linee Guida Sicurezza OT IEC 62443.
 

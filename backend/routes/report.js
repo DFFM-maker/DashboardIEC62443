@@ -8,7 +8,13 @@ router.get('/', (req, res) => {
   const assessment = db.get('SELECT * FROM assessments WHERE id = ?', [assessmentId])
   if (!assessment) return res.status(404).json({ error: 'Assessment non trovato' })
 
-  const zones = db.all('SELECT * FROM zones WHERE assessment_id = ? ORDER BY name', [assessmentId])
+  const zones = db.all(
+    `SELECT * FROM zones WHERE assessment_id = ?
+     AND (excluded_from_assessment IS NULL OR excluded_from_assessment = 0)
+     AND (excluded_from_report IS NULL OR excluded_from_report = 0)
+     ORDER BY name`,
+    [assessmentId]
+  )
   const riskEvents = db.all('SELECT * FROM risk_events WHERE assessment_id = ? ORDER BY created_at', [assessmentId])
 
   // Enrich zones with gap stats

@@ -18,16 +18,16 @@ router.post('/generate-policy', async (req, res) => {
   const model = process.env.ANTHROPIC_MODEL || 'qwen2.5-coder-7b-instruct'
 
   try {
-    const prompt = `Genera una policy di sicurezza IEC 62443 per il
-controllo ${sr_code} '${title}' per un sistema IACS con funzione:
+    const prompt = `Genera una policy di sicurezza IEC 62443 per il 
+controllo ${sr_code} '${title}' per un sistema IACS con funzione: 
 ${suc_function || 'non specificata'}.
 Rispondi SOLO in italiano, massimo 150 parole, con questa struttura:
 **Obiettivo:** [testo]
-**Ambito:** [testo]
+**Ambito:** [testo]  
 **Requisiti:**
 - [requisito 1]
 - [requisito 2]
-- [requisito 3]`
+- [requisito 3]`;
 
     const lmRes = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
@@ -58,11 +58,6 @@ Rispondi SOLO in italiano, massimo 150 parole, con questa struttura:
 
     const id = existing ? existing.id : uuidv4()
     
-    // As per user request, saving text in parameters_json as well or instead?
-    // User said: INSERT OR REPLACE INTO policies (id, assessment_id, zone_id, control_id, parameters_json, final)
-    // VALUES (uuid, :assessment_id, :zone_id, :control_id, json({text: generatedText}), 0)
-    // We'll also keep policy_markdown for compatibility if it exists.
-    
     const parametersJson = JSON.stringify({ text: generatedText, sr_code, title, suc_function })
     
     db.run(
@@ -78,7 +73,7 @@ Rispondi SOLO in italiano, massimo 150 parole, con questa struttura:
 
     res.json({ policy_markdown: generatedText })
   } catch (err) {
-    console.error('[AI] Policy generation error:', err)
+    console.error('[AI] Policy generation error (LM Studio):', err)
     res.status(500).json({ error: err.message })
   }
 })

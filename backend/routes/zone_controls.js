@@ -6,7 +6,15 @@ const db = require('../db/database')
 // GET /api/zone-controls?zone_id=... OR ?assessment_id=...
 router.get('/', (req, res) => {
   const { zone_id, assessment_id } = req.query
-  let sql = 'SELECT zc.* FROM zone_controls zc'
+  let sql = `
+    SELECT 
+      zc.*, 
+      ic.sr_code, 
+      ic.re_code,
+      ic.title as control_title
+    FROM zone_controls zc
+    JOIN iec_controls ic ON zc.control_id = ic.id
+  `
   const params = []
 
   if (assessment_id) {

@@ -194,7 +194,7 @@ router.post('/:id/init-zones', (req, res) => {
           db.run(
             `INSERT OR IGNORE INTO zone_controls
               (id, zone_id, control_id, applicable, present, sl_achieved, sl_target)
-             VALUES (?,?,?,1,0,0,?)`,
+             VALUES (?,?,?,1,1,0,?)`,
             [zcId, zoneId, control.id, 2]
           )
         }

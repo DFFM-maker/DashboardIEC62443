@@ -7,6 +7,9 @@ import RiskMatrix5x5 from '../../components/wizard/RiskMatrix5x5'
 
 const SESSION_KEY = (id) => `wizard-${id}-step2`
 
+const LIKELIHOOD_LABELS = ['Remote', 'Unlikely', 'Possible', 'Likely', 'Certain']
+const IMPACT_LABELS    = ['Trivial', 'Minor', 'Moderate', 'Major', 'Critical']
+
 const RISK_COLORS = {
   LOW:          'bg-green-500/20 text-green-400 border-green-500/30',
   MEDIUM:       'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
@@ -273,12 +276,53 @@ export default function WizardStep2_RiskAssessment() {
 
               {/* Risk Matrix */}
               <div>
-                <p className="block text-sm font-medium text-gray-300 mb-3">
-                  Risk Matrix — Score: <span className="font-bold text-white">{currentRisk.score}</span>{' '}
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded border ${RISK_COLORS[currentRisk.label]}`}>
-                    {currentRisk.label}
-                  </span>
-                </p>
+                <p className="block text-sm font-medium text-gray-300 mb-4">Risk Assessment</p>
+
+                {/* Likelihood Slider */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs text-gray-400">Likelihood</label>
+                    <span className="text-xs font-bold text-white">
+                      {form.likelihood} — {LIKELIHOOD_LABELS[form.likelihood - 1]}
+                    </span>
+                  </div>
+                  <input
+                    type="range" min="1" max="5" step="1"
+                    value={form.likelihood}
+                    onChange={e => setForm(prev => ({ ...prev, likelihood: Number(e.target.value) }))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gray-700"
+                    style={{ accentColor: '#22c55e' }}
+                  />
+                  <div className="flex justify-between mt-1 px-0.5">
+                    {LIKELIHOOD_LABELS.map((l, i) => (
+                      <span key={i} className="text-[10px] text-gray-600">{l}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Impact Slider */}
+                <div className="mb-5">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs text-gray-400">Impact</label>
+                    <span className="text-xs font-bold text-white">
+                      {form.safety_impact} — {IMPACT_LABELS[form.safety_impact - 1]}
+                    </span>
+                  </div>
+                  <input
+                    type="range" min="1" max="5" step="1"
+                    value={form.safety_impact}
+                    onChange={e => setForm(prev => ({ ...prev, safety_impact: Number(e.target.value) }))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gray-700"
+                    style={{ accentColor: '#22c55e' }}
+                  />
+                  <div className="flex justify-between mt-1 px-0.5">
+                    {IMPACT_LABELS.map((l, i) => (
+                      <span key={i} className="text-[10px] text-gray-600">{l}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 5×5 Matrix */}
                 <RiskMatrix5x5
                   likelihood={form.likelihood}
                   impact={form.safety_impact}
@@ -286,6 +330,15 @@ export default function WizardStep2_RiskAssessment() {
                   showLegend
                   onRiskChange={handleMatrixClick}
                 />
+
+                {/* Score below matrix */}
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-sm text-gray-400">Score:</span>
+                  <span className="text-lg font-bold text-white">{currentRisk.score}</span>
+                  <span className={`text-xs font-bold px-2 py-1 rounded border ${RISK_COLORS[currentRisk.label]}`}>
+                    {currentRisk.label}
+                  </span>
+                </div>
               </div>
             </div>
 

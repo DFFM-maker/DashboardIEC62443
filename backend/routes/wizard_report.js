@@ -10,11 +10,15 @@ function buildWizardData(assessmentId) {
   if (!assessment) return null
 
   const zones = db.all(
-    'SELECT * FROM zones WHERE assessment_id = ? AND (excluded_from_assessment IS NULL OR excluded_from_assessment = 0) ORDER BY name',
+    `SELECT * FROM zones WHERE assessment_id = ?
+     AND (excluded_from_assessment IS NULL OR excluded_from_assessment = 0)
+     AND (excluded_from_report IS NULL OR excluded_from_report = 0)
+     ORDER BY name`,
     [assessmentId]
   )
   const excludedZones = db.all(
-    'SELECT name FROM zones WHERE assessment_id = ? AND excluded_from_report = 1',
+    `SELECT name FROM zones WHERE assessment_id = ?
+     AND (excluded_from_assessment = 1 OR excluded_from_report = 1)`,
     [assessmentId]
   )
   const conduits = db.all('SELECT * FROM conduits WHERE assessment_id = ?', [assessmentId])

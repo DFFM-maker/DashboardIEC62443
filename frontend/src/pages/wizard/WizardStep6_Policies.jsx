@@ -82,26 +82,38 @@ export default function WizardStep6_Policies() {
       const sources = {}
       const zonesWithTemplates = z.filter(zone => zone.zone_template && !zone.excluded_from_assessment)
       const standardPoliciesCache = {}
-      await Promise.all(zonesWithTemplates.map(async (zone) => {
-        try {
-          const stdPolicies = await api.getStandardPolicies(zone.zone_template)
-          standardPoliciesCache[zone.zone_template] = stdPolicies
-        } catch (_) { /* ignore */ }
-      }))
+      
+      // Parallel fetch of standard policies for used templates
+      await Promise.all(
+        [...new Set(zonesWithTemplates.map(z => z.zone_template))].map(async (tmpl) => {
+          try {
+            standardPoliciesCache[tmpl] = await api.getStandardPolicies(tmpl)
+          } catch (_) { /* ignore */ }
+        })
+      )
 
       for (const zone of zonesWithTemplates) {
         const stdPolicies = standardPoliciesCache[zone.zone_template] || {}
-        for (const [srCode, policy] of Object.entries(stdPolicies)) {
-          // Find the matching zone_control entry by sr_code
-          const zcEntry = Object.values(map).find(
-            item => item.zone_id === zone.id && item.sr_code === srCode
-          )
-          if (zcEntry) {
-            const key = `${zcEntry.zone_id}:${zcEntry.control_id}`
-            if (!drafts[key]) {
-              drafts[key] = policy.text
-              sources[key] = 'standard'
+        const zoneEntries = Object.values(map).filter(item => item.zone_id === zone.id)
+        
+        for (const zcEntry of zoneEntries) {
+          const key = `${zcEntry.zone_id}:${zcEntry.control_id}`
+          const srCode = zcEntry.sr_code
+          
+          if (srCode && stdPolicies[srCode] && !drafts[key]) {
+            const sp = stdPolicies[srCode]
+            const lines = []
+            if (sp.title) lines.push(sp.title)
+            if (sp.obiettivo) lines.push(`\nObiettivo: ${sp.obiettivo}`)
+            if (sp.ambito) lines.push(`\nAmbito: ${sp.ambito}`)
+            if (sp.requisiti && sp.requisiti.length > 0) {
+              lines.push('\nRequisiti:')
+              sp.requisiti.forEach(r => lines.push(`• ${r}`))
             }
+            drafts[key] = lines.join('\n')
+            sources[key] = 'standard'
+          } else if (drafts[key]) {
+            sources[key] = 'custom'
           }
         }
       }
@@ -116,13 +128,18 @@ export default function WizardStep6_Policies() {
       }
       setPoliciesMap(pmap)
 
-      if (z.length > 0 && !activeZoneId) setActiveZoneId(z[0].id)
+      // Only set initial active zone if none is selected
+      if (z.length > 0 && !activeZoneId) {
+        setActiveZoneId(z[0].id)
+      }
+      
+      console.log(`[PolicyEngine] Loaded ${Object.keys(map).length} controls, ${Object.keys(sources).length} policies pre-filled.`);
     } catch (err) {
-      console.error('Fetch error:', err)
+      console.error('[PolicyEngine] Fetch error:', err)
     } finally {
       setLoading(false)
     }
-  }, [id, activeZoneId])
+  }, [id]) // Removed activeZoneId from dependencies to prevent redundant runs
 
   useEffect(() => {
     fetchData()
@@ -131,20 +148,19 @@ export default function WizardStep6_Policies() {
   const activeZone = useMemo(() => zones.find(z => z.id === activeZoneId), [zones, activeZoneId])
   const slTNum = activeZone ? (SL_NUM[activeZone.security_level] || 2) : 2
 
-  const gapControls = useMemo(() => {
+  const selectedControls = useMemo(() => {
     if (!activeZone) return []
+    // Show what the user selected in Step 5 (where present == 1)
     return controls.filter(c => {
-      if (!slApplies(c, slTNum)) return false
       const zc = zcMap[`${activeZoneId}:${c.id}`]
-      return !zc?.present
+      return zc && (zc.present == 1 || zc.present === true)
     })
-  }, [controls, slTNum, activeZoneId, zcMap, activeZone])
+  }, [controls, activeZoneId, zcMap, activeZone])
 
-  const getZoneGapCount = useCallback((zone) => {
-    const slT = SL_NUM[zone.security_level] || 1
+  const getZoneSelectedCount = useCallback((zone) => {
     return controls.filter(c => {
-      if (!slApplies(c, slT)) return false
-      return !zcMap[`${zone.id}:${c.id}`]?.present
+      const zc = zcMap[`${zone.id}:${c.id}`]
+      return zc && (zc.present == 1 || zc.present === true)
     }).length
   }, [controls, zcMap])
 
@@ -224,22 +240,30 @@ export default function WizardStep6_Policies() {
   }, [id, activeZoneId, policiesMap])
 
   const byCategory = useMemo(() => {
-    return gapControls.reduce((acc, c) => {
+    return selectedControls.reduce((acc, c) => {
       const cat = c.category || 'OTHER'
       if (!acc[cat]) acc[cat] = []
       acc[cat].push(c)
       return acc
     }, {})
-  }, [gapControls])
+  }, [selectedControls])
 
-  // Count finalized policies vs total gaps across all zones
-  const totalGapsCount = useMemo(() => 
-    zones.reduce((sum, z) => sum + getZoneGapCount(z), 0)
-  , [zones, getZoneGapCount])
+  // Count finalized policies vs total selected across all zones
+  const totalSelectedCount = useMemo(() =>
+    zones.reduce((sum, z) => sum + getZoneSelectedCount(z), 0)
+  , [zones, getZoneSelectedCount])
 
-  const finalizedPoliciesCount = useMemo(() => 
-    Object.values(policiesMap).filter(p => p.final === 1).length
-  , [policiesMap])
+  const totalGapsCount = useMemo(() => {
+    if (!zones || !controls || !zcMap) return 0;
+    return zones.reduce((sum, z) => sum + (controls.filter(c => {
+      const zc = zcMap[`${z.id}:${c.id}`];
+      return zc && zc.present === 0;
+    }).length), 0);
+  }, [zones, controls, zcMap])
+
+  const finalizedPoliciesCount = useMemo(() => {
+    return Object.values(policiesMap).filter(p => p && p.final).length
+  }, [policiesMap])
 
   if (loading) {
     return (
@@ -292,14 +316,14 @@ export default function WizardStep6_Policies() {
                     <span className="text-[10px] text-gray-500 uppercase">Policy Finalizzate</span>
                   </div>
                   <div className="w-12 h-12 rounded-full border-2 border-brand-green/20 flex items-center justify-center text-[10px] font-bold text-brand-green">
-                    {totalGapsCount > 0 ? Math.round((finalizedPoliciesCount/totalGapsCount)*100) : 100}%
+                    {totalSelectedCount > 0 ? Math.round((finalizedPoliciesCount/totalSelectedCount)*100) : 100}%
                   </div>
                 </div>
                 
                 <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${totalGapsCount > 0 ? (finalizedPoliciesCount/totalGapsCount)*100 : 100}%` }}
+                    animate={{ width: `${totalSelectedCount > 0 ? (finalizedPoliciesCount/totalSelectedCount)*100 : 100}%` }}
                     className="h-full bg-brand-green shadow-[0_0_10px_rgba(34,197,94,0.5)]"
                   />
                 </div>
@@ -308,7 +332,7 @@ export default function WizardStep6_Policies() {
               <div className="mt-8 space-y-2">
                 <h3 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">Security Zones</h3>
                 {zones.map(zone => {
-                  const gaps = getZoneGapCount(zone)
+                  const selectedCount = getZoneSelectedCount(zone)
                   const isActive = zone.id === activeZoneId
                   return (
                     <button
@@ -316,7 +340,7 @@ export default function WizardStep6_Policies() {
                       onClick={() => setActiveZoneId(zone.id)}
                       className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border ${
                         isActive 
-                          ? 'bg-brand-green/20 border-brand-green/50 text-white' 
+                          ? 'bg-brand-green/20 border-brand-green/50 text-white shadow-[0_0_15px_rgba(0,255,157,0.05)]' 
                           : 'bg-transparent border-transparent text-gray-500 hover:bg-white/5 hover:text-gray-300'
                       }`}
                     >
@@ -324,14 +348,14 @@ export default function WizardStep6_Policies() {
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: zone.color }} />
                         <span className="text-sm font-medium truncate">{zone.name}</span>
                       </div>
-                      {gaps > 0 ? (
+                      {selectedCount > 0 ? (
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isActive ? 'bg-brand-green text-white' : 'bg-red-500/10 text-red-400'
+                          isActive ? 'bg-brand-green text-white' : 'bg-brand-green/10 text-brand-green'
                         }`}>
-                          {gaps} GAP
+                          {selectedCount}
                         </span>
                       ) : (
-                        <CheckCircle className="w-4 h-4 text-brand-green" />
+                        <CheckCircle className="w-4 h-4 text-gray-700" />
                       )}
                     </button>
                   )
@@ -358,21 +382,21 @@ export default function WizardStep6_Policies() {
                         {activeZone.security_level}
                       </span>
                     </div>
-                    {gapControls.length > 0 && (
+                    {selectedControls.length > 0 && (
                       <span className="text-sm text-gray-500">
-                        Mostrando <span className="text-white font-bold">{gapControls.length}</span> vulnerabilità da mitigare
+                        Mostrando <span className="text-white font-bold">{selectedControls.length}</span> policy attive da documentare
                       </span>
                     )}
                   </div>
 
-                  {gapControls.length === 0 ? (
+                  {selectedControls.length === 0 ? (
                     <div className="bg-gray-900/40 border border-white/5 rounded-3xl p-16 flex flex-col items-center text-center">
-                      <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mb-6">
-                        <CheckCircle className="w-8 h-8 text-brand-green" />
+                      <div className="w-16 h-16 bg-gray-800/10 rounded-full flex items-center justify-center mb-6">
+                        <CheckCircle className="w-8 h-8 text-gray-600" />
                       </div>
-                      <h3 className="text-xl font-bold mb-2 text-white">Zero Gaps Detected</h3>
+                      <h3 className="text-xl font-bold mb-2 text-white">Nessuna Policy Attiva</h3>
                       <p className="text-gray-500 max-w-md">
-                        Tutti i controlli previsti per il {activeZone.security_level} sono stati implementati correttamente in questa zona.
+                        Non hai selezionato alcun requisito per questa zona nello Step 5 (Gap Analysis). Torna indietro se desideri includere degli SR della baseline.
                       </p>
                     </div>
                   ) : (
@@ -415,10 +439,28 @@ export default function WizardStep6_Policies() {
                                         <Shield className={`w-5 h-5 ${isFinal ? 'text-brand-green' : 'text-red-400'}`} />
                                       </div>
                                       <div>
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
                                           <span className="px-1.5 py-0.5 rounded bg-gray-800 text-[10px] font-mono font-bold text-gray-500 border border-white/5 uppercase tracking-tighter">
                                             {control.sr_code}
                                           </span>
+                                          
+                                          {/* Source Badge */}
+                                          {src === 'standard' && (
+                                            <span className="flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-500/10 px-2 py-0.5 rounded-full border border-gray-500/20">
+                                              STANDARD
+                                            </span>
+                                          )}
+                                          {src === 'ai' && (
+                                            <span className="flex items-center gap-1 text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                                              <Sparkles className="w-3 h-3" /> AI
+                                            </span>
+                                          )}
+                                          {src === 'custom' && (
+                                            <span className="flex items-center gap-1 text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
+                                              PERSONALIZZATA
+                                            </span>
+                                          )}
+
                                           {isFinal && (
                                             <span className="flex items-center gap-1 text-[10px] font-bold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full border border-brand-green/20">
                                               <CheckCircle className="w-3 h-3" /> FINALIZZATA
@@ -451,7 +493,7 @@ export default function WizardStep6_Policies() {
                                         setPolicyDrafts(prev => ({ ...prev, [key]: e.target.value }))
                                         setPolicySource(prev => ({ ...prev, [key]: 'custom' }))
                                       }}
-                                      placeholder={`Nessuna policy generata. Clicca su "Genera con AI" per creare una policy IEC 62443 per ${control.sr_code}...`}
+                                      placeholder={`Modifica la policy standard o genera con AI per ${control.sr_code}...`}
                                       rows={6}
                                       className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-gray-300 placeholder-gray-700 focus:outline-none focus:border-brand-green/50 focus:ring-1 focus:ring-brand-green/20 transition-all font-mono leading-relaxed"
                                     />

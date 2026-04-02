@@ -62,9 +62,13 @@ export default function RiskMatrix5x5({
                       w-12 h-12 flex items-center justify-center rounded text-xs font-bold
                       transition-all select-none
                       ${interactive ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
-                      ${isActive ? 'ring-2 ring-white ring-offset-1 ring-offset-gray-950 scale-110' : ''}
+                      ${isActive ? 'scale-110' : ''}
                     `}
-                    style={{ backgroundColor: level.color, opacity: isActive ? 1 : 0.5 }}
+                    style={{
+                      backgroundColor: level.color,
+                      opacity: isActive ? 1 : 0.5,
+                      ...(isActive ? { outline: '3px solid white', outlineOffset: '2px' } : {}),
+                    }}
                     title={`L${l} × I${i} = ${score} (${level.label})`}
                   >
                     {score}
