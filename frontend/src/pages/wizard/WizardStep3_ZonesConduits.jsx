@@ -134,25 +134,41 @@ export default function WizardStep3_ZonesConduits() {
     setShowZoneForm(false)
   }
 
-  const handleDeleteZone = async (zoneId) => {
-    await api.deleteZone(zoneId)
-    setZones(prev => prev.filter(z => z.id !== zoneId))
-    setNodes(prev => prev.filter(n => n.id !== zoneId))
-    setEdges(prev => prev.filter(e => e.source !== zoneId && e.target !== zoneId))
-    setAssetZoneMap(prev => {
-      const next = { ...prev }
-      for (const [aid, zid] of Object.entries(next)) {
-        if (zid === zoneId) delete next[aid]
+  const handleDeleteZone = useCallback(async (deletedNodes) => {
+    try {
+      for (const node of deletedNodes) {
+        if (window.confirm("Eliminare questa Zona e i suoi conduit?")) {
+          await api.delete('/api/zones/' + node.id)
+        }
       }
-      return next
-    })
-  }
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting zone:', err)
+    }
+  }, [loadAll])
+
+  const handleDeleteConduit = useCallback(async (deletedEdges) => {
+    try {
+      for (const edge of deletedEdges) {
+        if (window.confirm("Eliminare questo Conduit?")) {
+          await api.delete('/api/conduits/' + edge.id)
+        }
+      }
+      await loadAll()
+    } catch (err) {
+      console.error('Error deleting conduit:', err)
+    }
+  }, [loadAll])
 
   const handleAssetZoneChange = async (assetId, newZoneId) => {
-    const oldZoneId = assetZoneMap[assetId]
-    if (oldZoneId) await api.removeAssetFromZone(oldZoneId, assetId)
-    if (newZoneId) await api.addAssetToZone(newZoneId, assetId)
-    setAssetZoneMap(prev => ({ ...prev, [assetId]: newZoneId || '' }))
+    try {
+      const oldZoneId = assetZoneMap[assetId]
+      if (oldZoneId) await api.removeAssetFromZone(oldZoneId, assetId)
+      if (newZoneId) await api.addAssetToZone(newZoneId, assetId)
+      setAssetZoneMap(prev => ({ ...prev, [assetId]: newZoneId || '' }))
+    } catch (err) {
+      console.error('Error updating asset zone:', err)
+    }
   }
 
   if (!assessment) {
@@ -247,7 +263,7 @@ export default function WizardStep3_ZonesConduits() {
                         <div className="flex items-center gap-2">
                           <span className="flex-1 text-xs text-white truncate font-medium">{zone.name}</span>
                           <span className="text-xs text-gray-500 shrink-0">{zone.security_level}</span>
-                          <button onClick={() => handleDeleteZone(zone.id)} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
+                          <button onClick={() => handleDeleteZone([{ id: zone.id }])} className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-opacity">
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
@@ -316,6 +332,8 @@ export default function WizardStep3_ZonesConduits() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
+            onNodesDelete={handleDeleteZone}
+            onEdgesDelete={handleDeleteConduit}
             nodeTypes={NODE_TYPES}
             fitView
             deleteKeyCode="Delete"

@@ -5,9 +5,10 @@ import { api } from '../../lib/api'
 import WizardStepper from '../../components/wizard/WizardStepper'
 
 const BASELINE_SR = new Set([
-  'SR 1.2', 'SR 1.3', 'SR 1.7', 'SR 2.1', 'SR 2.8',
-  'SR 3.2', 'SR 3.4', 'SR 4.1', 'SR 4.3', 'SR 5.1',
-  'SR 5.2', 'SR 6.2', 'SR 7.1', 'SR 7.3', 'SR 7.8'
+  'SR 1.1', 'SR 1.3',
+  'SR 5.1', 'SR 5.2',
+  'SR 6.2',
+  'SR 7.1', 'SR 7.3', 'SR 7.8'
 ])
 
 const SL_NUM = { 'SL-1': 1, 'SL-2': 2, 'SL-3': 3, 'SL-4': 4 }
@@ -49,6 +50,8 @@ export default function WizardStep5_GapAnalysis() {
   const [zoneControlsMap, setZoneControlsMap] = useState({}) // keyed by zone_id:control_id
   const [activeZoneId, setActiveZoneId] = useState(null)
   const [showAllSR, setShowAllSR] = useState(false)
+  // State for remediation/justification texts per zone/control
+  const [remediationTexts, setRemediationTexts] = useState({}) // keyed by zone_id:control_id:{field}: text
 
   useEffect(() => {
     Promise.all([
@@ -75,6 +78,99 @@ export default function WizardStep5_GapAnalysis() {
       .finally(() => setLoading(false))
   }, [id])
 
+  // Populate remediation texts when zones or controls change
+  useEffect(() => {
+    if (!zones.length || !controls.length || !activeZoneId) return
+
+    const activeZone = zones.find(z => z.id === activeZoneId)
+    if (!activeZone) return
+
+    const zoneName = activeZone.name
+    const updates = {}
+
+    controls.forEach(control => {
+      const srCode = control.sr_code.trim()
+      const key = `${activeZoneId}:${control.id}`
+      const zoneControl = zoneControlsMap[key] || {}
+
+      // Check if remediation_plan or current_implementation is empty
+      const needsRemediation = !zoneControl.remediation_plan
+      const needsJustification = !zoneControl.current_implementation
+
+      if (!needsRemediation && !needsJustification) return
+
+      // IT zone - applies to all SRs
+      if (zoneName.includes('IT')) {
+        const text = "Gestione delegata alle policy IT Corporate. Nessun intervento richiesto lato Automazione."
+        if (needsRemediation) {
+          updates[`${key}:remediation_plan`] = text
+        }
+        if (needsJustification) {
+          updates[`${key}:current_implementation`] = text
+        }
+      }
+      // DMZ zone - specific for SR 5.2
+      else if (zoneName.includes('DMZ') && srCode === 'SR 5.2') {
+        const text = "Implementazione di Gateway OT (es. Secomea SiteManager per VPN/NAT) e/o Stateful Firewall (es. FortiGate) configurato in Deny-by-Default. Consentito in ingresso solo traffico autorizzato (es. OPC-UA TCP 4840)."
+        if (needsRemediation) {
+          updates[`${key}:remediation_plan`] = text
+        }
+        if (needsJustification) {
+          updates[`${key}:current_implementation`] = text
+        }
+      }
+      // Cell/Area zones - specific SRs
+      else if (zoneName.includes('Cell') || zoneName.includes('Area')) {
+        if (srCode === 'SR 1.1' || srCode === 'SR 1.3') {
+          const text = "Port Security e MAC Filtering attivati sugli switch di macchina. Prese RJ45 su cabinet fisicamente disabilitate o protette."
+          if (needsRemediation) {
+            updates[`${key}:remediation_plan`] = text
+          }
+          if (needsJustification) {
+            updates[`${key}:current_implementation`] = text
+          }
+        }
+        else if (srCode === 'SR 7.8') {
+          const text = "Tracciamento dinamico degli asset tramite Tecnopack OT Security Dashboard."
+          if (needsRemediation) {
+            updates[`${key}:remediation_plan`] = text
+          }
+          if (needsJustification) {
+            updates[`${key}:current_implementation`] = text
+          }
+        }
+        else if (srCode === 'SR 6.2') {
+          const text = "Monitoraggio passivo tramite porte SPAN verso IDS o API Firewall."
+          if (needsRemediation) {
+            updates[`${key}:remediation_plan`] = text
+          }
+          if (needsJustification) {
+            updates[`${key}:current_implementation`] = text
+          }
+        }
+      }
+    })
+
+    // Update state with new texts
+    if (Object.keys(updates).length > 0) {
+      setRemediationTexts(prev => {
+        const newState = { ...prev }
+        Object.entries(updates).forEach(([fullKey, value]) => {
+          const parts = fullKey.split(':')
+          const zoneId = parts[0]
+          const controlId = parts[1]
+          const fieldType = parts.slice(2).join(':') // Handle case where field name might contain ':'
+          const innerKey = `${zoneId}:${controlId}`
+          if (!newState[innerKey]) {
+            newState[innerKey] = {}
+          }
+          newState[innerKey][fieldType] = value
+        })
+        return newState
+      })
+    }
+  }, [zones, controls, activeZoneId, zoneControlsMap])
+
   const activeZone = zones.find(z => z.id === activeZoneId)
   const slTNum = activeZone ? (SL_NUM[activeZone.security_level] || 2) : 2
 
@@ -98,6 +194,9 @@ export default function WizardStep5_GapAnalysis() {
     const newPresent = existing ? (existing.present ? 0 : 1) : 1
     const newSlA = newPresent ? slTNum : 0
 
+    const remediationText = remediationTexts[key]?.remediation_plan || ''
+    const currentImplementation = remediationTexts[key]?.current_implementation || ''
+
     const updated = await api.upsertZoneControl({
       zone_id: activeZoneId,
       control_id: control.id,
@@ -105,9 +204,11 @@ export default function WizardStep5_GapAnalysis() {
       present: newPresent,
       sl_achieved: newSlA,
       sl_target: slTNum,
+      remediation_plan: remediationText,
+      current_implementation: currentImplementation,
     })
     setZoneControlsMap(prev => ({ ...prev, [key]: updated }))
-  }, [activeZoneId, zoneControlsMap, slTNum])
+  }, [activeZoneId, zoneControlsMap, slTNum, remediationTexts])
 
   // Summary stats per zone
   const getZoneSummary = (zone) => {
@@ -235,23 +336,59 @@ export default function WizardStep5_GapAnalysis() {
                 const slA = zc?.sl_achieved ?? 0
 
                 return (
-                  <div
-                    key={control.id}
-                    className="flex items-center gap-3 px-5 py-3 border-b border-gray-800/60 hover:bg-gray-800/30 transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={!!present}
-                      onChange={() => handleTogglePresent(control)}
-                      className="w-4 h-4 rounded accent-brand-green cursor-pointer shrink-0"
-                    />
-                    <span className="text-xs font-mono text-gray-500 w-16 shrink-0">{control.sr_code}{control.re_code ? ` ${control.re_code}` : ''}</span>
-                    <span className="flex-1 text-sm text-gray-200 min-w-0">{control.title}</span>
-                    <span className="text-xs text-gray-600 shrink-0 hidden lg:block">SL-A: {slA}</span>
-                    <div className="shrink-0">
-                      {gapBadge(slTNum, slA, present)}
+                  <React.Fragment key={control.id}>
+                    <div
+                      className="flex items-center gap-3 px-5 py-3 border-b border-gray-800/60 hover:bg-gray-800/30 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!present}
+                        onChange={() => handleTogglePresent(control)}
+                        className="w-4 h-4 rounded accent-brand-green cursor-pointer shrink-0"
+                      />
+                      <span className="text-xs font-mono text-gray-500 w-16 shrink-0">{control.sr_code}{control.re_code ? ` ${control.re_code}` : ''}</span>
+                      <span className="flex-1 text-sm text-gray-200 min-w-0">{control.title}</span>
+                      <span className="text-xs text-gray-600 shrink-0 hidden lg:block">SL-A: {slA}</span>
+                      <div className="shrink-0">
+                        {gapBadge(slTNum, slA, present)}
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="mt-4 w-full flex flex-col gap-3 px-5">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Piano di Remediation:</label>
+                        <textarea
+                          value={remediationTexts[key]?.remediation_plan || ''}
+                          onChange={(e) => setRemediationTexts(prev => ({
+                            ...prev,
+                            [key]: {
+                              ...(prev[key] || {}),
+                              remediation_plan: e.target.value
+                            }
+                          }))}
+                          placeholder="Inserisci il piano di remediation..."
+                          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-sm text-gray-200 focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green resize-y min-h-[60px]"
+                          rows={2}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Giustificazione / Stato Corrente:</label>
+                        <textarea
+                          value={remediationTexts[key]?.current_implementation || ''}
+                          onChange={(e) => setRemediationTexts(prev => ({
+                            ...prev,
+                            [key]: {
+                              ...(prev[key] || {}),
+                              current_implementation: e.target.value
+                            }
+                          }))}
+                          placeholder="Descrivi lo stato corrente di implementazione..."
+                          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-sm text-gray-200 focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green resize-y min-h-[60px]"
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  </React.Fragment>
                 )
               })}
             </div>

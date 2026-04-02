@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Save, 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle, 
-  Sparkles, 
-  Loader2, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Save,
+  FileText,
+  AlertTriangle,
+  CheckCircle,
+  Sparkles,
+  Loader2,
   Target,
   Shield,
   Layers
@@ -19,14 +19,29 @@ import WizardStepper from '../../components/wizard/WizardStepper'
 
 const SL_NUM = { 'SL-1': 1, 'SL-2': 2, 'SL-3': 3, 'SL-4': 4 }
 
+const DEFAULT_POLICY_TEMPLATES = {
+  'SR 1.1': "Tutti gli utenti che accedono ai sistemi (HMI, PLC) devono essere identificati univocamente. L'uso di account condivisi è vietato per operazioni critiche e limitato alle sole utenze di visualizzazione (sola lettura).",
+  'SR 1.3': "I privilegi di accesso devono seguire rigidamente il principio del minimo privilegio (Least Privilege). La disabilitazione degli account temporanei (trasfertisti, manutentori esterni) deve avvenire istantaneamente al termine dell'intervento.",
+  'SR 5.1': "Le reti di automazione (Cell/Area Zone) devono essere fisicamente o logicamente segmentate (VLAN dedicate) rispetto alla rete IT Corporate e isolate da Internet.",
+  'SR 5.2': "Il perimetro tra IT e OT deve essere protetto tramite Stateful Firewall. Tutto il traffico in ingresso verso la macchina è bloccato di default (Deny-by-Default), fatte salve le porte strettamente necessarie documentate nelle specifiche (es. OPC-UA).",
+  'SR 6.2': "Il traffico di rete della macchina deve essere monitorato per anomalie. I log degli accessi remoti (VPN) e del firewall perimetrale devono essere mantenuti per audit.",
+  'SR 7.1': "L'infrastruttura di rete (Switch Managed) deve essere configurata per mitigare tempeste di broadcast e prevenire condizioni di Denial of Service (DoS) verso i PLC.",
+  'SR 7.3': "Deve essere garantito il backup regolare dei programmi PLC e HMI. Una copia validata del backup deve essere conservata su server sicuro aziendale per consentire un Disaster Recovery rapido.",
+  'SR 7.8': "L'inventario degli asset fisici e logici (IP, MAC Address, Firmware) deve essere costantemente tracciato. L'accesso fisico alle prese di rete sui quadri deve essere protetto (Port Security).",
+  'SR 1.2': "I dispositivi software e i processi automatici (es. servizi OPC, task schedulati) devono essere autenticati prima di poter comunicare con PLC e HMI. L'uso di credenziali di default sui componenti industriali è vietato e deve essere verificato a ogni messa in servizio.",
+  'SR 3.2': "Tutti i sistemi con sistema operativo (HMI, SCADA Server, Engineering Station) devono essere protetti da software antimalware aggiornato. Gli aggiornamenti delle firme devono avvenire tramite canale sicuro e verificato, senza accesso diretto a Internet dalla rete OT.",
+  'SR 3.4': "L'integrità del software installato su PLC, HMI e sistemi di supervisione deve essere verificabile tramite checksum o firma digitale. Qualsiasi modifica non autorizzata al firmware o ai programmi di controllo deve generare un allarme e deve essere documentata.",
+  'SR 4.1': "Le comunicazioni interne alla Cell/Area Zone (es. PLC-HMI, I/O) viaggiano in chiaro per garantire stringenti requisiti di latenza deterministica e consentire la diagnostica di rete. La confidenzialità è garantita a livello architetturale dall'isolamento fisico/logico della zona. L'uso della cifratura (es. TLS 1.2+, VPN) è obbligatorio ESCLUSIVAMENTE per il traffico remoto che attraversa il perimetro della macchina verso l'esterno.",
+}
+
 const CATEGORY_LABELS = {
   IAC: 'Identification & Auth Control',
-  UC:  'Use Control',
-  SI:  'System Integrity',
-  DC:  'Data Confidentiality',
+  UC: 'Use Control',
+  SI: 'System Integrity',
+  DC: 'Data Confidentiality',
   RDF: 'Restricted Data Flow',
   TRE: 'Timely Response to Events',
-  RA:  'Resource Availability',
+  RA: 'Resource Availability',
 }
 
 function slApplies(control, slNum) {
@@ -82,7 +97,7 @@ export default function WizardStep6_Policies() {
       const sources = {}
       const zonesWithTemplates = z.filter(zone => zone.zone_template && !zone.excluded_from_assessment)
       const standardPoliciesCache = {}
-      
+
       // Parallel fetch of standard policies for used templates
       await Promise.all(
         [...new Set(zonesWithTemplates.map(z => z.zone_template))].map(async (tmpl) => {
@@ -95,11 +110,11 @@ export default function WizardStep6_Policies() {
       for (const zone of zonesWithTemplates) {
         const stdPolicies = standardPoliciesCache[zone.zone_template] || {}
         const zoneEntries = Object.values(map).filter(item => item.zone_id === zone.id)
-        
+
         for (const zcEntry of zoneEntries) {
           const key = `${zcEntry.zone_id}:${zcEntry.control_id}`
           const srCode = zcEntry.sr_code
-          
+
           if (srCode && stdPolicies[srCode] && !drafts[key]) {
             const sp = stdPolicies[srCode]
             const lines = []
@@ -118,6 +133,14 @@ export default function WizardStep6_Policies() {
         }
       }
 
+      // Fallback: apply DEFAULT_POLICY_TEMPLATES for SR still without content
+      for (const [key, zcEntry] of Object.entries(map)) {
+        if (!drafts[key] && zcEntry.sr_code && DEFAULT_POLICY_TEMPLATES[zcEntry.sr_code]) {
+          drafts[key] = DEFAULT_POLICY_TEMPLATES[zcEntry.sr_code]
+          sources[key] = 'standard'
+        }
+      }
+
       setZcMap(map)
       setPolicyDrafts(drafts)
       setPolicySource(sources)
@@ -132,7 +155,7 @@ export default function WizardStep6_Policies() {
       if (z.length > 0 && !activeZoneId) {
         setActiveZoneId(z[0].id)
       }
-      
+
       console.log(`[PolicyEngine] Loaded ${Object.keys(map).length} controls, ${Object.keys(sources).length} policies pre-filled.`);
     } catch (err) {
       console.error('[PolicyEngine] Fetch error:', err)
@@ -199,17 +222,17 @@ export default function WizardStep6_Policies() {
         title: control.title,
         suc_function: assessment?.suc_function || '',
       })
-      
+
       const generatedText = result.policy_markdown
       setPolicyDrafts(prev => ({ ...prev, [key]: generatedText }))
       setPolicySource(prev => ({ ...prev, [key]: 'ai' }))
-      
+
       // Update local state for immediate feedback
       setZcMap(prev => ({
         ...prev,
         [key]: { ...(prev[key] || {}), policy_text: generatedText }
       }))
-      
+
       // Refresh policies to get the new policy entry (for finalization)
       const pols = await api.getPolicies(id)
       const pmap = {}
@@ -226,7 +249,7 @@ export default function WizardStep6_Policies() {
     const key = `${activeZoneId}:${control.id}`
     const policy = policiesMap[key]
     if (!policy) return
-    
+
     setFinalizing(prev => ({ ...prev, [key]: true }))
     try {
       const newFinalStatus = policy.final ? 0 : 1
@@ -251,7 +274,7 @@ export default function WizardStep6_Policies() {
   // Count finalized policies vs total selected across all zones
   const totalSelectedCount = useMemo(() =>
     zones.reduce((sum, z) => sum + getZoneSelectedCount(z), 0)
-  , [zones, getZoneSelectedCount])
+    , [zones, getZoneSelectedCount])
 
   const totalGapsCount = useMemo(() => {
     if (!zones || !controls || !zcMap) return 0;
@@ -277,7 +300,7 @@ export default function WizardStep6_Policies() {
   return (
     <div className="min-h-screen bg-black text-gray-100 pb-20">
       <div className="max-w-6xl mx-auto px-6 py-8">
-        
+
         {/* Header Section */}
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -295,20 +318,20 @@ export default function WizardStep6_Policies() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          
+
           {/* Sidebar: Zone List & Global Stats */}
           <aside className="lg:col-span-1 space-y-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="bg-gray-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-5 overflow-hidden relative"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 blur-3xl rounded-full -mr-16 -mt-16" />
-              
+
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
                 <Target className="w-3 h-3" /> Status Overview
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-end justify-between">
                   <div>
@@ -316,14 +339,14 @@ export default function WizardStep6_Policies() {
                     <span className="text-[10px] text-gray-500 uppercase">Policy Finalizzate</span>
                   </div>
                   <div className="w-12 h-12 rounded-full border-2 border-brand-green/20 flex items-center justify-center text-[10px] font-bold text-brand-green">
-                    {totalSelectedCount > 0 ? Math.round((finalizedPoliciesCount/totalSelectedCount)*100) : 100}%
+                    {totalSelectedCount > 0 ? Math.round((finalizedPoliciesCount / totalSelectedCount) * 100) : 100}%
                   </div>
                 </div>
-                
+
                 <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${totalSelectedCount > 0 ? (finalizedPoliciesCount/totalSelectedCount)*100 : 100}%` }}
+                    animate={{ width: `${totalSelectedCount > 0 ? (finalizedPoliciesCount / totalSelectedCount) * 100 : 100}%` }}
                     className="h-full bg-brand-green shadow-[0_0_10px_rgba(34,197,94,0.5)]"
                   />
                 </div>
@@ -338,25 +361,25 @@ export default function WizardStep6_Policies() {
                     <button
                       key={zone.id}
                       onClick={() => setActiveZoneId(zone.id)}
-                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border ${
-                        isActive 
-                          ? 'bg-brand-green/20 border-brand-green/50 text-white shadow-[0_0_15px_rgba(0,255,157,0.05)]' 
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border ${isActive
+                          ? 'bg-brand-green/20 border-brand-green/50 text-white shadow-[0_0_15px_rgba(0,255,157,0.05)]'
                           : 'bg-transparent border-transparent text-gray-500 hover:bg-white/5 hover:text-gray-300'
-                      }`}
+                        }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: zone.color }} />
-                        <span className="text-sm font-medium truncate">{zone.name}</span>
+                      <div className="flex items-center gap-3 flex-1 pr-2 min-w-0">
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: zone.color }} />
+                        <span className="text-sm font-medium text-left leading-tight break-words">{zone.name}</span>
                       </div>
-                      {selectedCount > 0 ? (
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isActive ? 'bg-brand-green text-white' : 'bg-brand-green/10 text-brand-green'
-                        }`}>
-                          {selectedCount}
-                        </span>
-                      ) : (
-                        <CheckCircle className="w-4 h-4 text-gray-700" />
-                      )}
+                      <div className="shrink-0 flex items-center">
+                        {selectedCount > 0 ? (
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-brand-green text-white' : 'bg-brand-green/10 text-brand-green'
+                            }`}>
+                            {selectedCount}
+                          </span>
+                        ) : (
+                          <CheckCircle className="w-4 h-4 text-gray-700" />
+                        )}
+                      </div>
                     </button>
                   )
                 })}
@@ -408,7 +431,7 @@ export default function WizardStep6_Policies() {
                             {cat} — {CATEGORY_LABELS[cat] || cat}
                           </h4>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 gap-4">
                           {catControls.map(control => {
                             const key = `${activeZoneId}:${control.id}`
@@ -422,20 +445,18 @@ export default function WizardStep6_Policies() {
                             const src = policySource[key]
 
                             return (
-                              <motion.div 
+                              <motion.div
                                 key={control.id}
                                 layout
-                                className={`group bg-gray-900/40 backdrop-blur-md border rounded-2xl overflow-hidden transition-all duration-300 ${
-                                  isFinal ? 'border-brand-green/30' : 'border-white/5 hover:border-white/10'
-                                }`}
+                                className={`group bg-gray-900/40 backdrop-blur-md border rounded-2xl overflow-hidden transition-all duration-300 ${isFinal ? 'border-brand-green/30' : 'border-white/5 hover:border-white/10'
+                                  }`}
                               >
                                 <div className="p-5">
                                   {/* Card Header */}
                                   <div className="flex items-start justify-between mb-4">
                                     <div className="flex gap-4">
-                                      <div className={`p-2.5 rounded-xl border ${
-                                        isFinal ? 'bg-brand-green/10 border-brand-green/20' : 'bg-red-500/5 border-red-500/10'
-                                      }`}>
+                                      <div className={`p-2.5 rounded-xl border ${isFinal ? 'bg-brand-green/10 border-brand-green/20' : 'bg-red-500/5 border-red-500/10'
+                                        }`}>
                                         <Shield className={`w-5 h-5 ${isFinal ? 'text-brand-green' : 'text-red-400'}`} />
                                       </div>
                                       <div>
@@ -443,7 +464,7 @@ export default function WizardStep6_Policies() {
                                           <span className="px-1.5 py-0.5 rounded bg-gray-800 text-[10px] font-mono font-bold text-gray-500 border border-white/5 uppercase tracking-tighter">
                                             {control.sr_code}
                                           </span>
-                                          
+
                                           {/* Source Badge */}
                                           {src === 'standard' && (
                                             <span className="flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-500/10 px-2 py-0.5 rounded-full border border-gray-500/20">
@@ -470,7 +491,7 @@ export default function WizardStep6_Policies() {
                                         <h4 className="text-sm font-bold text-white leading-tight">{control.title}</h4>
                                       </div>
                                     </div>
-                                    
+
                                     <button
                                       onClick={() => handleGenerateAI(control)}
                                       disabled={isGenerating}
@@ -520,7 +541,7 @@ export default function WizardStep6_Policies() {
                                               disabled={isFinalizing}
                                               onChange={() => handleFinalize(control)}
                                             />
-                                            <motion.div 
+                                            <motion.div
                                               animate={{ x: isFinal ? 18 : 2 }}
                                               className="absolute top-1 w-3 h-3 bg-white rounded-full shadow-sm"
                                             />
@@ -535,7 +556,7 @@ export default function WizardStep6_Policies() {
                                     <div className="flex items-center gap-3">
                                       <AnimatePresence>
                                         {isSaved && (
-                                          <motion.span 
+                                          <motion.span
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0 }}
@@ -545,15 +566,14 @@ export default function WizardStep6_Policies() {
                                           </motion.span>
                                         )}
                                       </AnimatePresence>
-                                      
+
                                       <button
                                         onClick={() => handleSavePolicy(control)}
                                         disabled={isSaving}
-                                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${
-                                          isSaving 
-                                            ? 'bg-gray-800 text-gray-500' 
+                                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${isSaving
+                                            ? 'bg-gray-800 text-gray-500'
                                             : 'bg-white text-black hover:bg-gray-200'
-                                        }`}
+                                          }`}
                                       >
                                         <Save className="w-4 h-4" />
                                         {isSaving ? 'SALVATAGGIO...' : 'SALVA BOZZA'}
@@ -582,7 +602,7 @@ export default function WizardStep6_Policies() {
               data-testid="back-button"
               className="group flex items-center gap-2 px-6 py-3 bg-transparent border border-white/10 hover:border-white/20 text-gray-400 hover:text-white rounded-2xl text-sm font-bold transition-all"
             >
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               GAP ANALYSIS
             </button>
             <div className="flex items-center gap-8">

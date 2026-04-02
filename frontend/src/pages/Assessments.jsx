@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
-import { Plus, Play, Trash2, FileText, Search } from 'lucide-react'
+import { Plus, Play, Trash2, FileText, Search, Pencil } from 'lucide-react'
 import SeverityBadge from '../components/SeverityBadge'
 
 export default function Assessments() {
@@ -11,6 +11,8 @@ export default function Assessments() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null) // { id, name }
+  const [editTarget, setEditTarget] = useState(null) // assessment object
+  const [editForm, setEditForm] = useState({})
   const [search, setSearch] = useState('')
   const [form, setForm] = useState({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '', snmp_community: 'tecnopack2026' })
 
@@ -30,6 +32,20 @@ export default function Assessments() {
       setShowModal(false)
       setForm({ name: '', subnet: '172.16.224.0/20', client_id: '', assessor: '', iec62443_target_sl: 'SL-2', notes: '', snmp_community: 'tecnopack2026' })
       navigate(`/assessments/${created.id}/step/1`)
+    } catch (err) { alert(err.message) }
+  }
+
+  const openEdit = (a) => {
+    setEditTarget(a)
+    setEditForm({ name: a.name, subnet: a.subnet, client_id: a.client_id || '', assessor: a.assessor || '', iec62443_target_sl: a.iec62443_target_sl || 'SL-2', notes: a.notes || '', snmp_community: a.snmp_community || 'public' })
+  }
+
+  const handleEdit = async (e) => {
+    e.preventDefault()
+    try {
+      await api.updateAssessment(editTarget.id, editForm)
+      setEditTarget(null)
+      load()
     } catch (err) { alert(err.message) }
   }
 
@@ -109,6 +125,13 @@ export default function Assessments() {
                     <FileText className="w-3.5 h-3.5" /> Dettagli
                   </Link>
                   <button
+                    onClick={() => openEdit(a)}
+                    className="btn-secondary flex items-center gap-1.5"
+                    title="Modifica assessment"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
                     onClick={() => setDeleteTarget({ id: a.id, name: a.name })}
                     className="btn-danger flex items-center gap-1.5"
                   >
@@ -166,6 +189,58 @@ export default function Assessments() {
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Annulla</button>
                 <button type="submit" className="btn-primary">Crea Assessment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Edit */}
+      {editTarget && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <Pencil className="w-5 h-5 text-brand-green" /> Modifica Assessment
+            </h2>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div>
+                <label className="label">Nome Assessment *</label>
+                <input className="input w-full" required value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} />
+              </div>
+              <div>
+                <label className="label">Subnet Target *</label>
+                <input className="input w-full font-mono" required value={editForm.subnet} onChange={e => setEditForm({...editForm, subnet: e.target.value})} />
+              </div>
+              <div>
+                <label className="label">Cliente</label>
+                <select className="input w-full" value={editForm.client_id} onChange={e => setEditForm({...editForm, client_id: e.target.value})}>
+                  <option value="">— Nessun cliente —</option>
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Assessor</label>
+                  <input className="input w-full" value={editForm.assessor} onChange={e => setEditForm({...editForm, assessor: e.target.value})} />
+                </div>
+                <div>
+                  <label className="label">SL Target</label>
+                  <select className="input w-full" value={editForm.iec62443_target_sl} onChange={e => setEditForm({...editForm, iec62443_target_sl: e.target.value})}>
+                    <option>SL-1</option><option>SL-2</option><option>SL-3</option><option>SL-4</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="label">SNMP Community</label>
+                <input className="input w-full font-mono" value={editForm.snmp_community} onChange={e => setEditForm({...editForm, snmp_community: e.target.value})} />
+              </div>
+              <div>
+                <label className="label">Note</label>
+                <textarea className="input w-full" rows={2} value={editForm.notes} onChange={e => setEditForm({...editForm, notes: e.target.value})} />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setEditTarget(null)} className="btn-secondary">Annulla</button>
+                <button type="submit" className="btn-primary">Salva Modifiche</button>
               </div>
             </form>
           </div>

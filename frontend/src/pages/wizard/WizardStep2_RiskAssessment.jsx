@@ -8,20 +8,20 @@ import RiskMatrix5x5 from '../../components/wizard/RiskMatrix5x5'
 const SESSION_KEY = (id) => `wizard-${id}-step2`
 
 const LIKELIHOOD_LABELS = ['Remote', 'Unlikely', 'Possible', 'Likely', 'Certain']
-const IMPACT_LABELS    = ['Trivial', 'Minor', 'Moderate', 'Major', 'Critical']
+const IMPACT_LABELS = ['Trivial', 'Minor', 'Moderate', 'Major', 'Critical']
 
 const RISK_COLORS = {
-  LOW:          'bg-green-500/20 text-green-400 border-green-500/30',
-  MEDIUM:       'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  HIGH:         'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  CRITICAL:     'bg-red-500/20 text-red-400 border-red-500/30',
+  LOW: 'bg-green-500/20 text-green-400 border-green-500/30',
+  MEDIUM: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  HIGH: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  CRITICAL: 'bg-red-500/20 text-red-400 border-red-500/30',
   CATASTROPHIC: 'bg-red-900/30 text-red-300 border-red-900/50',
 }
 
 function calcRisk(likelihood, impact) {
   const score = likelihood * impact
-  if (score <= 4)  return { score, label: 'LOW' }
-  if (score <= 9)  return { score, label: 'MEDIUM' }
+  if (score <= 4) return { score, label: 'LOW' }
+  if (score <= 9) return { score, label: 'MEDIUM' }
   if (score <= 14) return { score, label: 'HIGH' }
   if (score <= 19) return { score, label: 'CRITICAL' }
   return { score, label: 'CATASTROPHIC' }
@@ -52,13 +52,42 @@ export default function WizardStep2_RiskAssessment() {
       api.getRiskEvents(id),
     ]).then(([a, events]) => {
       setAssessment(a)
-      setRiskEvents(events)
+
+      // 1. Auto-compilazione delle Assumptions
+      const defaultAssumptions = "L'impianto si trova in un'area di produzione accessibile a personale non IT (operatori, manutentori esterni, addetti alle pulizie). Le prese di rete RJ45 sui quadri elettrici (cabinet) sono fisicamente accessibili e attive."
+      const loadedAssumptions = a.assumptions || defaultAssumptions
+
       const saved = sessionStorage.getItem(SESSION_KEY(id))
       if (saved) {
         const parsed = JSON.parse(saved)
-        setAssumptions(parsed.assumptions || a.assumptions || '')
+        setAssumptions(parsed.assumptions || loadedAssumptions)
       } else {
-        setAssumptions(a.assumptions || '')
+        setAssumptions(loadedAssumptions)
+      }
+
+      // 2. Auto-creazione del Risk Event (Scenario Rete Piatta) se la lista è vuota
+      if (events.length === 0) {
+        const defaultEvent = {
+          risk_description: "Un manutentore esterno (o un dipendente disattento) collega il proprio portatile infetto da ransomware alla rete della macchina.",
+          consequence: "Essendo una rete piatta e senza difese interne, il malware cripta o blocca istantaneamente tutti gli HMI e i PLC collegati.",
+          likelihood: 2, // Unlikely
+          safety_impact: 5, // Critical
+          calculated_risk: 10,
+          calculated_risk_label: "HIGH"
+        }
+
+        // Lo creiamo direttamente nel DB così ottiene un ID e diventa persistente
+        api.createRiskEvent(id, defaultEvent)
+          .then(created => {
+            setRiskEvents([created])
+          })
+          .catch(err => {
+            console.error("Errore durante l'auto-generazione del Risk Event:", err)
+            setRiskEvents([]) // Fallback
+          })
+      } else {
+        // Se ci sono già eventi (es. l'utente li ha creati o stiamo ricaricando), usiamo quelli
+        setRiskEvents(events)
       }
     })
   }, [id])

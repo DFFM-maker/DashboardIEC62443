@@ -51,9 +51,16 @@ router.put('/:id', (req, res) => {
 
 // DELETE /api/zones/:id
 router.delete('/:id', (req, res) => {
-  db.run('DELETE FROM zone_assets WHERE zone_id = ?', [req.params.id])
-  db.run('DELETE FROM zones WHERE id = ?', [req.params.id])
-  res.json({ ok: true })
+  try {
+    // Manual CASCADE for conduits as they are not set up with ON DELETE CASCADE to zones
+    db.run('DELETE FROM conduits WHERE zone_from_id = ? OR zone_to_id = ?', [req.params.id, req.params.id])
+    db.run('DELETE FROM zone_assets WHERE zone_id = ?', [req.params.id])
+    db.run('DELETE FROM zones WHERE id = ?', [req.params.id])
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Error deleting zone:', err)
+    res.status(500).json({ error: 'Errore durante l\'eliminazione della zona' })
+  }
 })
 
 // POST /api/zones/:id/assets/:assetId
