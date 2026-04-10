@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ChevronLeft, Download, FileText, CheckCircle, AlertTriangle,
-  Shield, FileDown, ExternalLink, Loader2
+  Shield, FileDown, ExternalLink
 } from 'lucide-react'
 import { api } from '../../lib/api'
 import WizardStepper from '../../components/wizard/WizardStepper'
@@ -28,8 +28,6 @@ export default function WizardStep7_Report() {
 
   const [loading, setLoading] = useState(true)
   const [report, setReport] = useState(null)
-  const [downloadingMd, setDownloadingMd] = useState(false)
-  const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   useEffect(() => {
     api.getReport(id)
@@ -38,49 +36,9 @@ export default function WizardStep7_Report() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const handleDownloadMarkdown = async () => {
-    setDownloadingMd(true)
-    try {
-      const res = await api.downloadWizardMarkdown(id)
-      if (!res.ok) throw new Error('Errore download markdown')
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `wizard-report-${id}.md`
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch (err) {
-      alert('Errore: ' + err.message)
-    } finally {
-      setDownloadingMd(false)
-    }
-  }
-
-  const handleDownloadPdf = async () => {
-    setDownloadingPdf(true)
-    try {
-      const res = await api.generateWizardPdf(id)
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || 'Errore generazione PDF')
-      }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `wizard-report-${id}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch (err) {
-      alert('Errore PDF: ' + err.message)
-    } finally {
-      setDownloadingPdf(false)
-    }
-  }
 
   const handleOpenHtml = () => {
-    window.open(`/api/assessments/${id}/report/${id}`, '_blank')
+    window.open(`/api/assessments/${id}/wizard-report/html`, '_blank')
   }
 
   if (loading) {
@@ -124,13 +82,12 @@ export default function WizardStep7_Report() {
       {/* Export cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {/* Markdown */}
-        <button
-          onClick={handleDownloadMarkdown}
-          disabled={downloadingMd}
-          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors disabled:opacity-60 group"
+        <a
+          href={`/api/assessments/${id}/wizard-report`}
+          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors group"
         >
           <div className="w-10 h-10 bg-gray-800 group-hover:bg-brand-green/20 rounded-lg flex items-center justify-center transition-colors">
-            {downloadingMd ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <FileText className="w-5 h-5 text-brand-green" />}
+            <FileText className="w-5 h-5 text-brand-green" />
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-white">Scarica Markdown</p>
@@ -139,16 +96,15 @@ export default function WizardStep7_Report() {
           <span className="text-xs text-brand-green font-medium flex items-center gap-1">
             <Download className="w-3 h-3" /> .md
           </span>
-        </button>
+        </a>
 
         {/* PDF Wizard */}
-        <button
-          onClick={handleDownloadPdf}
-          disabled={downloadingPdf}
-          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors disabled:opacity-60 group"
+        <a
+          href={`/api/assessments/${id}/wizard-report/pdf`}
+          className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors group"
         >
           <div className="w-10 h-10 bg-gray-800 group-hover:bg-brand-green/20 rounded-lg flex items-center justify-center transition-colors">
-            {downloadingPdf ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <FileDown className="w-5 h-5 text-brand-green" />}
+            <FileDown className="w-5 h-5 text-brand-green" />
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-white">Scarica PDF Wizard</p>
@@ -157,11 +113,11 @@ export default function WizardStep7_Report() {
           <span className="text-xs text-brand-green font-medium flex items-center gap-1">
             <Download className="w-3 h-3" /> .pdf
           </span>
-        </button>
+        </a>
 
         {/* HTML Report */}
         <a
-          href={`/api/assessments/${id}/report/html`}
+          href={`/api/assessments/${id}/wizard-report/html`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col items-center gap-3 p-6 bg-gray-900 border border-gray-800 hover:border-brand-green rounded-xl text-left transition-colors group"

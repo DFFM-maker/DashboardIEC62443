@@ -155,13 +155,31 @@ export default function AssessmentDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            to={`/assessments/${id}/step/1`}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-purple-900/60 hover:bg-purple-800/80 text-purple-300 hover:text-purple-100 border border-purple-700/50 transition-all"
-          >
-            <ClipboardCheck className="w-4 h-4" />
-            Wizard IEC 62443
-          </Link>
+          {assessment.status === 'completed' ? (
+            <Link
+              to={`/assessments/${id}/step/1`}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-purple-900/60 hover:bg-purple-800/80 text-purple-300 hover:text-purple-100 border border-purple-700/50 transition-all"
+            >
+              <ClipboardCheck className="w-4 h-4" />
+              Wizard IEC 62443
+            </Link>
+          ) : (
+            <div className="relative group">
+              <button
+                disabled
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-gray-800/60 text-gray-600 border border-gray-700/50 cursor-not-allowed"
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Wizard IEC 62443
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                <div className="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                  Prima avvia una scansione
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-700" />
+                </div>
+              </div>
+            </div>
+          )}
           <button
             onClick={startScan}
             disabled={scanning}

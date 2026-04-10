@@ -1,5 +1,42 @@
 # Release Notes
 
+## v3.5.0 — 2026-04-10
+
+### Wizard Report — Fix Gap Analysis sezioni 3 e 4, HTML endpoint, PDF migliorato
+
+#### Backend — `wizard_report.js` (riscrittura completa)
+
+**Fix logico sezione 3 (Zone di Sicurezza):**
+- Le zone senza `zone_controls` (assessment custom, non inizializzate dal wizard Step 5) mostrano ora `N/D` per controlli applicabili/implementati/gap e un avviso: _"⚠ Gap analysis non completata — eseguire il wizard Step 5"_.
+- In precedenza questi valori venivano mostrati come `0` dando l'impressione errata di un assessment completo.
+
+**Fix logico sezione 4 (Gap Analysis):**
+- La query ora legge esclusivamente i `zone_controls` con `applicable=1` per la zona.
+- Tabella doppia per zona: _Controlli implementati (✓)_ separati dai _Controlli in GAP (⚠)_.
+- Zone senza `zone_controls` mostrano l'avviso: _"⚠ Gap analysis non disponibile per questa zona"_ invece di una tabella vuota.
+
+**Altri fix nel backend:**
+- **Condotti**: la query usa `JOIN zones` per mostrare i nomi leggibili al posto degli UUID.
+- **Asset Inventory**: `JOIN zone_assets + zones` aggiunge la colonna `security_zone` a ciascun asset.
+- **Policy**: caricamento con JOIN su `iec_controls` (sr_code, titolo) e `zones` (nome zona). De-duplicazione: se esiste una versione `final`, ha la precedenza sulla bozza.
+- **SL-A**: aggiunto `SL-0` alla mappatura numerica, evitando che zone con `SL-0` causassero un calcolo errato.
+- **Nuovo endpoint HTML**: `GET /wizard-report/html` — report styled direttamente nel browser, senza download.
+
+#### Backend — `reportService.js` (PDF)
+- Le zone non analizzate (senza `zone_controls`) mostrano ora la riga di avviso nel PDF invece di causare un crash o mostrare `0/0`.
+- Gap Analysis nel PDF: tabella doppia (implementati ✓ + gap ⚠) allineata con la logica Markdown/HTML.
+
+#### Frontend — `WizardStep7_Report.jsx`
+- Rimossi gli stati `downloadingMd` / `downloadingPdf` e la logica blob URL che causava errori di download su Chrome.
+- Il download MD e PDF ora avviene tramite link diretto all'endpoint backend (anchor tag con `href`), compatibile con tutti i browser.
+
+#### Backend — `zones.js`
+- Fix minore nella rotta `DELETE /api/zones/:id`.
+
+**Build frontend: OK. Service restart: OK.**
+
+---
+
 ## v3.4.0 — 2026-04-02
 
 ### Edit Assessment & Policy Templates Fallback

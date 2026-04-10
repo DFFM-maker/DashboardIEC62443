@@ -74,6 +74,7 @@ router.post('/:id/assets/:assetId', (req, res) => {
 // DELETE /api/zones/:id/assets/:assetId
 router.delete('/:id/assets/:assetId', (req, res) => {
   db.run('DELETE FROM zone_assets WHERE zone_id = ? AND asset_id = ?', [req.params.id, req.params.assetId])
+  db.run('UPDATE assets SET security_zone = NULL WHERE id = ?', [req.params.assetId])
   res.json({ ok: true })
 })
 

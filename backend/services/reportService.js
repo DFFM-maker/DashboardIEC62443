@@ -641,9 +641,6 @@ async function generateWizardPdf(data) {
     return `<span style="display:inline-block;background:${bg};color:#fff;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700">${label||'—'}</span>`
   }
 
-  const finalPolicies = policies.filter(p => p.final)
-  const displayPolicies = finalPolicies.length > 0 ? finalPolicies : policies
-
   const html = `<!DOCTYPE html>
 <html lang="it">
 <head>
@@ -755,6 +752,13 @@ ${riskEvents.length === 0 ? '<p style="color:#9ca3af;font-style:italic">Nessun r
 <table class="data">
   <thead><tr><th>Zona</th><th>SL-T</th><th style="text-align:center">Controlli</th><th style="text-align:center">Copertura</th><th style="text-align:center">Gap</th></tr></thead>
   <tbody>${zones.map((z,i) => {
+    if (!z.analyzed) {
+      return `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+        <td><strong>${z.name}</strong></td>
+        <td><strong>${z.security_level || '—'}</strong></td>
+        <td colspan="3" style="color:#d97706;font-style:italic;font-size:11px">⚠ Gap analysis non completata — eseguire wizard Step 5</td>
+      </tr>`
+    }
     const pct = z.controls_total > 0 ? Math.round((z.controls_covered/z.controls_total)*100) : 0
     const pctColor = pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626'
     return `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
@@ -767,31 +771,60 @@ ${riskEvents.length === 0 ? '<p style="color:#9ca3af;font-style:italic">Nessun r
   }).join('')}</tbody>
 </table>
 
-<!-- 4. Gap Analysis -->
+<!-- 4. Gap Analysis — per-zone dual table, only applicable=1 controls -->
 <h1 class="sec">4&nbsp;&nbsp;Gap Analysis</h1>
-${zones.flatMap(z => z.gap_controls).length === 0
-  ? '<p style="color:#9ca3af;font-style:italic">Nessun gap residuo.</p>'
-  : zones.filter(z => z.gap_controls.length > 0).map(z => `
-    <h2 class="sec">${z.name}</h2>
+${zones.filter(z => z.analyzed).length === 0
+  ? '<p style="color:#9ca3af;font-style:italic">Gap analysis non disponibile — nessuna zona ha completato il wizard Step 5.</p>'
+  : zones.map(z => {
+    if (!z.analyzed) {
+      return `<h2 class="sec">${z.name} &nbsp;—&nbsp; SL-T: ${z.security_level}</h2>
+        <p style="color:#d97706;font-style:italic;font-size:11px">⚠ Gap analysis non disponibile per questa zona — eseguire il wizard Step 5.</p>`
+    }
+    return `
+    <h2 class="sec">${z.name} &nbsp;—&nbsp; SL-T: ${z.security_level} &nbsp;|&nbsp; SL-A: ${z.sl_achieved} &nbsp;|&nbsp; Gap: ${z.gap_count}</h2>
+    ${z.implemented_controls && z.implemented_controls.length > 0 ? `
+    <p style="font-size:11px;font-weight:700;color:#16a34a;margin:6px 0 4px">✓ Controlli implementati</p>
     <table class="data">
-      <thead><tr><th style="width:80px">SR</th><th>Titolo</th><th style="width:80px">Categoria</th></tr></thead>
-      <tbody>${z.gap_controls.map((g,i) => `
-        <tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
-          <td style="font-family:monospace;font-weight:600">${g.sr_code}</td>
+      <thead><tr><th style="width:80px">SR</th><th>Titolo</th><th>Policy</th></tr></thead>
+      <tbody>${z.implemented_controls.map((c,i) => {
+        const snippet = c.policy_text ? c.policy_text.replace(/\n/g,' ').slice(0,100) + (c.policy_text.length>100?'…':'') : '—'
+        return `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+          <td style="font-family:monospace;font-weight:600;color:#16a34a">${c.sr_code}</td>
+          <td>${c.title}</td>
+          <td style="font-size:10px;color:#6b7280">${snippet}</td>
+        </tr>`
+      }).join('')}</tbody>
+    </table>` : '<p style="font-size:11px;color:#9ca3af;margin:4px 0">✓ Controlli implementati: nessuno</p>'}
+    ${z.gap_controls && z.gap_controls.length > 0 ? `
+    <p style="font-size:11px;font-weight:700;color:#dc2626;margin:10px 0 4px">⚠ Controlli in GAP</p>
+    <table class="data">
+      <thead><tr><th style="width:80px">SR</th><th>Titolo</th><th>Policy</th></tr></thead>
+      <tbody>${z.gap_controls.map((g,i) => {
+        const snippet = g.policy_text ? g.policy_text.replace(/\n/g,' ').slice(0,100) + (g.policy_text.length>100?'…':'') : '—'
+        return `<tr style="background:${i%2===0?'#fff':'#f8f9fa'}">
+          <td style="font-family:monospace;font-weight:600;color:#dc2626">${g.sr_code}</td>
           <td>${g.title}</td>
-          <td style="font-size:10px">${g.category||'—'}</td>
-        </tr>`).join('')}</tbody>
-    </table>`).join('')}
+          <td style="font-size:10px;color:#6b7280">${snippet}</td>
+        </tr>`
+      }).join('')}</tbody>
+    </table>` : '<p style="font-size:11px;color:#16a34a;margin:4px 0">⚠ Controlli in GAP: nessun gap residuo ✅</p>'}`
+  }).join('')}
 
 <!-- 5. Policy di Sicurezza -->
-<h1 class="sec">5&nbsp;&nbsp;Policy di Sicurezza${finalPolicies.length > 0 ? ' (Finalizzate)' : ''}</h1>
-${displayPolicies.length === 0
+<!-- PROBLEMA 4: show all policies with zone name + sr_code + status -->
+<h1 class="sec">5&nbsp;&nbsp;Policy di Sicurezza</h1>
+${policies.length === 0
   ? '<p style="color:#9ca3af;font-style:italic">Nessuna policy generata.</p>'
-  : displayPolicies.map(p => {
-      let params = {}
-      try { params = JSON.parse(p.parameters_json || '{}') } catch(_) {}
+  : policies.map(p => {
+      const srCode = p.ctrl_sr_code || (() => { try { return JSON.parse(p.parameters_json || '{}').sr_code || '' } catch(_) { return '' } })()
+      const title = p.ctrl_title || (() => { try { return JSON.parse(p.parameters_json || '{}').title || '' } catch(_) { return '' } })()
+      const zoneName = p.zone_name || null
       return `<div style="margin-bottom:16px;page-break-inside:avoid">
-        <div style="font-size:12px;font-weight:700;margin-bottom:4px">${params.sr_code || ''} — ${params.title || ''} ${p.final ? '<span style="color:#16a34a;font-size:10px">✓ Finalizzata</span>' : ''}</div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:2px">
+          ${srCode ? `<code style="font-size:11px">${srCode}</code> — ` : ''}${title || 'Policy'}
+          ${zoneName ? `<span style="font-size:10px;color:#6b7280">(${zoneName})</span>` : ''}
+          ${p.final ? '<span style="color:#16a34a;font-size:10px;margin-left:6px">✓ FINALE</span>' : '<span style="color:#d97706;font-size:10px;margin-left:6px">BOZZA</span>'}
+        </div>
         <div class="policy-box">${(p.policy_markdown||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
       </div>`
     }).join('')}

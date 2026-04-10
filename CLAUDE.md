@@ -5,6 +5,10 @@
 - After every backend change, automatically run: sudo systemctl restart ot-dashboard
 - Always verify changes with curl or by checking the output before reporting success
 
+## Sudo
+- La password sudo è in `/opt/ot-dashboard/.env.local` (variabile `SUDO_PASSWORD`)
+- Usare sempre: `echo "Tecnopack1!!" | sudo -S <comando>`
+
 ## Node.js — Versione corretta
 Il progetto usa Node.js v22 via nvm (lts/jod). La versione è pinned come default nvm.
 
